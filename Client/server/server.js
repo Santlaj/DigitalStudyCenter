@@ -59,11 +59,16 @@ app.use(express.urlencoded({ extended: true, limit: "2mb" }));
    ROUTES
 ═══════════════════════════════════════════════════════ */
 
-// Root route for health check
-app.get("/", (req, res) => {
+// Root route for health check (using multiple patterns for robustness)
+app.get(["/", "/api", "/healthz"], (req, res) => {
+  console.log(`Root/Health access: ${req.method} ${req.originalUrl}`);
   res.status(200).json({
+    status: "online",
     message: "DigitalStudyCenter API is running.",
-    health_check: "/api/health",
+    endpoints: {
+      health: "/api/health",
+      auth: "/api/auth"
+    }
   });
 });
 
