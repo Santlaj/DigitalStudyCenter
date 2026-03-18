@@ -1,0 +1,361 @@
+/**
+ * routes/users.js
+ * User/profile management + student CRUD (teacher).
+ */
+
+const express = require("express");
+const router = express.Router();
+const { supabaseAdmin } = require("../lib/supabase");
+const { authenticate, requireRole } = require("../middleware/auth");
+const { updateProfileRules, addStudentRules } = require("../middleware/validate");
+const { getOrSet, invalidatePrefix } = require("../lib/cache");
+
+/**
+ * GET /api/users/profile
+ * Get current user's full profile.
+ */
+router.get("/profile", authenticate, async (req, res) => {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("users")
+      .select("*")
+      .eq("id", req.user.id)
+      .single();
+
+    if (error && error.code !== "PGRST116") throw error;
+
+    const profile = data || {
+      id: req.user.id,
+      email: req.user.email,
+      role: req.user.role,
+    };
+
+    res.json({ profile });
+  } catch (err) {
+    console.error("Get profile error:", err.message);
+    res.status(500).json({ error: "Failed to fetch profile." });
+  }
+});
+
+/**
+ * PATCH /api/users/profile
+ * Update current user's profile.
+ */
+router.patch("/profile", authenticate, updateProfileRules, async (req, res) => {
+  try {
+    const { first_name, last_name, bio, course, subject } = req.body;
+    const fullName = `${first_name || ""} ${last_name || ""}`.trim();
+
+    // Update Supabase Auth metadata
+    await supabaseAdmin.auth.admin.updateUserById(req.user.id, {
+      user_metadata: { first_name, last_name, full_name: fullName },
+    });
+
+    // Upsert users table
+    const updateData = {
+      id: req.user.id,
+      email: req.user.email,
+      role: req.user.role,
+      first_name: first_name || null,
+      last_name: last_name || null,
+      full_name: fullName || null,
+      bio: bio || null,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (req.user.role === "student") {
+      updateData.course = course || null;
+    }
+    if (req.user.role === "teacher") {
+      updateData.subject = subject || null;
+    }
+
+    const { error } = await supabaseAdmin
+      .from("users")
+      .upsert(updateData, { onConflict: "id" });
+
+    if (error) throw error;
+
+    invalidatePrefix("users:");
+    res.json({ message: "Profile updated successfully." });
+  } catch (err) {
+    console.error("Update profile error:", err.message);
+    res.status(500).json({ error: err.message || "Failed to update profile." });
+  }
+});
+
+/**
+ * GET /api/users/students
+ * List all students (teacher only).
+ */
+router.get("/students", authenticate, requireRole("teacher"), async (req, res) => {
+  try {
+    const query = req.query.search || "";
+    let q = supabaseAdmin
+      .from("users")
+      .select("*")
+      .eq("role", "student")
+      .order("created_at", { ascending: false });
+
+    if (query) {
+      q = q.or(`full_name.ilike.%${query}%,email.ilike.%${query}%`);
+    }
+
+    const { data, error } = await q;
+    if (error) throw error;
+
+    res.json({ students: data || [], count: (data || []).length });
+  } catch (err) {
+    console.error("Fetch students error:", err.message);
+    res.status(500).json({ error: "Failed to fetch students.", details: err.message, stack: err.stack });
+  }
+});
+
+/**
+ * POST /api/users/students
+ * Add a new student account (teacher only).
+ * Uses service_role to create auth user.
+ */
+router.post("/students", authenticate, requireRole("teacher"), addStudentRules, async (req, res) => {
+  try {
+    const { email, password, first_name, last_name, course } = req.body;
+    const fullName = `${first_name} ${last_name}`.trim();
+
+    // Create auth user
+    const { data: authData, error: authErr } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { first_name, last_name, full_name: fullName, role: "student", course: course || null },
+    });
+
+    if (authErr) throw authErr;
+
+    // Create users table entry manually as fallback
+    // If the database has a trigger that already inserted the user, this will throw a duplicate key error (23505).
+    const { error: dbErr } = await supabaseAdmin.from("users").insert({
+      id: authData.user.id,
+      email,
+      role: "student",
+      first_name,
+      last_name,
+      full_name: fullName,
+      course: course || null,
+      is_active: true,
+      created_at: new Date().toISOString(),
+    });
+
+    if (dbErr && dbErr.code !== '23505') {
+       throw dbErr;
+    }
+
+    // Also sync to profiles table if it exists as a second required table
+    await supabaseAdmin.from("profiles").insert({
+      id: authData.user.id,
+      full_name: fullName,
+      role: "student",
+      is_active: true,
+      class: course || null
+    }).select().single();
+    // (Ignoring errors here as it might be handled by trigger or optional)
+
+    invalidatePrefix("users:");
+    res.status(201).json({ message: "Student added successfully." });
+  } catch (err) {
+    console.error("Add student error:", err.message);
+    res.status(500).json({ error: err.message || "Failed to add student." });
+  }
+});
+
+/**
+ * PATCH /api/users/students/:id/status
+ * Activate or deactivate a student (teacher only).
+ */
+router.patch("/students/:id/status", authenticate, requireRole("teacher"), async (req, res) => {
+  try {
+    const { is_active } = req.body;
+
+    const { error } = await supabaseAdmin
+      .from("users")
+      .update({ is_active: !!is_active, updated_at: new Date().toISOString() })
+      .eq("id", req.params.id);
+
+    if (error) throw error;
+
+    invalidatePrefix("users:");
+    res.json({ message: `Student ${is_active ? "activated" : "deactivated"}.` });
+  } catch (err) {
+    console.error("Update student status error:", err.message);
+    res.status(500).json({ error: "Failed to update student status." });
+  }
+});
+
+/**
+ * PATCH /api/users/students/:id/fees
+ * Mark student fees as paid/unpaid (teacher only).
+ */
+router.patch("/students/:id/fees", authenticate, requireRole("teacher"), async (req, res) => {
+  try {
+    const { status } = req.body; // "paid" or "unpaid"
+
+    const { error } = await supabaseAdmin
+      .from("users")
+      .update({ fees_status: status, updated_at: new Date().toISOString() })
+      .eq("id", req.params.id);
+
+    if (error) throw error;
+
+    // Sync to fee_payments and profiles
+    const today = new Date();
+    const month = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+
+    await supabaseAdmin.from("fee_payments").upsert({
+      student_id: req.params.id,
+      month,
+      status: status,
+      paid_at: status === "paid" ? new Date().toISOString() : null
+    }, { onConflict: "student_id,month" });
+
+    await supabaseAdmin.from("profiles").update({
+      last_payment_month: status === "paid" ? month : null,
+      is_active: status === "paid" ? true : undefined
+    }).eq("id", req.params.id);
+
+    invalidatePrefix("users:");
+    res.json({ message: `Fees marked as ${status}.` });
+  } catch (err) {
+    console.error("Update fees error:", err.message);
+    res.status(500).json({ error: "Failed to update fees status." });
+  }
+});
+
+/**
+ * POST /api/users/students/auto-mark-inactive
+ * Auto-mark students inactive if fees unpaid after 5th of month (teacher only).
+ */
+router.post("/students/auto-mark-inactive", authenticate, requireRole("teacher"), async (req, res) => {
+  try {
+    const today = new Date();
+    if (today.getDate() < 5) {
+      return res.json({ message: "No action needed before 5th of the month.", updated: 0 });
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from("users")
+      .update({ is_active: false, updated_at: new Date().toISOString() })
+      .eq("role", "student")
+      .neq("fees_status", "paid")
+      .eq("is_active", true)
+      .select("id");
+
+    if (error) throw error;
+
+    invalidatePrefix("users:");
+    res.json({ message: `${(data || []).length} students marked inactive.`, updated: (data || []).length });
+  } catch (err) {
+    console.error("Auto-mark inactive error:", err.message);
+    res.status(500).json({ error: "Failed to auto-mark inactive." });
+  }
+});
+
+/**
+ * GET /api/users/subjects
+ * Get unique subjects taught by the teacher.
+ */
+router.get("/subjects", authenticate, requireRole("teacher"), async (req, res) => {
+  try {
+    const role = req.user.role;
+    const cacheKey = `subjects:${role}:${req.user.id}`;
+    
+    const subjects = await getOrSet(cacheKey, async () => {
+      // Gather subjects from notes, assignments, and past attendance sessions
+      const [notesRes, assignmentsRes, sessionsRes] = await Promise.all([
+        supabaseAdmin.from("notes").select("subject").eq("teacher_id", req.user.id),
+        supabaseAdmin.from("assignments").select("subject").eq("teacher_id", req.user.id),
+        supabaseAdmin.from("attendance_sessions").select("subject").eq("teacher_id", req.user.id)
+      ]);
+      
+      const allSubjects = [
+        ...(notesRes.data || []),
+        ...(assignmentsRes.data || []),
+        ...(sessionsRes.data || [])
+      ].map(r => r.subject).filter(Boolean);
+      
+      const uniqueSubjects = Array.from(new Set(allSubjects)).sort();
+      return uniqueSubjects;
+    }, 60);
+
+    res.json({ subjects });
+  } catch (err) {
+    console.error("Subjects fetch error:", err.message);
+    res.status(500).json({ error: "Failed to fetch subjects." });
+  }
+});
+
+/**
+ * GET /api/users/dashboard-stats
+ * Aggregated stats for dashboard. Cached 60s.
+ */
+router.get("/dashboard-stats", authenticate, async (req, res) => {
+  try {
+    const role = req.user.role;
+    const cacheKey = `stats:${role}:${req.user.id}`;
+
+    const stats = await getOrSet(cacheKey, async () => {
+      if (role === "teacher") {
+        const [studentsRes, notesRes, assignmentsRes] = await Promise.all([
+          supabaseAdmin.from("users").select("id", { count: "exact", head: true }).eq("role", "student"),
+          supabaseAdmin.from("notes").select("id", { count: "exact", head: true }).eq("teacher_id", req.user.id),
+          supabaseAdmin.from("assignments").select("id", { count: "exact", head: true }).eq("teacher_id", req.user.id),
+        ]);
+
+        // Unique subjects
+        const { data: subjectRows } = await supabaseAdmin
+          .from("notes")
+          .select("subject")
+          .eq("teacher_id", req.user.id);
+        const uniqueSubjects = new Set((subjectRows || []).map((r) => r.subject).filter(Boolean));
+
+        return {
+          students: studentsRes.count ?? 0,
+          notes: notesRes.count ?? 0,
+          assignments: assignmentsRes.count ?? 0,
+          courses: uniqueSubjects.size,
+        };
+      } else {
+        // Student stats
+        const [coursesRes, notesRes, assignmentsRes] = await Promise.all([
+          supabaseAdmin.from("courses").select("id", { count: "exact", head: true }),
+          supabaseAdmin.from("notes").select("id", { count: "exact", head: true }),
+          supabaseAdmin.from("assignments").select("id", { count: "exact", head: true }),
+        ]);
+
+        const { data: submittedRows } = await supabaseAdmin
+          .from("submissions")
+          .select("assignment_id")
+          .eq("student_id", req.user.id);
+        const submittedCount = (submittedRows || []).length;
+        const pending = Math.max(0, (assignmentsRes.count ?? 0) - submittedCount);
+
+        // Announcement count
+        const { count: annCount } = await supabaseAdmin
+          .from("announcements")
+          .select("id", { count: "exact", head: true });
+
+        return {
+          courses: coursesRes.count ?? 0,
+          notes: notesRes.count ?? 0,
+          pendingAssignments: pending,
+          announcements: annCount ?? 0,
+        };
+      }
+    }, 60);
+
+    res.json({ stats });
+  } catch (err) {
+    console.error("Dashboard stats error:", err.message);
+    res.status(500).json({ error: "Failed to fetch stats." });
+  }
+});
+
+module.exports = router;

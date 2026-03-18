@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teacher Dashboard — DigitalStudyCenter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Sora:wght@600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="./css/teacher-dashboard.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- AUTH GUARD OVERLAY -->
+  <div class="auth-guard" id="auth-guard">
+    <div class="auth-guard-spinner"></div>
+    <p>Verifying session…</p>
+  </div>
+
+  <!-- APP SHELL -->
+  <div class="app-shell" id="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <span class="sidebar-logo-dot"></span>
+        <span class="sidebar-logo-text">DigitalStudy<em>Center</em></span>
+      </div>
+
+      <div class="sidebar-teacher-card">
+        <div class="sidebar-avatar" id="sb-avatar">T</div>
+        <div class="sidebar-teacher-info">
+          <div class="sidebar-teacher-name" id="sb-name">Loading…</div>
+          <div class="sidebar-teacher-badge">Teacher</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="nav-item active" data-section="dashboard" data-tooltip="Dashboard">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 8a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H4a1 1 0 01-1-1v-4zm8-8a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V4zm0 8a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
+          <span class="nav-label">Dashboard</span>
+        </a>
+        <a class="nav-item" data-section="upload-notes" data-tooltip="Upload Notes">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" transform="rotate(180,10,10)"/></svg>
+          <span class="nav-label">Upload Notes</span>
+        </a>
+        <a class="nav-item" data-section="my-notes" data-tooltip="My Notes">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+          <span class="nav-label">My Notes</span>
+        </a>
+        <a class="nav-item" data-section="assignments" data-tooltip="Assignments">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+          <span class="nav-label">Assignments</span>
+        </a>
+        <a class="nav-item" data-section="students" data-tooltip="Students">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+          <span class="nav-label">Students</span>
+        </a>
+        <a class="nav-item" data-section="announcements" data-tooltip="Announcements">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 3a1 1 0 00-1.447-.894L8.763 6H5a3 3 0 000 6h.28l1.771 5.316A1 1 0 008 18h1a1 1 0 001-1v-4.382l6.553 3.276A1 1 0 0018 15V3z" clip-rule="evenodd"/></svg>
+          <span class="nav-label">Announcements</span>
+        </a>
+        <a class="nav-item" data-section="analytics" data-tooltip="Analytics">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
+          <span class="nav-label">Analytics</span>
+        </a>
+        <a class="nav-item" data-section="attendance" data-tooltip="Attendance">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+          <span class="nav-label">Attendance</span>
+        </a>
+        <a class="nav-item" data-section="profile" data-tooltip="Profile">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+          <span class="nav-label">Profile</span>
+        </a>
+      </nav>
+
+      <!-- Collapse toggle inside sidebar -->
+      <button class="sidebar-inner-collapse" id="sidebar-inner-collapse" title="Collapse menu">
+        <svg class="nav-icon collapse-arrow-icon" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+          <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
+        </svg>
+        <span class="nav-label">Collapse</span>
+      </button>
+    </aside>
+
+    <!-- MAIN AREA -->
+    <div class="main-wrap">
+
+      <!-- TOP NAV -->
+      <header class="topnav">
+        <div class="topnav-left">
+          <button class="sidebar-collapse-btn" id="sidebar-toggle" aria-label="Toggle sidebar">
+            <svg class="collapse-icon-open" viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+            <svg class="collapse-icon-close" viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            <span class="collapse-btn-label">Menu</span>
+          </button>
+          <div class="topnav-divider"></div>
+          <div class="topnav-breadcrumb" id="topnav-breadcrumb">Dashboard</div>
+        </div>
+        <div class="topnav-right">
+          <button class="topnav-icon-btn dark-mode-toggle" id="dark-mode-toggle" aria-label="Toggle Dark Mode">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+          </button>
+          <button class="topnav-icon-btn" id="notif-btn" aria-label="Notifications">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+            <span class="notif-badge" id="notif-badge">3</span>
+          </button>
+          <div class="topnav-teacher">
+            <div class="topnav-avatar" id="topnav-avatar">T</div>
+            <span class="topnav-name" id="topnav-name">Teacher</span>
+          </div>
+          <button class="topnav-logout-btn" id="topnav-logout">Logout</button>
+        </div>
+      </header>
+
+      <!-- MAIN CONTENT -->
+      <main class="main-content">
+
+        <!-- DASHBOARD -->
+        <section class="section active" id="section-dashboard">
+          <div class="section-header">
+            <h1 class="section-title">Welcome back, <span id="welcome-name">Teacher</span> 👋</h1>
+            <p class="section-sub">Here's what's happening on your platform today.</p>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card" style="--accent:#4f46e5">
+              <div class="stat-icon-wrap" style="--accent:#4f46e5">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="22" height="22"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+              </div>
+              <div class="stat-body">
+                <div class="stat-number" id="stat-students">—</div>
+                <div class="stat-label">Total Students</div>
+              </div>
+              <div class="stat-trend positive">↑ 12%</div>
+            </div>
+            <div class="stat-card" style="--accent:#0ea5e9">
+              <div class="stat-icon-wrap" style="--accent:#0ea5e9">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="22" height="22"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="stat-body">
+                <div class="stat-number" id="stat-notes">—</div>
+                <div class="stat-label">Notes Uploaded</div>
+              </div>
+              <div class="stat-trend positive">↑ 5%</div>
+            </div>
+            <div class="stat-card" style="--accent:#f59e0b">
+              <div class="stat-icon-wrap" style="--accent:#f59e0b">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="22" height="22"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="stat-body">
+                <div class="stat-number" id="stat-assignments">—</div>
+                <div class="stat-label">Assignments Posted</div>
+              </div>
+              <div class="stat-trend neutral">→ —</div>
+            </div>
+            <div class="stat-card" style="--accent:#10b981">
+              <div class="stat-icon-wrap" style="--accent:#10b981">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="22" height="22"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
+              </div>
+              <div class="stat-body">
+                <div class="stat-number" id="stat-courses">—</div>
+                <div class="stat-label">Courses Managed</div>
+              </div>
+              <div class="stat-trend positive">↑ 2%</div>
+            </div>
+          </div>
+
+          <div class="dashboard-panels">
+            <div class="dash-panel">
+              <div class="panel-header">
+                <h2 class="panel-title">Recent Notes</h2>
+                <a class="panel-link" data-section="my-notes">View all →</a>
+              </div>
+              <div id="recent-notes-list"><div class="empty-state-sm">Loading…</div></div>
+            </div>
+            <div class="dash-panel">
+              <div class="panel-header">
+                <h2 class="panel-title">Upcoming Deadlines</h2>
+                <a class="panel-link" data-section="assignments">View all →</a>
+              </div>
+              <div id="recent-assignments-list"><div class="empty-state-sm">Loading…</div></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- UPLOAD NOTES -->
+        <section class="section" id="section-upload-notes">
+          <div class="section-header">
+            <h1 class="section-title">Upload Notes</h1>
+            <p class="section-sub">Share study materials with your students.</p>
+          </div>
+          <div class="form-card">
+            <div class="field-group">
+              <label class="field-label" for="note-title">Title</label>
+              <input class="field-input" type="text" id="note-title" placeholder="e.g. Introduction to Calculus"/>
+              <span class="error-msg" id="note-title-err"></span>
+            </div>
+            <div class="form-row">
+              <div class="field-group">
+                <label class="field-label" for="note-subject">Subject</label>
+                <input class="field-input" type="text" id="note-subject" placeholder="e.g. Mathematics"/>
+                <span class="error-msg" id="note-subject-err"></span>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="note-course">Course</label>
+                <input class="field-input" type="text" id="note-course" placeholder="e.g. BSc Year 2"/>
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="note-description">Description</label>
+              <textarea class="field-input field-textarea" id="note-description" placeholder="Brief description of this material…" rows="3"></textarea>
+            </div>
+            <div class="field-group">
+              <label class="field-label">PDF File</label>
+              <div class="file-drop-zone" id="file-drop-zone">
+                <div class="file-drop-inner">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  <div class="file-drop-text">Drag & drop your PDF here or <span class="file-drop-link" id="file-browse-trigger">browse</span></div>
+                  <div class="file-drop-hint">PDF only · max 20 MB</div>
+                </div>
+                <input type="file" id="note-file" accept=".pdf" class="file-input-hidden"/>
+              </div>
+              <div class="file-selected" id="file-selected"></div>
+              <span class="error-msg" id="note-file-err"></span>
+            </div>
+            <div class="upload-progress-wrap hidden" id="upload-progress-wrap">
+              <div class="upload-progress-track">
+                <div class="upload-progress-bar" id="upload-progress-bar"></div>
+              </div>
+              <span class="upload-progress-label" id="upload-progress-label">Uploading…</span>
+            </div>
+            <span class="error-msg" id="upload-general-err"></span>
+            <div class="form-actions">
+              <button class="btn-primary" id="upload-notes-btn">Upload Notes</button>
+              <button class="btn-ghost" id="upload-reset-btn">Clear Form</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- MY NOTES -->
+        <section class="section" id="section-my-notes">
+          <div class="section-header">
+            <h1 class="section-title">My Notes</h1>
+            <p class="section-sub">Manage all uploaded study materials.</p>
+          </div>
+          <div class="table-toolbar">
+            <input class="search-input" type="text" id="notes-search" placeholder="Search notes…"/>
+            <button class="btn-primary btn-sm" data-section="upload-notes">+ Upload New</button>
+          </div>
+          <div class="table-card">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Title</th><th>Subject</th><th>Upload Date</th><th>Downloads</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="notes-tbody">
+                <tr><td colspan="5" class="table-empty">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ASSIGNMENTS -->
+        <section class="section" id="section-assignments">
+          <div class="section-header">
+            <h1 class="section-title">Assignments</h1>
+            <p class="section-sub">Create and manage student assignments.</p>
+          </div>
+          <div class="assignments-layout">
+            <div class="form-card form-card-compact">
+              <h2 class="form-card-title">New Assignment</h2>
+              <div class="field-group">
+                <label class="field-label" for="assign-title">Assignment Title</label>
+                <input class="field-input" type="text" id="assign-title" placeholder="e.g. Chapter 3 Exercises"/>
+                <span class="error-msg" id="assign-title-err"></span>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="assign-subject">Subject</label>
+                <input class="field-input" type="text" id="assign-subject" placeholder="e.g. Physics"/>
+                <span class="error-msg" id="assign-subject-err"></span>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="assign-description">Description</label>
+                <textarea class="field-input field-textarea" id="assign-description" placeholder="Assignment instructions…" rows="3"></textarea>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="assign-deadline">Deadline</label>
+                <input class="field-input" type="datetime-local" id="assign-deadline"/>
+                <span class="error-msg" id="assign-deadline-err"></span>
+              </div>
+              <span class="error-msg" id="assign-general-err"></span>
+              <button class="btn-primary" id="create-assignment-btn">Create Assignment</button>
+            </div>
+            <div class="table-card">
+              <table class="data-table">
+                <thead>
+                  <tr><th>Title</th><th>Subject</th><th>Deadline</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="assignments-tbody">
+                  <tr><td colspan="5" class="table-empty">Loading…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- STUDENTS -->
+        <section class="section" id="section-students">
+          <div class="section-header">
+            <h1 class="section-title">Students</h1>
+            <p class="section-sub">Manage enrolled students, fees status, and account access.</p>
+          </div>
+          <div class="table-toolbar">
+            <input class="search-input" type="text" id="students-search" placeholder="Search students…"/>
+            <span class="count-label" id="students-count"></span>
+            <div style="display:flex;gap:8px;margin-left:auto">
+              <button class="btn-primary btn-sm" id="btn-add-student">+ Add Student</button>
+              <button class="btn-ghost btn-sm" id="btn-auto-mark-inactive" title="Mark students inactive if fees unpaid after 5th of month">⚡ Auto-Mark Inactive</button>
+            </div>
+          </div>
+          <div class="table-card">
+            <table class="data-table">
+              <thead>
+                <tr><th>Name</th><th>Email</th><th>Course</th><th>Last Activity</th><th>Fees</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="students-tbody">
+                <tr><td colspan="7" class="table-empty">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ANALYTICS -->
+        <section class="section" id="section-analytics">
+          <div class="section-header">
+            <h1 class="section-title">Analytics</h1>
+            <p class="section-sub">Track engagement and performance across your courses.</p>
+          </div>
+          <div class="analytics-grid">
+            <div class="chart-card chart-wide">
+              <h2 class="chart-title">Notes Downloads — Last 7 Days</h2>
+              <div class="chart-wrap"><canvas id="chart-downloads"></canvas></div>
+            </div>
+            <div class="chart-card">
+              <h2 class="chart-title">Student Activity</h2>
+              <div class="chart-wrap"><canvas id="chart-activity"></canvas></div>
+            </div>
+            <div class="chart-card">
+              <h2 class="chart-title">Assignment Submissions</h2>
+              <div class="chart-wrap"><canvas id="chart-submissions"></canvas></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ══ ATTENDANCE ══ -->
+        <section class="section" id="section-attendance">
+          <div class="section-header">
+            <h1 class="section-title">Attendance</h1>
+            <p class="section-sub">Mark and track student attendance for each session.</p>
+          </div>
+
+          <!-- Controls row -->
+          <div class="att-controls">
+            <div class="att-controls-left">
+              <div class="field-group att-field">
+                <label class="field-label" for="att-date">Date</label>
+                <input class="field-input" type="date" id="att-date"/>
+              </div>
+              <div class="field-group att-field">
+                <label class="field-label" for="att-class">Class</label>
+                <select class="field-input field-select" id="att-class">
+                  <option value="">— Select Class —</option>
+                  <option value="8">Class 8</option>
+                  <option value="9">Class 9</option>
+                  <option value="10">Class 10</option>
+                </select>
+              </div>
+              <div class="field-group att-field">
+                <label class="field-label" for="att-subject">Subject</label>
+                <select class="field-input field-select" id="att-subject">
+                  <option value="">Select Subject</option>
+                </select>
+              </div>
+              <button class="btn-primary btn-sm" id="att-load-btn">Load Students</button>
+            </div>
+            <div class="att-controls-right">
+              <button class="btn-ghost btn-sm att-mark-all" id="att-mark-all-present">✓ Mark All Present</button>
+              <button class="btn-ghost btn-sm att-mark-all" id="att-mark-all-absent">✗ Mark All Absent</button>
+            </div>
+          </div>
+
+          <!-- Summary bar -->
+          <div class="att-summary" id="att-summary">
+            <div class="att-summary-item att-present-count">
+              <span class="att-summary-num" id="att-present-num">0</span>
+              <span class="att-summary-label">Present</span>
+            </div>
+            <div class="att-summary-divider"></div>
+            <div class="att-summary-item att-absent-count">
+              <span class="att-summary-num" id="att-absent-num">0</span>
+              <span class="att-summary-label">Absent</span>
+            </div>
+            <div class="att-summary-divider"></div>
+            <div class="att-summary-item att-late-count">
+              <span class="att-summary-num" id="att-late-num">0</span>
+              <span class="att-summary-label">Late</span>
+            </div>
+            <div class="att-summary-divider"></div>
+            <div class="att-summary-item">
+              <span class="att-summary-num" id="att-total-num">0</span>
+              <span class="att-summary-label">Total</span>
+            </div>
+            <div class="att-summary-bar-wrap">
+              <div class="att-summary-bar" id="att-bar-present" title="Present"></div>
+              <div class="att-summary-bar att-bar-late"  id="att-bar-late"    title="Late"></div>
+              <div class="att-summary-bar att-bar-absent" id="att-bar-absent" title="Absent"></div>
+            </div>
+          </div>
+
+          <!-- Student attendance table -->
+          <div class="table-card" id="att-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:44px"><input type="checkbox" id="att-check-all" class="att-checkbox" title="Select all"/></th>
+                  <th>Student</th>
+                  <th>Email</th>
+                  <th>Course</th>
+                  <th>Status</th>
+                  <th>Note</th>
+                </tr>
+              </thead>
+              <tbody id="att-tbody">
+                <tr><td colspan="6" class="table-empty">Set a date and subject above, then click "Load Students".</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Save button -->
+          <div class="att-footer">
+            <span class="error-msg" id="att-err"></span>
+            <div class="success-msg hidden" id="att-success"></div>
+            <button class="btn-primary" id="att-save-btn">Save Attendance</button>
+          </div>
+
+          <!-- History panel -->
+          <div class="att-history-wrap">
+            <div class="panel-header" style="margin-bottom:16px">
+              <h2 class="panel-title">Recent Attendance Records</h2>
+              <button class="btn-ghost btn-sm" id="att-refresh-history">↺ Refresh</button>
+            </div>
+            <div class="table-card">
+              <table class="data-table">
+                <thead>
+                  <tr><th>Date</th><th>Class</th><th>Subject</th><th>Present</th><th>Absent</th><th>Rate</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="att-history-tbody">
+                  <tr><td colspan="7" class="table-empty">Loading history…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ANNOUNCEMENTS -->
+        <section class="section" id="section-announcements">
+          <div class="section-header">
+            <h1 class="section-title">Announcements 📢</h1>
+            <p class="section-sub">Broadcast important messages to all your students.</p>
+          </div>
+          
+          <div class="dashboard-panels" style="grid-template-columns: 1fr;">
+            <div class="dash-panel form-card">
+              <div class="panel-header" style="margin-bottom: 12px;">
+                <h2 class="panel-title">Post New Announcement</h2>
+              </div>
+              <div class="form-row" style="grid-template-columns: 1fr; gap: 12px;">
+                <div class="field-group" style="margin-bottom:0;">
+                  <label class="field-label" for="ann-title">Announcement Title</label>
+                  <input class="field-input" type="text" id="ann-title" placeholder="e.g. Tomorrow's class shifted"/>
+                </div>
+              </div>
+              <div class="form-row" style="grid-template-columns: 1fr; gap: 12px; margin-top: 12px;">
+                <div class="field-group" style="margin-bottom:0;">
+                  <label class="field-label" for="ann-message">Message</label>
+                  <textarea class="field-input field-textarea" id="ann-message" placeholder="Details about this announcement..." rows="3"></textarea>
+                </div>
+              </div>
+              <div class="form-actions" style="margin-top: 18px;">
+                <button class="btn-primary" id="btn-post-ann">Post Announcement</button>
+              </div>
+            </div>
+            
+            <div class="dash-panel">
+              <div class="panel-header">
+                <h2 class="panel-title">Past Announcements</h2>
+                <div class="count-label" id="ann-count">0 items</div>
+              </div>
+              <div id="teacher-ann-list" style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="empty-state-sm">Loading announcements...</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- PROFILE -->
+        <section class="section" id="section-profile">
+          <div class="section-header">
+            <h1 class="section-title">My Profile</h1>
+            <p class="section-sub">Manage your account information.</p>
+          </div>
+          <div class="profile-layout">
+            <div class="profile-avatar-card">
+              <div class="profile-avatar-circle" id="profile-avatar-big">T</div>
+              <div class="profile-avatar-name" id="profile-display-name">Teacher</div>
+              <div class="profile-avatar-email" id="profile-display-email">—</div>
+              <span class="role-pill">Teacher</span>
+            </div>
+            <div class="form-card">
+              <h2 class="form-card-title">Update Information</h2>
+              <div class="form-row">
+                <div class="field-group">
+                  <label class="field-label" for="profile-firstname">First Name</label>
+                  <input class="field-input" type="text" id="profile-firstname"/>
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="profile-lastname">Last Name</label>
+                  <input class="field-input" type="text" id="profile-lastname"/>
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="profile-email">Email</label>
+                <input class="field-input" type="email" id="profile-email" readonly/>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="profile-subject">Primary Subject</label>
+                <input class="field-input" type="text" id="profile-subject" placeholder="e.g. Mathematics"/>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="profile-bio">Bio</label>
+                <textarea class="field-input field-textarea" id="profile-bio" placeholder="Tell students about yourself…" rows="3"></textarea>
+              </div>
+              <span class="error-msg" id="profile-err"></span>
+              <div class="success-msg hidden" id="profile-success"></div>
+              <button class="btn-primary" id="profile-save-btn">Save Changes</button>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ATTENDANCE DETAIL MODAL -->
+  <div class="modal-overlay" id="att-detail-modal">
+    <div class="modal-box modal-box-wide">
+      <div class="modal-header">
+        <span class="modal-title" id="att-detail-title">Attendance — </span>
+        <button class="modal-close" id="att-detail-close">✕</button>
+      </div>
+      <p class="modal-body-text" id="att-detail-sub"></p>
+      <div class="table-card" style="max-height:420px;overflow-y:auto">
+        <table class="data-table">
+          <thead>
+            <tr><th>Student</th><th>Email</th><th>Status</th><th>Note</th></tr>
+          </thead>
+          <tbody id="att-detail-tbody">
+            <tr><td colspan="4" class="table-empty">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" id="att-detail-close-btn">Close</button>
+        <button class="btn-danger" id="att-detail-delete-btn">Delete Record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRM MODAL -->
+  <div class="modal-overlay" id="delete-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span class="modal-title">Confirm Delete</span>
+        <button class="modal-close" id="delete-modal-close">✕</button>
+      </div>
+      <p class="modal-body-text">Are you sure you want to delete <strong id="delete-item-name"></strong>? This cannot be undone.</p>
+      <div class="modal-footer">
+        <button class="btn-ghost" id="delete-cancel-btn">Cancel</button>
+        <button class="btn-danger" id="delete-confirm-btn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ADD STUDENT MODAL -->
+  <div class="modal-overlay" id="add-student-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span class="modal-title">Add New Student</span>
+        <button class="modal-close" id="add-student-modal-close" aria-label="Close">✕</button>
+      </div>
+      <p class="modal-sub">Create a student account. The student will receive a confirmation email.</p>
+      <div class="form-row">
+        <div class="field-group">
+          <label class="field-label" for="add-student-firstname">First Name</label>
+          <input class="field-input" type="text" id="add-student-firstname" placeholder="e.g. John"/>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="add-student-lastname">Last Name</label>
+          <input class="field-input" type="text" id="add-student-lastname" placeholder="e.g. Smith"/>
+        </div>
+      </div>
+      <span class="error-msg" id="add-student-name-err"></span>
+      <div class="field-group">
+        <label class="field-label" for="add-student-email">Email Address</label>
+        <input class="field-input" type="email" id="add-student-email" placeholder="student@school.edu"/>
+        <span class="error-msg" id="add-student-email-err"></span>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="add-student-course">Course / Class</label>
+        <input class="field-input" type="text" id="add-student-course" placeholder="e.g. Class 10 / BSc Year 1"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="add-student-password">Temporary Password</label>
+        <input class="field-input" type="password" id="add-student-password" placeholder="Min. 8 characters"/>
+        <span class="error-msg" id="add-student-pass-err"></span>
+      </div>
+      <span class="error-msg" id="add-student-general-err"></span>
+      <div class="modal-footer">
+        <button class="btn-ghost" id="add-student-cancel-btn">Cancel</button>
+        <button class="btn-primary" id="add-student-btn">Add Student</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/teacher/index.js"></script>
+</body>
+</html>
