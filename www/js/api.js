@@ -156,7 +156,7 @@ const auth = {
 
   logout() {
     clearTokens();
-    window.location.href = "./";
+    window.location.href = "login";
   },
 };
 
@@ -366,6 +366,16 @@ const analytics = {
 };
 
 /* ═══════════════════════════════════════════════════════
+   SYNC API
+═══════════════════════════════════════════════════════ */
+
+const sync = {
+  async getAll() {
+    return apiRequest("GET", "/sync");
+  }
+};
+
+/* ═══════════════════════════════════════════════════════
    EXPORTS
 ═══════════════════════════════════════════════════════ */
 
@@ -384,4 +394,5 @@ export {
   courses,
   announcements,
   analytics,
+  sync,
 };

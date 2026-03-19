@@ -29,6 +29,21 @@ export async function boot(onReady) {
     state.syncIntervalId = setInterval(prefetchAll, 60000);
   } catch (err) {
     console.error("Auth check failed:", err.message);
+
+    // If we have a cached token + user, stay logged in (offline/slow network)
+    const cachedUser = JSON.parse(localStorage.getItem("dsc_user") || "null");
+    const cachedToken = localStorage.getItem("dsc_token");
+
+    if (cachedToken && cachedUser) {
+      console.warn("Using cached session — backend unreachable.");
+      state.currentStudent = cachedUser;
+      state.studentProfile = cachedUser;
+      applyProfileToUI();
+      showApp();
+      if (onReady) await onReady();
+      return;
+    }
+
     window.location.href = getCleanLink("login");
   }
 }

@@ -3,7 +3,7 @@
  * Auth guard, profile UI, logout.
  */
 
-import { auth } from "../api.js";
+import { auth, sync } from "../api.js";
 import { state, resetAllCache } from "./state.js";
 import { $, initials, getCleanLink } from "../shared/helpers.js";
 
@@ -18,12 +18,51 @@ export async function boot(onReady) {
       return;
     }
 
+    await prefetchAll();
+
     applyProfileToUI();
     showApp();
     if (onReady) await onReady();
+    
+    // Start background sync
+    if (state.syncIntervalId) clearInterval(state.syncIntervalId);
+    state.syncIntervalId = setInterval(prefetchAll, 60000);
   } catch (err) {
     console.error("Auth check failed:", err.message);
+
+    // If we have a cached token + user, stay logged in (offline/slow network)
+    const cachedUser = JSON.parse(localStorage.getItem("dsc_user") || "null");
+    const cachedToken = localStorage.getItem("dsc_token");
+
+    if (cachedToken && cachedUser) {
+      console.warn("Using cached session — backend unreachable.");
+      state.currentStudent = cachedUser;
+      state.studentProfile = cachedUser;
+      applyProfileToUI();
+      showApp();
+      if (onReady) await onReady();
+      return;
+    }
+
     window.location.href = getCleanLink("login");
+  }
+}
+
+export async function prefetchAll() {
+  try {
+    const data = await sync.getAll();
+    if (data.profile) state.studentProfile = data.profile;
+    if (data.stats) state.cachedStats = data.stats;
+    if (data.recentNotes) state.cachedDashNotes = data.recentNotes;
+    if (data.recentAssignments) state.cachedDashAssign = data.recentAssignments;
+    if (data.submittedIds) state.submittedIds = new Set(data.submittedIds);
+    if (data.attendanceSummary) state.cachedAttendanceSummary = data.attendanceSummary;
+    if (data.feeStatus) state.cachedFee = data.feeStatus;
+
+    // Set ONLY dashboard flag to true to allow lazy loading of other sections
+    state.dashboardLoaded = true;
+  } catch (err) {
+    console.error("Background sync failed:", err.message);
   }
 }
 

@@ -32,7 +32,6 @@ export async function fetchDashboardStats() {
 }
 
 function renderStats(stats) {
-  $("stat-courses").textContent     = stats.courses ?? "—";
   $("stat-notes").textContent       = stats.notes ?? "—";
   $("stat-assignments").textContent = stats.pendingAssignments ?? "—";
 

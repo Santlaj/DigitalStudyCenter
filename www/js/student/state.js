@@ -12,6 +12,7 @@ export const state = {
   submittedIds:     new Set(),
   pendingSubmit:    null,
   chartInitialised: false,
+  syncIntervalId:   null,
 
   // Cached data
   cachedStats:        null,
@@ -43,6 +44,7 @@ export function resetAllCache() {
   state.announcementsLoaded = false;
   state.coursesLoaded       = false;
   state.chartInitialised    = false;
+  if (state.syncIntervalId) { clearInterval(state.syncIntervalId); state.syncIntervalId = null; }
   state.cachedStats         = null;
   state.cachedAttendance    = null;
   state.cachedFee           = null;

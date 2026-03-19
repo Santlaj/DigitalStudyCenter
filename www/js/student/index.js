@@ -6,7 +6,6 @@
 import { $, $$ } from "../shared/helpers.js";
 import { boot, logoutStudent }               from "./boot.js";
 import { fetchDashboardStats }               from "./dashboard.js";
-import { fetchCourses }                      from "./courses.js";
 import { fetchNotes }                        from "./notes.js";
 import { fetchAssignments, submitAssignment, closeSubmitModal, initSubmitFileDrop } from "./assignments.js";
 import { fetchAttendance }                   from "./attendance.js";
@@ -26,7 +25,6 @@ function navigateTo(section) {
   $$(".nav-item").forEach(n => n.classList.remove("active"));
   $$(`[data-section="${section}"]`).forEach(n => n.classList.add("active"));
 
-  if (section === "courses")       fetchCourses();
   if (section === "notes")         fetchNotes();
   if (section === "assignments")   fetchAssignments();
   if (section === "attendance")    fetchAttendance();
@@ -40,6 +38,7 @@ function navigateTo(section) {
 
 function setupGlobalSearch() {
   const input = $("global-search");
+  if (!input) return; // Search bar removed from UI
   let timer;
   input.addEventListener("input", () => {
     clearTimeout(timer);

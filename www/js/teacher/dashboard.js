@@ -12,8 +12,8 @@ export async function fetchDashboardStats() {
   if (state.dashboardLoaded) {
     // Re-render from cached data without API calls
     if (state.cachedStats) renderStats(state.cachedStats);
-    renderRecentNotes(state.allNotes);
-    renderRecentAssignments(state.allAssignments);
+    renderRecentNotes(state.recentNotes);
+    renderRecentAssignments(state.recentAssignments);
     return;
   }
 
@@ -31,7 +31,6 @@ function renderStats(stats) {
   $("stat-students").textContent    = stats.students ?? "—";
   $("stat-notes").textContent       = stats.notes ?? "—";
   $("stat-assignments").textContent = stats.assignments ?? "—";
-  $("stat-courses").textContent     = stats.courses ?? "0";
 }
 
 async function loadRecentNotes() {

@@ -1127,6 +1127,7 @@ function initSubmitFileDrop() {
 ═══════════════════════════════════════════════════════ */
 function setupGlobalSearch() {
   const input = $("global-search");
+  if (!input) return; // Search bar removed from UI
   let timer;
   input.addEventListener("input", () => {
     clearTimeout(timer);
