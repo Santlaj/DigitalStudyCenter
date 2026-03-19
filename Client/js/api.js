@@ -4,10 +4,7 @@
  * Replaces direct Supabase calls with backend API requests.
  */
 
-const API_BASE = window.DIGITALSTUDYCENTER_API || 
-  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-    ? "http://localhost:3000/api"
-    : "https://digitalstudycenter.onrender.com/api");
+const API_BASE = window.DIGITALSTUDYCENTER_API || "https://digitalstudycenter.onrender.com/api";
 
 /* ═══════════════════════════════════════════════════════
    TOKEN MANAGEMENT

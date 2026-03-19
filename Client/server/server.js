@@ -24,12 +24,9 @@ app.use(helmet());
 
 // CORS — allow client origin(s)
 const allowedOrigins = [
-  process.env.CLIENT_URL || "http://localhost:5500",
-  "http://localhost:5500",
-  "http://localhost:5501",
-  "http://localhost:3001",
-  "http://127.0.0.1:5500",
-  "http://127.0.0.1:5501",
+  process.env.CLIENT_URL,
+  "https://digitalstudycenter.in",
+  "https://www.digitalstudycenter.in",
 ].filter(Boolean);
 
 app.use(cors({
@@ -123,5 +120,5 @@ app.use((err, req, res, next) => {
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`\n🚀 DigitalStudyCenter API running on http://0.0.0.0:${PORT}`);
   console.log(`   Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(`   Client URL:  ${process.env.CLIENT_URL || "http://localhost:5500"}\n`);
+  console.log(`   Client URL:  ${process.env.CLIENT_URL || "https://digitalstudycenter.in"}\n`);
 });

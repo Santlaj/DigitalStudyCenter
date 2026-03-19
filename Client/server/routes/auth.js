@@ -118,7 +118,7 @@ router.post("/login", authLimiter, loginRules, async (req, res) => {
 router.post("/forgot-password", authLimiter, forgotPasswordRules, async (req, res) => {
   try {
     const { email } = req.body;
-    const redirectTo = `${process.env.CLIENT_URL || "http://localhost:5500"}/?reset=true`;
+    const redirectTo = `${process.env.CLIENT_URL || "https://digitalstudycenter.in"}/?reset=true`;
 
     const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, { redirectTo });
 
