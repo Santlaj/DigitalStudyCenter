@@ -11,6 +11,7 @@ export const state = {
   allStudents:       [],
   deleteCallback:    null,
   chartsInitialised: false,
+  syncIntervalId:    null,
 
   // Attendance
   attStudents:       [],
@@ -45,6 +46,7 @@ export function resetAllCache() {
   state.attendanceLoaded    = false;
   state.announcementsLoaded = false;
   state.chartsInitialised   = false;
+  if (state.syncIntervalId) { clearInterval(state.syncIntervalId); state.syncIntervalId = null; }
   state.cachedStats         = null;
   state.allNotes            = [];
   state.allAssignments      = [];

@@ -70,15 +70,27 @@ app.get(["/", "/api", "/healthz"], (req, res) => {
   });
 });
 
-app.use("/api/auth",          require("./routes/auth"));
-app.use("/api/notes",         require("./routes/notes"));
-app.use("/api/assignments",   require("./routes/assignments"));
-app.use("/api/users",         require("./routes/users"));
-app.use("/api/attendance",    require("./routes/attendance"));
-app.use("/api/fees",          require("./routes/fees"));
-app.use("/api/courses",       require("./routes/courses"));
-app.use("/api/announcements", require("./routes/announcements"));
-app.use("/api/analytics",     require("./routes/analytics"));
+const authRouter = require("./routes/auth");
+const notesRouter = require("./routes/notes");
+const assignmentsRouter = require("./routes/assignments");
+const usersRouter = require("./routes/users");
+const attendanceRouter = require("./routes/attendance");
+const feesRouter = require("./routes/fees");
+const coursesRouter = require("./routes/courses");
+const announcementsRouter = require("./routes/announcements");
+const analyticsRouter = require("./routes/analytics");
+const syncRouter = require("./routes/sync");
+
+app.use("/api/auth", authRouter);
+app.use("/api/users", usersRouter);
+app.use("/api/notes", notesRouter);
+app.use("/api/assignments", assignmentsRouter);
+app.use("/api/attendance", attendanceRouter);
+app.use("/api/fees", feesRouter);
+app.use("/api/courses", coursesRouter);
+app.use("/api/announcements", announcementsRouter);
+app.use("/api/analytics", analyticsRouter);
+app.use("/api/sync", syncRouter);
 
 /* ═══════════════════════════════════════════════════════
    HEALTH CHECK
