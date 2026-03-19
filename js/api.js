@@ -156,7 +156,7 @@ const auth = {
 
   logout() {
     clearTokens();
-    window.location.href = "./";
+    window.location.href = "login";
   },
 };
 
