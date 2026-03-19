@@ -49,29 +49,14 @@ router.get("/", authenticate, async (req, res) => {
       }, 60);
       syncData.stats = stats;
 
-      // Teacher specific parallel fetches
-      const [
-        notesRes,
-        assignmentsRes,
-        studentsRes,
-        sessionsRes,
-        announcementsRes
-      ] = await Promise.all([
-        supabaseAdmin.from("notes").select("*, users!inner(full_name, first_name, last_name, email)").eq("teacher_id", userId).order("created_at", { ascending: false }),
-        supabaseAdmin.from("assignments").select("*, users!inner(full_name, first_name, last_name, email)").eq("teacher_id", userId).order("created_at", { ascending: false }),
-        supabaseAdmin.from("users").select("*").eq("role", "student").order("created_at", { ascending: false }),
-        supabaseAdmin.from("attendance_sessions").select("*").eq("teacher_id", userId).order("date", { ascending: false }),
-        getOrSet("announcements:all", async () => { // Globally cached for 60s
-          const { data } = await supabaseAdmin.from("announcements").select("*, users!inner(full_name, first_name, last_name)").order("created_at", { ascending: false });
-          return data || [];
-        }, 60)
+      // Teacher specific parallel fetches (ONLY DASHBOARD)
+      const [ recentNotesRes, recentAssignmentsRes ] = await Promise.all([
+        supabaseAdmin.from("notes").select("*, users!inner(full_name, first_name, last_name, email)").eq("teacher_id", userId).order("created_at", { ascending: false }).limit(5),
+        supabaseAdmin.from("assignments").select("*, users!inner(full_name, first_name, last_name, email)").eq("teacher_id", userId).order("created_at", { ascending: false }).limit(5)
       ]);
 
-      syncData.notes = notesRes.data || [];
-      syncData.assignments = assignmentsRes.data || [];
-      syncData.students = studentsRes.data || [];
-      syncData.attendanceSessions = sessionsRes.data || [];
-      syncData.announcements = announcementsRes;
+      syncData.recentNotes = recentNotesRes.data || [];
+      syncData.recentAssignments = recentAssignmentsRes.data || [];
 
     } else if (role === "student") {
       const cacheKey = `stats:student:${userId}`;
@@ -117,31 +102,19 @@ router.get("/", authenticate, async (req, res) => {
         };
       };
 
-      // Student parallel fetches using getOrSet for shared data
+      // Student parallel fetches (ONLY DASHBOARD)
       const [
-        allNotesRes,
         recentNotesRes,
-        allAssignmentsRes,
         recentAssignmentsRes,
         submissionsRes,
         attSummaryRes,
-        attSubjectsRes,
-        attRecentRes,
-        rawFeeHistoryRes,
-        coursesRes,
-        announcementsRes
+        rawFeeHistoryRes
       ] = await Promise.all([
-        getOrSet("notes:all", async () => { const { data } = await supabaseAdmin.from("notes").select("*, users!inner(full_name, first_name, last_name, email)").order("created_at", { ascending: false }); return data || []; }, 60),
         getOrSet("notes:recent", async () => { const { data } = await supabaseAdmin.from("notes").select("*").order("created_at", { ascending: false }).limit(5); return data || []; }, 60),
-        getOrSet("assignments:all", async () => { const { data } = await supabaseAdmin.from("assignments").select("*, users!inner(full_name, first_name, last_name, email)").order("created_at", { ascending: false }); return data || []; }, 60),
         getOrSet("assignments:recent", async () => { const { data } = await supabaseAdmin.from("assignments").select("*").order("created_at", { ascending: false }).limit(5); return data || []; }, 60),
         supabaseAdmin.from("submissions").select("assignment_id").eq("student_id", userId),
         supabaseAdmin.from("attendance_records").select("status").eq("student_id", userId),
-        supabaseAdmin.from("attendance_records").select("status, sessions:session_id(subject)").eq("student_id", userId),
-        supabaseAdmin.from("attendance_records").select("status, sessions:session_id(date, subject)").eq("student_id", userId).order("created_at", { ascending: false }).limit(5),
-        supabaseAdmin.from("fee_payments").select("*").eq("student_id", userId).order("month", { ascending: false }),
-        getOrSet("courses:all", async () => { const { data } = await supabaseAdmin.from("courses").select("*, users!inner(full_name, first_name, last_name, email)").order("created_at", { ascending: false }); return data || []; }, 60),
-        getOrSet("announcements:all", async () => { const { data } = await supabaseAdmin.from("announcements").select("*, users!inner(full_name, first_name, last_name)").order("created_at", { ascending: false }); return data || []; }, 60)
+        supabaseAdmin.from("fee_payments").select("*").eq("student_id", userId).order("month", { ascending: false })
       ]);
 
       // Calculate attendance
@@ -151,37 +124,12 @@ router.get("/", authenticate, async (req, res) => {
       const absent = records.filter((r) => r.status === "absent").length;
       const pct = total === 0 ? 0 : Math.round((present / total) * 100);
 
-      const subjMap = {};
-      (attSubjectsRes.data || []).forEach(r => {
-        if (!r.sessions?.subject) return;
-        const s = r.sessions.subject;
-        if (!subjMap[s]) subjMap[s] = { total: 0, present: 0 };
-        subjMap[s].total++;
-        if (r.status === "present") subjMap[s].present++;
-      });
-      const subjects = Object.entries(subjMap).map(([name, counts]) => ({
-        name,
-        total: counts.total,
-        present: counts.present,
-        pct: counts.total === 0 ? 0 : Math.round((counts.present / counts.total) * 100)
-      }));
-
-      const recentAtt = (attRecentRes.data || []).map(r => ({
-        status: r.status,
-        date: r.sessions?.date,
-        subject: r.sessions?.subject
-      }));
-
-      syncData.notes = allNotesRes;
       syncData.recentNotes = recentNotesRes;
-      syncData.assignments = allAssignmentsRes;
       syncData.recentAssignments = recentAssignmentsRes;
       syncData.submittedIds = (submissionsRes.data || []).map(r => r.assignment_id);
-      syncData.attendance = { summary: { total, present, absent, pct }, subjects, recent: recentAtt };
-      syncData.feeHistory = rawFeeHistoryRes.data || [];
-      syncData.feeStatus = calcFeeStatus(syncData.feeHistory, syncData.profile);
-      syncData.courses = coursesRes;
-      syncData.announcements = announcementsRes;
+      syncData.attendanceSummary = { total, present, absent, pct };
+      const feeHistory = rawFeeHistoryRes.data || [];
+      syncData.feeStatus = calcFeeStatus(feeHistory, syncData.profile);
     }
 
     res.json(syncData);

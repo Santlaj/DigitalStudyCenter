@@ -12,8 +12,8 @@ export async function fetchDashboardStats() {
   if (state.dashboardLoaded) {
     // Re-render from cached data without API calls
     if (state.cachedStats) renderStats(state.cachedStats);
-    renderRecentNotes(state.allNotes);
-    renderRecentAssignments(state.allAssignments);
+    renderRecentNotes(state.recentNotes);
+    renderRecentAssignments(state.recentAssignments);
     return;
   }
 

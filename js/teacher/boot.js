@@ -38,18 +38,10 @@ export async function prefetchAll() {
     const data = await sync.getAll();
     if (data.profile) state.teacherProfile = data.profile;
     if (data.stats) state.cachedStats = data.stats;
-    if (data.notes) state.allNotes = data.notes;
-    if (data.assignments) state.allAssignments = data.assignments;
-    if (data.students) state.allStudents = data.students;
-    if (data.attendanceSessions) state.attendanceSessions = data.attendanceSessions;
-    if (data.announcements) state.allAnnouncements = data.announcements;
+    if (data.recentNotes) state.recentNotes = data.recentNotes;
+    if (data.recentAssignments) state.recentAssignments = data.recentAssignments;
 
     state.dashboardLoaded = true;
-    state.notesLoaded = true;
-    state.assignmentsLoaded = true;
-    state.studentsLoaded = true;
-    state.attendanceLoaded = true;
-    state.announcementsLoaded = true;
   } catch (err) {
     console.error("Background sync failed:", err.message);
   }
