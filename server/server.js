@@ -25,6 +25,7 @@ app.use(helmet());
 // CORS — allow client origin(s)
 const allowedOrigins = [
   process.env.CLIENT_URL,
+  "https://santlaj.github.io",
   "https://digitalstudycenter.in",
   "https://www.digitalstudycenter.in",
 ].filter(Boolean);
