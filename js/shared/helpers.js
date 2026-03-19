@@ -103,3 +103,11 @@ export const COURSE_COLORS = [
   "linear-gradient(90deg,#8b5cf6,#a78bfa)",
   "linear-gradient(90deg,#ec4899,#f472b6)",
 ];
+
+export function getCleanLink(path) {
+  // If running in Capacitor (localhost or file://) or local dev, use .html
+  // Otherwise use the clean URL for production web
+  const isWebProduction = !window.location.hostname.includes('localhost') && !window.location.protocol.includes('file:');
+  if (isWebProduction) return path.replace(/\.html$/, '');
+  return path.endsWith('.html') || path === './' ? path : path + '.html';
+}
