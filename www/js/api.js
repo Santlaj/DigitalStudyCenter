@@ -4,7 +4,7 @@
  * Replaces direct Supabase calls with backend API requests.
  */
 
-const API_BASE = window.DIGITALSTUDYCENTER_API || "http://10.124.95.86:3000/api";
+const API_BASE = window.DIGITALSTUDYCENTER_API || "https://digitalstudycenter.onrender.com/api";
 
 /* ═══════════════════════════════════════════════════════
    TOKEN MANAGEMENT

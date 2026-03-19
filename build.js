@@ -56,12 +56,12 @@ for (const file of htmlFiles) {
   }
   let content = fs.readFileSync(srcFile, "utf-8");
   
-  // Fix relative paths: ../css/ -> ./css/ and ../js/ -> ./js/
-  content = content.replace(/\.\.\/css\//g, "./css/");
-  content = content.replace(/\.\.\/js\//g, "./js/");
+  // No need to fix relative paths anymore as they are already ./css/ in the source
+  // content = content.replace(/\.\.\/css\//g, "./css/");
+  // content = content.replace(/\.\.\/js\//g, "./js/");
 
   fs.writeFileSync(path.join(WWW, file), content, "utf-8");
-  console.log(`  ✓ ${file} copied & paths fixed`);
+  console.log(`  ✓ ${file} copied to www/`);
 }
 
 console.log("\n✅ www/ directory ready for Capacitor sync.\n");
