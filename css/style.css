@@ -617,15 +617,7 @@ body {
     padding: 32px 28px 24px;
   }
   .right-panel {
-    min-height: 320px;
-  }
-  .float-card.card-rating {
-    top: 8%;
-    left: 5%;
-  }
-  .float-card.card-activity {
-    bottom: 8%;
-    right: 5%;
+    display: none;
   }
 }
 
