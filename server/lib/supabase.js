@@ -10,7 +10,15 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error("❌ Missing SUPABASE_URL or SUPABASE_ANON_KEY in .env");
+  console.error("❌ Missing SUPABASE_URL or SUPABASE_ANON_KEY in environment");
+  process.exit(1);
+}
+
+// Ensure the Service Role key is actually different from the Anon key
+if (SUPABASE_SERVICE_ROLE_KEY && SUPABASE_SERVICE_ROLE_KEY === SUPABASE_ANON_KEY) {
+  console.error("❌ CRITICAL ERROR: SUPABASE_SERVICE_ROLE_KEY is identical to SUPABASE_ANON_KEY.");
+  console.error("   You accidentally pasted the Anon Key into the Service Role Key field!");
+  console.error("   Please fix your environment variables on Render.");
   process.exit(1);
 }
 
