@@ -61,9 +61,12 @@ router.get("/", authenticate, async (req, res) => {
     } else if (role === "student") {
       const cacheKey = `stats:student:${userId}`;
       const stats = await getOrSet(cacheKey, async () => {
+        let notesQuery = supabaseAdmin.from("notes").select("id", { count: "exact", head: true });
+        if (profileObj.course) notesQuery = notesQuery.ilike("course", profileObj.course);
+
         const [coursesRes, notesRes, assignmentsRes] = await Promise.all([
           supabaseAdmin.from("courses").select("id", { count: "exact", head: true }),
-          supabaseAdmin.from("notes").select("id", { count: "exact", head: true }),
+          notesQuery,
           supabaseAdmin.from("assignments").select("id", { count: "exact", head: true }),
         ]);
         const { data: submittedRows } = await supabaseAdmin.from("submissions").select("assignment_id").eq("student_id", userId);
@@ -110,7 +113,12 @@ router.get("/", authenticate, async (req, res) => {
         attSummaryRes,
         rawFeeHistoryRes
       ] = await Promise.all([
-        getOrSet("notes:recent", async () => { const { data } = await supabaseAdmin.from("notes").select("*").order("created_at", { ascending: false }).limit(5); return data || []; }, 60),
+        getOrSet(`notes:recent:${profileObj.course || 'all'}`, async () => { 
+          let q = supabaseAdmin.from("notes").select("*").order("created_at", { ascending: false }).limit(5);
+          if (profileObj.course) q = q.ilike("course", profileObj.course);
+          const { data } = await q; 
+          return data || []; 
+        }, 60),
         getOrSet("assignments:recent", async () => { const { data } = await supabaseAdmin.from("assignments").select("*").order("created_at", { ascending: false }).limit(5); return data || []; }, 60),
         supabaseAdmin.from("submissions").select("assignment_id").eq("student_id", userId),
         supabaseAdmin.from("attendance_records").select("status").eq("student_id", userId),

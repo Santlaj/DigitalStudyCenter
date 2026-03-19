@@ -28,7 +28,7 @@ async function authenticate(req, res, next) {
     // Fetch role from users table
     const { data: profile } = await supabaseAdmin
       .from("users")
-      .select("role, full_name, first_name, last_name")
+      .select("role, full_name, first_name, last_name, course")
       .eq("id", user.id)
       .single();
 
@@ -37,6 +37,7 @@ async function authenticate(req, res, next) {
       email: user.email,
       role: profile?.role || user.user_metadata?.role || "student",
       fullName: profile?.full_name || `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() || user.email,
+      course: profile?.course || null,
     };
 
     req.token = token;

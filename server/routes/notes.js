@@ -30,7 +30,8 @@ const upload = multer({
 router.get("/", authenticate, async (req, res) => {
   try {
     const query = req.query.search || "";
-    const cacheKey = `notes:list:${query}`;
+    const userCourse = req.user.course || "all";
+    const cacheKey = `notes:list:${userCourse}:${query}`;
 
     const data = await getOrSet(cacheKey, async () => {
       let q = supabaseAdmin
@@ -39,6 +40,9 @@ router.get("/", authenticate, async (req, res) => {
         .order("created_at", { ascending: false });
 
       if (query) q = q.ilike("title", `%${query}%`);
+      if (req.user.role === "student" && req.user.course) {
+        q = q.ilike("course", req.user.course);
+      }
 
       const { data: notesData, error } = await q;
       if (error) throw error;

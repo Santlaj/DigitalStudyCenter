@@ -926,6 +926,7 @@ html, body {
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-light);
   overflow: hidden;
+  overflow-x: auto;
 }
 
 .data-table {

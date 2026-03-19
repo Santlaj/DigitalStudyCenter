@@ -31,7 +31,6 @@ function renderStats(stats) {
   $("stat-students").textContent    = stats.students ?? "—";
   $("stat-notes").textContent       = stats.notes ?? "—";
   $("stat-assignments").textContent = stats.assignments ?? "—";
-  $("stat-courses").textContent     = stats.courses ?? "0";
 }
 
 async function loadRecentNotes() {
