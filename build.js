@@ -46,7 +46,7 @@ copyDir(path.join(ROOT, "css"), path.join(WWW, "css"));
 copyJsDir(path.join(ROOT, "js"), path.join(WWW, "js"));
 
 // 2. Copy HTML files and fix paths
-const htmlFiles = ["index.html", "student-portal.html", "teacher-portal.html"];
+const htmlFiles = ["index.html", "login.html", "student-portal.html", "teacher-portal.html"];
 
 for (const file of htmlFiles) {
   const srcFile = path.join(ROOT, file);

@@ -108,6 +108,11 @@ export function getCleanLink(path) {
   // If running in Capacitor (localhost or file://) or local dev, use .html
   // Otherwise use the clean URL for production web
   const isWebProduction = !window.location.hostname.includes('localhost') && !window.location.protocol.includes('file:');
+  
+  if (path === './' || path === 'index') {
+     return isWebProduction ? 'login' : 'login.html';
+  }
+
   if (isWebProduction) return path.replace(/\.html$/, '');
-  return path.endsWith('.html') || path === './' ? path : path + '.html';
+  return path.endsWith('.html') ? path : path + '.html';
 }

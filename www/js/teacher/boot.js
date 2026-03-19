@@ -5,7 +5,7 @@
 
 import { auth } from "../api.js";
 import { state, resetAllCache } from "./state.js";
-import { $, initials } from "../shared/helpers.js";
+import { $, initials, getCleanLink } from "../shared/helpers.js";
 
 export async function boot(onReady) {
   try {
@@ -14,7 +14,7 @@ export async function boot(onReady) {
     state.teacherProfile = data.user;
 
     if (state.teacherProfile.role && state.teacherProfile.role !== "teacher") {
-      window.location.href = "student-portal.html";
+      window.location.href = getCleanLink("student-portal");
       return;
     }
 
@@ -23,7 +23,7 @@ export async function boot(onReady) {
     if (onReady) await onReady();
   } catch (err) {
     console.error("Auth check failed:", err.message);
-    window.location.href = "index.html";
+    window.location.href = getCleanLink("login");
   }
 }
 

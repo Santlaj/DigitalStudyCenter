@@ -82,7 +82,7 @@ async function apiRequest(method, endpoint, body = null, options = {}) {
       }
       // Refresh failed — redirect to login
       clearTokens();
-      window.location.href = "index.html";
+      window.location.href = getCleanLink("login");
       throw new Error("Session expired. Redirecting to login.");
     }
 
@@ -156,7 +156,7 @@ const auth = {
 
   logout() {
     clearTokens();
-    window.location.href = "index.html";
+    window.location.href = "./";
   },
 };
 

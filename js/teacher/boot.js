@@ -23,7 +23,7 @@ export async function boot(onReady) {
     if (onReady) await onReady();
   } catch (err) {
     console.error("Auth check failed:", err.message);
-    window.location.href = getCleanLink("./");
+    window.location.href = getCleanLink("login");
   }
 }
 

@@ -34,9 +34,9 @@ const fieldMap = {
 };
 
 const redirectMap = {
-  student: "student-portal.html",
-  teacher: "teacher-portal.html",
-  // admin: "admin-portal.html",
+  student: "student-portal",
+  teacher: "teacher-portal",
+  // admin: "admin-portal",
 };
 
 /* ─────────────────────────────────────────────
