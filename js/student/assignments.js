@@ -8,19 +8,25 @@ import { state } from "./state.js";
 import { $, escHtml, formatDeadline, deadlineCountdown, deadlineClass, showToast, setLoading } from "../shared/helpers.js";
 import { fetchDashboardStats } from "./dashboard.js";
 
-export async function fetchAssignments(query = "") {
+export async function fetchAssignments(query = "", append = false) {
   const list = $("assignments-list");
+  const loadMoreBtn = $("assignments-load-more");
 
-  // Cache-first
-  if (!query && state.assignmentsLoaded && state.allAssignments.length >= 0) {
+  if (!append) {
+    state.assignmentsOffset = 0;
+    state.allAssignments = [];
+    list.innerHTML = `<div class="empty-state-sm">Loading…</div>`;
+  }
+
+  // Cache-first optimization
+  if (!query && !append && state.assignmentsLoaded && state.allAssignments.length > 0) {
     renderAssignmentsList(list, state.allAssignments);
     return;
   }
 
-  list.innerHTML = `<div class="empty-state-sm">Loading…</div>`;
-
   try {
-    const { assignments: data } = await assignments.list(query);
+    const limit = 20;
+    const { assignments: data, count } = await assignments.list(query, limit, state.assignmentsOffset);
 
     if (!state.submittedIds.size) {
       try {
@@ -29,11 +35,24 @@ export async function fetchAssignments(query = "") {
       } catch (e) { /* ignore */ }
     }
 
-    state.allAssignments = data || [];
-    if (!query) state.assignmentsLoaded = true;
+    state.allAssignments = append ? [...state.allAssignments, ...data] : data;
+    state.assignmentsOffset += limit;
+    
+    if (!query && !append) state.assignmentsLoaded = true;
+
     renderAssignmentsList(list, state.allAssignments);
+
+    if (loadMoreBtn) {
+      if (state.allAssignments.length < count) {
+        loadMoreBtn.classList.remove("hidden");
+        loadMoreBtn.onclick = () => fetchAssignments(query, true);
+      } else {
+        loadMoreBtn.classList.add("hidden");
+      }
+    }
   } catch (err) {
-    list.innerHTML = `<div class="empty-state-sm">Error: ${escHtml(err.message)}</div>`;
+    if (!append) list.innerHTML = `<div class="empty-state-sm">Error: ${escHtml(err.message)}</div>`;
+    else showToast("Failed to load more: " + err.message, "error");
   }
 }
 

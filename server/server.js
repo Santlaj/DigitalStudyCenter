@@ -72,6 +72,7 @@ app.get(["/", "/api", "/healthz"], (req, res) => {
   });
 });
 
+const dashboardRouter = require("./routes/dashboard");
 const authRouter = require("./routes/auth");
 const notesRouter = require("./routes/notes");
 const assignmentsRouter = require("./routes/assignments");
@@ -81,9 +82,9 @@ const feesRouter = require("./routes/fees");
 const coursesRouter = require("./routes/courses");
 const announcementsRouter = require("./routes/announcements");
 const analyticsRouter = require("./routes/analytics");
-const syncRouter = require("./routes/sync");
 
 app.use("/api/auth", authRouter);
+app.use("/api/dashboard", dashboardRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/notes", notesRouter);
 app.use("/api/assignments", assignmentsRouter);
@@ -92,18 +93,27 @@ app.use("/api/fees", feesRouter);
 app.use("/api/courses", coursesRouter);
 app.use("/api/announcements", announcementsRouter);
 app.use("/api/analytics", analyticsRouter);
-app.use("/api/sync", syncRouter);
 
 /* ═══════════════════════════════════════════════════════
    HEALTH CHECK
 ═══════════════════════════════════════════════════════ */
 
-app.get("/api/health", (req, res) => {
-  res.json({
-    status: "ok",
-    timestamp: new Date().toISOString(),
-    uptime: Math.round(process.uptime()),
-  });
+app.get("/api/health", async (req, res) => {
+  try {
+    // Quick DB check
+    const { error } = await require("./lib/supabase").supabaseAdmin.from("profiles").select("id").limit(1);
+    const dbStatus = error ? "unhealthy" : "healthy";
+
+    res.json({
+      status: "ok",
+      database: dbStatus,
+      timestamp: new Date().toISOString(),
+      uptime: Math.round(process.uptime()),
+      env: process.env.NODE_ENV || "development",
+    });
+  } catch (err) {
+    res.status(500).json({ status: "error", message: err.message });
+  }
 });
 
 /* ═══════════════════════════════════════════════════════

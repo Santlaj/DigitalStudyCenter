@@ -150,7 +150,9 @@ function wireEvents() {
 
 document.addEventListener("DOMContentLoaded", () => {
   wireEvents();
-  boot(async () => { await fetchDashboardStats(); });
+  boot(async () => {
+    fetchDashboardStats();
+  });
 });
 
 

@@ -20,28 +20,41 @@ async function authenticate(req, res, next) {
   const token = authHeader.split(" ")[1];
 
   try {
+    // 1. Validate JWT and get user from Supabase Auth
+    // Use auth.getUser(token) to check if token is still valid (revoked, etc.)
     const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+    
     if (error || !user) {
       return res.status(401).json({ error: "Invalid or expired token." });
     }
 
-    // Fetch role from users table
-    const { data: profile } = await supabaseAdmin
-      .from("users")
-      .select("role, full_name, first_name, last_name, course")
-      .eq("id", user.id)
-      .single();
-
+    // 2. Attach basic user info from JWT metadata immediately
+    // This reduces the need to query the profile table if only role/id is needed downstream
     req.user = {
       id: user.id,
       email: user.email,
-      role: profile?.role || user.user_metadata?.role || "student",
-      fullName: profile?.full_name || `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() || user.email,
-      course: profile?.course || null,
+      role: user.user_metadata?.role || "student",
+      fullName: user.user_metadata?.full_name || user.email,
     };
 
-    req.token = token;
+    // 3. Optional: Fetch full profile ONLY if requested via a header or for specific routes
+    // For now, we fetch it once and attach it, but we use the role from the JWT to avoid DB calls for role checks
+    // This cache lasts for the duration of the Request object.
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("role, full_name, class, subject, is_active")
+      .eq("id", user.id)
+      .single();
 
+    if (profile) {
+      req.user.role = profile.role || req.user.role;
+      req.user.fullName = profile.full_name || req.user.fullName;
+      req.user.course = profile.class || null;
+      req.user.subject = profile.subject || null;
+      req.user.is_active = profile.is_active !== false;
+    }
+
+    req.token = token;
     next();
   } catch (err) {
     console.error("Auth middleware error:", err.message);

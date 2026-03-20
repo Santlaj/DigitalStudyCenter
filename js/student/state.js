@@ -24,6 +24,10 @@ export const state = {
   cachedAnnouncements:[],
   cachedCourses:      [],
 
+  // ═══ Paging ═══
+  notesOffset:         0,
+  assignmentsOffset:   0,
+
   // ═══ Loaded flags ═══
   dashboardLoaded:     false,
   notesLoaded:         false,
@@ -57,4 +61,6 @@ export function resetAllCache() {
   state.cachedAnnouncements = [];
   state.cachedCourses       = [];
   state.submittedIds        = new Set();
+  state.notesOffset         = 0;
+  state.assignmentsOffset   = 0;
 }

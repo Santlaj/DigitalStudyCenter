@@ -36,22 +36,25 @@ const upload = multer({
 router.get("/", authenticate, async (req, res) => {
   try {
     const query = req.query.search || "";
-    const cacheKey = `assignments:list:${query}`;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = parseInt(req.query.offset) || 0;
+    const cacheKey = `assignments:list:${query}:${limit}:${offset}`;
 
-    const data = await getOrSet(cacheKey, async () => {
+    const { assignments, count } = await getOrSet(cacheKey, async () => {
       let q = supabaseAdmin
         .from("assignments")
-        .select("*, users!teacher_id(full_name, first_name, last_name)")
-        .order("deadline", { ascending: true });
+        .select("*, users!teacher_id(full_name, first_name, last_name)", { count: "exact" })
+        .order("deadline", { ascending: true })
+        .range(offset, offset + limit - 1);
 
       if (query) q = q.ilike("title", `%${query}%`);
 
-      const { data, error } = await q;
+      const { data, count: totalCount, error } = await q;
       if (error) throw error;
-      return data || [];
+      return { assignments: data || [], count: totalCount || 0 };
     }, 120);
 
-    res.json({ assignments: data, count: data.length });
+    res.json({ assignments, count });
   } catch (err) {
     console.error("Fetch assignments error:", err.message);
     res.status(500).json({ error: "Failed to fetch assignments." });
@@ -64,14 +67,18 @@ router.get("/", authenticate, async (req, res) => {
  */
 router.get("/teacher", authenticate, requireRole("teacher"), async (req, res) => {
   try {
-    const { data, error } = await supabaseAdmin
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = parseInt(req.query.offset) || 0;
+    
+    const { data, count, error } = await supabaseAdmin
       .from("assignments")
-      .select("*")
+      .select("*", { count: "exact" })
       .eq("teacher_id", req.user.id)
-      .order("deadline", { ascending: true });
+      .order("deadline", { ascending: true })
+      .range(offset, offset + limit - 1);
 
     if (error) throw error;
-    res.json({ assignments: data || [], count: (data || []).length });
+    res.json({ assignments: data || [], count: count || 0 });
   } catch (err) {
     console.error("Teacher assignments error:", err.message);
     res.status(500).json({ error: "Failed to fetch assignments." });

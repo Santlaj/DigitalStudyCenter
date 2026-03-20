@@ -8,23 +8,47 @@ import { state } from "./state.js";
 import { $, escHtml, formatDate, initials, showToast, setLoading } from "../shared/helpers.js";
 import { fetchDashboardStats } from "./dashboard.js";
 
-export async function fetchStudents(query = "") {
+export async function fetchStudents(query = "", append = false) {
   const tbody = $("students-tbody");
+  const loadMoreBtn = $("students-load-more");
 
-  // Cache-first: if no search query and data already loaded, re-render from state
-  if (!query && state.studentsLoaded && state.allStudents.length >= 0) {
+  if (!append) {
+    state.studentsOffset = 0;
+    state.allStudents = [];
+    tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Loading…</td></tr>`;
+  }
+
+  // Cache-first optimization
+  if (!query && !append && state.studentsLoaded && state.allStudents.length > 0) {
     renderStudentsTable(tbody, state.allStudents);
     return;
   }
 
-  tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Loading…</td></tr>`;
-
   try {
-    const { students: data } = await users.listStudents(query);
-    state.allStudents = data || [];
-    if (!query) state.studentsLoaded = true;
+    const limit = 20;
+    const { students, count } = await users.listStudents(query, limit, state.studentsOffset);
+    
+    state.allStudents = append ? [...state.allStudents, ...students] : students;
+    state.studentsOffset += limit;
+    
+    if (!query && !append) state.studentsLoaded = true;
+
     renderStudentsTable(tbody, state.allStudents);
-  } catch (err) { tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Error: ${escHtml(err.message)}</td></tr>`; }
+
+    // Show/hide Load More
+    if (loadMoreBtn) {
+      if (state.allStudents.length < count) {
+        loadMoreBtn.classList.remove("hidden");
+        loadMoreBtn.onclick = () => fetchStudents(query, true);
+      } else {
+        loadMoreBtn.classList.add("hidden");
+      }
+    }
+
+  } catch (err) { 
+    if (!append) tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Error: ${escHtml(err.message)}</td></tr>`;
+    else showToast("Failed to load more: " + err.message, "error");
+  }
 }
 
 function renderStudentsTable(tbody, students) {

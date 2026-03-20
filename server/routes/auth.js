@@ -47,9 +47,9 @@ router.post("/login", authLimiter, loginRules, async (req, res) => {
 
     const { user, session } = data;
 
-    // Fetch user profile from users table
+    // Fetch user profile from profiles table
     const { data: profile, error: profileErr } = await supabaseAdmin
-      .from("users")
+      .from("profiles")
       .select("*")
       .eq("id", user.id)
       .single();
@@ -66,13 +66,12 @@ router.post("/login", authLimiter, loginRules, async (req, res) => {
       await supabaseAdmin.auth.admin.updateUserById(user.id, {
         user_metadata: { ...user.user_metadata, role }
       });
-      await supabaseAdmin.from("users").upsert({
+      await supabaseAdmin.from("profiles").upsert({
         id: user.id,
-        email: user.email,
-        role: role,
         full_name: user.user_metadata?.full_name || null,
         first_name: user.user_metadata?.first_name || null,
         last_name: user.user_metadata?.last_name || null,
+        role: role,
         is_active: true,
         last_activity: new Date().toISOString(),
         created_at: new Date().toISOString()
@@ -84,7 +83,7 @@ router.post("/login", authLimiter, loginRules, async (req, res) => {
       if (!profile.role) updateData.role = role;
       
       await supabaseAdmin
-        .from("users")
+        .from("profiles")
         .update(updateData)
         .eq("id", user.id);
     }
@@ -192,7 +191,7 @@ router.post("/reset-password", authenticate, resetPasswordRules, async (req, res
 router.get("/session", authenticate, async (req, res) => {
   try {
     const { data: profile } = await supabaseAdmin
-      .from("users")
+      .from("profiles")
       .select("*")
       .eq("id", req.user.id)
       .single();

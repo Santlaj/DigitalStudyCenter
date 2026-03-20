@@ -7,24 +7,44 @@ import { notes } from "../api.js";
 import { state } from "./state.js";
 import { $, escHtml, formatDate, showToast } from "../shared/helpers.js";
 
-export async function fetchNotes(query = "") {
+export async function fetchNotes(query = "", append = false) {
   const tbody = $("notes-tbody");
+  const loadMoreBtn = $("notes-load-more");
 
-  // Cache-first
-  if (!query && state.notesLoaded && state.allNotes.length >= 0) {
+  if (!append) {
+    state.notesOffset = 0;
+    state.allNotes = [];
+    tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Loading…</td></tr>`;
+  }
+
+  // Cache-first optimization
+  if (!query && !append && state.notesLoaded && state.allNotes.length > 0) {
     renderNotesTable(tbody, state.allNotes);
     return;
   }
 
-  tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Loading…</td></tr>`;
-
   try {
-    const { notes: data } = await notes.list(query);
-    state.allNotes = data || [];
-    if (!query) state.notesLoaded = true;
+    const limit = 20;
+    const { notes: data, count } = await notes.list(query, limit, state.notesOffset);
+    
+    state.allNotes = append ? [...state.allNotes, ...data] : data;
+    state.notesOffset += limit;
+    
+    if (!query && !append) state.notesLoaded = true;
+
     renderNotesTable(tbody, state.allNotes);
-  } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Error: ${escHtml(err.message)}</td></tr>`;
+
+    if (loadMoreBtn) {
+      if (state.allNotes.length < count) {
+        loadMoreBtn.classList.remove("hidden");
+        loadMoreBtn.onclick = () => fetchNotes(query, true);
+      } else {
+        loadMoreBtn.classList.add("hidden");
+      }
+    }
+  } catch (err) { 
+    if (!append) tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Error: ${escHtml(err.message)}</td></tr>`;
+    else showToast("Failed to load more: " + err.message, "error");
   }
 }
 

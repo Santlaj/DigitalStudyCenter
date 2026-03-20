@@ -27,6 +27,11 @@ export const state = {
   // Dashboard cached stats
   cachedStats:       null,
 
+  // ═══ Paging ═══
+  studentsOffset:      0,
+  notesOffset:         0,
+  assignmentsOffset:   0,
+
   // ═══ Loaded flags ═══
   // When true, the section re-renders from cached state instead of calling API
   dashboardLoaded:     false,
@@ -53,4 +58,7 @@ export function resetAllCache() {
   state.allStudents         = [];
   state.attendanceSessions  = [];
   state.allAnnouncements    = [];
+  state.studentsOffset      = 0;
+  state.notesOffset         = 0;
+  state.assignmentsOffset   = 0;
 }

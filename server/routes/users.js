@@ -17,7 +17,7 @@ const { getOrSet, invalidatePrefix } = require("../lib/cache");
 router.get("/profile", authenticate, async (req, res) => {
   try {
     const { data, error } = await supabaseAdmin
-      .from("users")
+      .from("profiles")
       .select("*")
       .eq("id", req.user.id)
       .single();
@@ -71,7 +71,7 @@ router.patch("/profile", authenticate, updateProfileRules, async (req, res) => {
     }
 
     const { error } = await supabaseAdmin
-      .from("users")
+      .from("profiles")
       .upsert(updateData, { onConflict: "id" });
 
     if (error) throw error;
@@ -91,23 +91,27 @@ router.patch("/profile", authenticate, updateProfileRules, async (req, res) => {
 router.get("/students", authenticate, requireRole("teacher"), async (req, res) => {
   try {
     const query = req.query.search || "";
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = parseInt(req.query.offset) || 0;
+    
     let q = supabaseAdmin
       .from("users")
-      .select("*")
+      .select("*", { count: "exact" })
       .eq("role", "student")
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
 
     if (query) {
       q = q.or(`full_name.ilike.%${query}%,email.ilike.%${query}%`);
     }
 
-    const { data, error } = await q;
+    const { data, count, error } = await q;
     if (error) throw error;
 
-    res.json({ students: data || [], count: (data || []).length });
+    res.json({ students: data || [], count: count || 0 });
   } catch (err) {
     console.error("Fetch students error:", err.message);
-    res.status(500).json({ error: "Failed to fetch students.", details: err.message, stack: err.stack });
+    res.status(500).json({ error: "Failed to fetch students." });
   }
 });
 
@@ -122,6 +126,7 @@ router.post("/students", authenticate, requireRole("teacher"), addStudentRules, 
     const fullName = `${first_name} ${last_name}`.trim();
 
     // Create auth user
+    // The Database Trigger 'on_auth_user_created' will handle inserting into profiles and users tables automatically.
     const { data: authData, error: authErr } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
@@ -131,33 +136,11 @@ router.post("/students", authenticate, requireRole("teacher"), addStudentRules, 
 
     if (authErr) throw authErr;
 
-    // Create users table entry manually as fallback
-    // If the database has a trigger that already inserted the user, this will throw a duplicate key error (23505).
-    const { error: dbErr } = await supabaseAdmin.from("users").insert({
-      id: authData.user.id,
-      email,
-      role: "student",
-      first_name,
-      last_name,
-      full_name: fullName,
-      course: course || null,
-      is_active: true,
-      created_at: new Date().toISOString(),
-    });
-
-    if (dbErr && dbErr.code !== '23505') {
-       throw dbErr;
-    }
-
-    // Also sync to profiles table if it exists as a second required table
-    await supabaseAdmin.from("profiles").insert({
-      id: authData.user.id,
-      full_name: fullName,
-      role: "student",
-      is_active: true,
+    // Optional: Update profiles table if any additional fields are needed that aren't set by the trigger
+    // or to ensure it's synced immediately for the response (though trigger is very fast)
+    await supabaseAdmin.from("profiles").update({
       class: course || null
-    }).select().single();
-    // (Ignoring errors here as it might be handled by trigger or optional)
+    }).eq("id", authData.user.id);
 
     invalidatePrefix("users:");
     res.status(201).json({ message: "Student added successfully." });
@@ -176,7 +159,7 @@ router.patch("/students/:id/status", authenticate, requireRole("teacher"), async
     const { is_active } = req.body;
 
     const { error } = await supabaseAdmin
-      .from("users")
+      .from("profiles")
       .update({ is_active: !!is_active, updated_at: new Date().toISOString() })
       .eq("id", req.params.id);
 
@@ -199,7 +182,7 @@ router.patch("/students/:id/fees", authenticate, requireRole("teacher"), async (
     const { status } = req.body; // "paid" or "unpaid"
 
     const { error } = await supabaseAdmin
-      .from("users")
+      .from("profiles")
       .update({ fees_status: status, updated_at: new Date().toISOString() })
       .eq("id", req.params.id);
 
@@ -241,7 +224,7 @@ router.post("/students/auto-mark-inactive", authenticate, requireRole("teacher")
     }
 
     const { data, error } = await supabaseAdmin
-      .from("users")
+      .from("profiles")
       .update({ is_active: false, updated_at: new Date().toISOString() })
       .eq("role", "student")
       .neq("fees_status", "paid")

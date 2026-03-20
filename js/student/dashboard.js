@@ -4,57 +4,34 @@
  * Cache-first: data is fetched once and re-rendered from state.
  */
 
-import { users, notes, assignments } from "../api.js";
 import { state } from "./state.js";
 import { $, escHtml, formatDate, formatDeadline } from "../shared/helpers.js";
 
 export async function fetchDashboardStats() {
-  if (state.dashboardLoaded) {
-    if (state.cachedStats) renderStats(state.cachedStats);
-    renderDashRecentNotes(state.cachedDashNotes);
-    renderDashRecentAssignments(state.cachedDashAssign);
-    return;
-  }
-
-  try {
-    const { stats } = await users.getDashboardStats();
-    state.cachedStats = stats;
-    renderStats(stats);
-  } catch (err) { console.warn("Stats error:", err.message); }
-
-  try {
-    const { submittedIds: ids } = await assignments.getSubmissions();
-    state.submittedIds = new Set(ids);
-  } catch (e) { /* ignore */ }
-
-  await Promise.all([loadDashRecentNotes(), loadDashRecentAssignments()]);
-  state.dashboardLoaded = true;
+  if (state.cachedStats) renderStats(state.cachedStats);
+  if (state.cachedRecentNotes) renderDashRecentNotes(state.cachedRecentNotes);
+  if (state.cachedRecentAssignments) renderDashRecentAssignments(state.cachedRecentAssignments);
 }
 
 function renderStats(stats) {
-  $("stat-notes").textContent       = stats.notes ?? "—";
-  $("stat-assignments").textContent = stats.pendingAssignments ?? "—";
+  $("stat-notes").textContent        = stats.notes ?? "0";
+  $("stat-assignments").textContent  = stats.assignments ?? "0";
+  if ($("attendance-pct")) {
+    $("attendance-pct").textContent  = (stats.attendancePct ?? 0) + "%";
+  }
 
-  if (stats.announcements > 0) {
-    $("notif-badge").textContent = stats.announcements > 9 ? "9+" : stats.announcements;
+  const annCount = stats.announcements || 0;
+  if (annCount > 0) {
+    $("notif-badge").textContent = annCount > 9 ? "9+" : annCount;
     $("notif-badge").classList.remove("hidden");
   } else {
     $("notif-badge").classList.add("hidden");
   }
 }
 
-async function loadDashRecentNotes() {
-  try {
-    const { notes: data } = await notes.recent();
-    state.cachedDashNotes = data || [];
-    renderDashRecentNotes(state.cachedDashNotes);
-  } catch (e) {
-    $("dash-recent-notes").innerHTML = `<div class="empty-state-sm">Could not load notes.</div>`;
-  }
-}
-
 function renderDashRecentNotes(data) {
-  const el = $("dash-recent-notes");
+  const el = $("recent-notes-list"); // IDs matched with HTML
+  if (!el) return;
   if (!data?.length) { el.innerHTML = `<div class="empty-state-sm">No notes available yet.</div>`; return; }
   el.innerHTML = data.map(n => `
     <div class="recent-item">
@@ -68,19 +45,10 @@ function renderDashRecentNotes(data) {
   `).join("");
 }
 
-async function loadDashRecentAssignments() {
-  try {
-    const { assignments: data } = await assignments.list();
-    state.cachedDashAssign = data || [];
-    renderDashRecentAssignments(state.cachedDashAssign);
-  } catch (e) {
-    $("dash-recent-assignments").innerHTML = `<div class="empty-state-sm">Could not load assignments.</div>`;
-  }
-}
-
 function renderDashRecentAssignments(data) {
   const recent = (data || []).slice(0, 5);
-  const el = $("dash-recent-assignments");
+  const el = $("recent-assignments-list");
+  if (!el) return;
   if (!recent.length) { el.innerHTML = `<div class="empty-state-sm">No assignments yet.</div>`; return; }
   el.innerHTML = recent.map(a => {
     const diff = a.deadline ? new Date(a.deadline) - new Date() : null;
@@ -88,7 +56,7 @@ function renderDashRecentAssignments(data) {
     if (diff === null)        { cls = "badge-gray";  txt = "No deadline"; }
     else if (diff < 0)        { cls = "badge-red";   txt = "Overdue"; }
     else if (diff < 86400000) { cls = "badge-amber"; txt = "Due today"; }
-    const done = state.submittedIds.has(a.id);
+    const done = state.submittedIds && state.submittedIds.has(a.id);
     if (done) { cls = "badge-teal"; txt = "Submitted"; }
     return `
       <div class="recent-item">

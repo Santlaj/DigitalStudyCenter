@@ -41,11 +41,84 @@ function getUser() {
   }
 }
 
+/**
+ * Decode JWT to check expiry
+ */
+function parseJwt(token) {
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   PERFORMANCE LOGGING
+   ═══════════════════════════════════════════════════════ */
+
+const apiStats = {
+  authCalls: 0,
+  syncCalls: 0,
+  lastLog: Date.now(),
+
+  log() {
+    const now = Date.now();
+    const mins = Math.max(1, (now - this.lastLog) / 60000);
+    console.log(`[API Stats] Auth: ${this.authCalls} (${(this.authCalls / mins).toFixed(1)}/min) | Sync: ${this.syncCalls} (${(this.syncCalls / mins).toFixed(1)}/min)`);
+    // Reset counters periodically
+    if (mins > 5) {
+      this.authCalls = 0;
+      this.syncCalls = 0;
+      this.lastLog = now;
+    }
+  }
+};
+
+let _globalRefreshPromise = null;
+
 /* ═══════════════════════════════════════════════════════
    CORE REQUEST HELPER
 ═══════════════════════════════════════════════════════ */
 
+/* ═══════════════════════════════════════════════════════
+   AUTH RATE SAFETY GUARD
+   ═══════════════════════════════════════════════════════ */
+
+const authRateGuard = {
+  callsInLastMinute: 0,
+  lastReset: Date.now(),
+  THRESHOLD: 5, // Max 5 session refreshes per minute per tab
+
+  check() {
+    const now = Date.now();
+    if (now - this.lastReset > 60000) {
+      this.callsInLastMinute = 0;
+      this.lastReset = now;
+    }
+    this.callsInLastMinute++;
+    return this.callsInLastMinute <= this.THRESHOLD;
+  }
+};
+
 async function apiRequest(method, endpoint, body = null, options = {}) {
+  // Rate guard for auth calls only
+  if (endpoint.includes("/auth/session") || endpoint.includes("/auth/refresh")) {
+    if (!authRateGuard.check()) {
+      console.warn("Auth Rate Guard: Throttling redundant session call. Using cache.");
+      const cached = getUser();
+      if (cached) return { user: cached };
+      throw new Error("Too many authentication requests. Please wait a minute.");
+    }
+  }
+
   const url = `${API_BASE}${endpoint}`;
   const headers = {};
 
@@ -66,6 +139,11 @@ async function apiRequest(method, endpoint, body = null, options = {}) {
 
   try {
     const res = await fetch(url, fetchOpts);
+    
+    // Log stats for auth and sync
+    if (endpoint.includes("/auth")) apiStats.authCalls++;
+    if (endpoint.includes("/sync")) apiStats.syncCalls++;
+    apiStats.log();
 
     if (res.status === 401) {
       // Try to refresh token
@@ -104,21 +182,30 @@ async function tryRefreshToken() {
   const refreshToken = getRefreshToken();
   if (!refreshToken) return false;
 
-  try {
-    const res = await fetch(`${API_BASE}/auth/refresh`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refreshToken }),
-    });
+  // Deduplicate: If another request is already refreshing, wait for it
+  if (_globalRefreshPromise) return _globalRefreshPromise;
 
-    if (!res.ok) return false;
+  _globalRefreshPromise = (async () => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken }),
+      });
 
-    const data = await res.json();
-    setTokens(data.token, data.refreshToken);
-    return true;
-  } catch {
-    return false;
-  }
+      if (!res.ok) return false;
+
+      const data = await res.json();
+      setTokens(data.token, data.refreshToken);
+      return true;
+    } catch {
+      return false;
+    } finally {
+      _globalRefreshPromise = null;
+    }
+  })();
+
+  return _globalRefreshPromise;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -133,10 +220,81 @@ const auth = {
     return data;
   },
 
+  _sessionPromise: null,
+
   async checkSession() {
-    const data = await apiRequest("GET", "/auth/session");
-    setUser(data.user);
-    return data;
+    // If a session check is already in progress, return the same promise
+    if (this._sessionPromise) return this._sessionPromise;
+
+    this._sessionPromise = (async () => {
+      try {
+        const cachedUser = getUser();
+        const token = getToken();
+        
+        if (cachedUser && token) {
+          const payload = parseJwt(token);
+          const now = Math.floor(Date.now() / 1000);
+          
+          // If token is valid for > 5 more minutes, use cache
+          if (payload && payload.exp && (payload.exp - now > 300)) {
+            return { user: cachedUser };
+          }
+
+          // If token is EXPIRED or nearly expired, WE MUST WAIT for refresh
+          // Returning stale/expired user info causes subsequent API calls to fail 401 
+          // and triggers concurrent refresh attempts which invalidates sessions.
+          const refreshed = await this._backgroundRefresh();
+          if (refreshed) {
+            return { user: getUser() || cachedUser };
+          }
+          
+          // Fallback to cached user only if refresh is already pending or failed silently
+          return { user: cachedUser };
+        }
+
+        const data = await apiRequest("GET", "/auth/session");
+        this._lastRefresh = Date.now();
+        setUser(data.user);
+        return data;
+      } finally {
+        this._sessionPromise = null;
+      }
+    })();
+
+    return this._sessionPromise;
+  },
+
+  _lastRefresh: 0,
+  _refreshPromise: null,
+
+  async _backgroundRefresh() {
+    const token = getToken();
+    if (!token) return;
+
+    const payload = parseJwt(token);
+    const now = Math.floor(Date.now() / 1000);
+
+    // Only refresh if token expires in < 10 minutes
+    if (payload && payload.exp && (payload.exp - now > 600)) {
+      return;
+    }
+    
+    // De-duplicate: If a refresh is already in progress, wait for it
+    if (this._refreshPromise) return this._refreshPromise;
+
+    this._refreshPromise = (async () => {
+      try {
+        const data = await apiRequest("GET", "/auth/session");
+        this._lastRefresh = Date.now();
+        setUser(data.user);
+      } catch (err) {
+        console.warn("Background session refresh failed:", err.message);
+      } finally {
+        this._refreshPromise = null;
+      }
+    })();
+
+    return this._refreshPromise;
   },
 
   async forgotPassword(email) {
@@ -165,18 +323,18 @@ const auth = {
 ═══════════════════════════════════════════════════════ */
 
 const notes = {
-  async list(search = "") {
-    const q = search ? `?search=${encodeURIComponent(search)}` : "";
-    return apiRequest("GET", `/notes${q}`);
+  async list(search = "", limit = 20, offset = 0) {
+    const q = new URLSearchParams({ search, limit, offset }).toString();
+    return apiRequest("GET", `/notes?${q}`);
   },
 
   async recent() {
     return apiRequest("GET", "/notes/recent");
   },
 
-  async teacherNotes(search = "") {
-    const q = search ? `?search=${encodeURIComponent(search)}` : "";
-    return apiRequest("GET", `/notes/teacher${q}`);
+  async teacherNotes(search = "", limit = 20, offset = 0) {
+    const q = new URLSearchParams({ search, limit, offset }).toString();
+    return apiRequest("GET", `/notes/teacher?${q}`);
   },
 
   async upload(title, subject, course, description, file) {
@@ -203,13 +361,14 @@ const notes = {
 ═══════════════════════════════════════════════════════ */
 
 const assignments = {
-  async list(search = "") {
-    const q = search ? `?search=${encodeURIComponent(search)}` : "";
-    return apiRequest("GET", `/assignments${q}`);
+  async list(search = "", limit = 20, offset = 0) {
+    const q = new URLSearchParams({ search, limit, offset }).toString();
+    return apiRequest("GET", `/assignments?${q}`);
   },
 
-  async teacherAssignments() {
-    return apiRequest("GET", "/assignments/teacher");
+  async teacherAssignments(limit = 20, offset = 0) {
+    const q = new URLSearchParams({ limit, offset }).toString();
+    return apiRequest("GET", `/assignments/teacher?${q}`);
   },
 
   async create(title, subject, description, deadline) {
@@ -244,9 +403,9 @@ const users = {
     return apiRequest("PATCH", "/users/profile", data);
   },
 
-  async listStudents(search = "") {
-    const q = search ? `?search=${encodeURIComponent(search)}` : "";
-    return apiRequest("GET", `/users/students${q}`);
+  async listStudents(search = "", limit = 20, offset = 0) {
+    const q = new URLSearchParams({ search, limit, offset }).toString();
+    return apiRequest("GET", `/users/students?${q}`);
   },
 
   async addStudent(data) {
@@ -365,19 +524,15 @@ const analytics = {
   },
 };
 
-/* ═══════════════════════════════════════════════════════
-   SYNC API
-═══════════════════════════════════════════════════════ */
+/*   DASHBOARD API  */
 
-const sync = {
-  async getAll() {
-    return apiRequest("GET", "/sync");
+const dashboard = {
+  async getSummary() {
+    return apiRequest("GET", "/dashboard/summary");
   }
 };
 
-/* ═══════════════════════════════════════════════════════
-   EXPORTS
-═══════════════════════════════════════════════════════ */
+/*   EXPORTS   */
 
 export {
   API_BASE,
@@ -386,6 +541,7 @@ export {
   setUser,
   clearTokens,
   auth,
+  dashboard,
   notes,
   assignments,
   users,
@@ -394,5 +550,4 @@ export {
   courses,
   announcements,
   analytics,
-  sync,
 };

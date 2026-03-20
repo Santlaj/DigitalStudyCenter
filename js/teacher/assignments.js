@@ -38,23 +38,44 @@ export async function createAssignment() {
   } finally { setLoading(btn, false, "Create Assignment"); }
 }
 
-export async function loadAssignmentsTable() {
+export async function loadAssignmentsTable(append = false) {
   const tbody = $("assignments-tbody");
+  const loadMoreBtn = $("assignments-load-more");
 
-  // Cache-first: skip API call if already loaded
-  if (state.assignmentsLoaded && state.allAssignments.length >= 0) {
+  if (!append) {
+    state.assignmentsOffset = 0;
+    state.allAssignments = [];
+    tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Loading…</td></tr>`;
+  }
+
+  // Cache-first optimization
+  if (!append && state.assignmentsLoaded && state.allAssignments.length > 0) {
     renderAssignmentsTable(tbody, state.allAssignments);
     return;
   }
 
-  tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Loading…</td></tr>`;
-
   try {
-    const { assignments: data } = await assignments.teacherAssignments();
-    state.allAssignments = data || [];
+    const limit = 20;
+    const { assignments: data, count } = await assignments.teacherAssignments(limit, state.assignmentsOffset);
+    
+    state.allAssignments = append ? [...state.allAssignments, ...data] : data;
+    state.assignmentsOffset += limit;
     state.assignmentsLoaded = true;
+
     renderAssignmentsTable(tbody, state.allAssignments);
-  } catch (err) { tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Error: ${escHtml(err.message)}</td></tr>`; }
+
+    if (loadMoreBtn) {
+      if (state.allAssignments.length < count) {
+        loadMoreBtn.classList.remove("hidden");
+        loadMoreBtn.onclick = () => loadAssignmentsTable(true);
+      } else {
+        loadMoreBtn.classList.add("hidden");
+      }
+    }
+  } catch (err) { 
+    if (!append) tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Error: ${escHtml(err.message)}</td></tr>`;
+    else showToast("Failed to load more: " + err.message, "error");
+  }
 }
 
 function renderAssignmentsTable(tbody, data) {

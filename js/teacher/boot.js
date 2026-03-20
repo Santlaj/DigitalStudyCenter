@@ -3,7 +3,7 @@
  * Auth guard, profile UI, logout for teacher portal.
  */
 
-import { auth, sync } from "../api.js";
+import { auth, dashboard } from "../api.js";
 import { state, resetAllCache } from "./state.js";
 import { $, initials, getCleanLink } from "../shared/helpers.js";
 
@@ -18,15 +18,37 @@ export async function boot(onReady) {
       return;
     }
 
-    await prefetchAll();
+    await fetchDashboardSummary();
 
     applyProfileToUI();
     showApp();
     if (onReady) await onReady();
+    
+    // Start background sync with Visibility API awareness
+    const SYNC_INTERVAL = 1800000; // 30 minutes
+    
+    const startPolling = () => {
+      if (state.syncIntervalId) clearInterval(state.syncIntervalId);
+      state.syncIntervalId = setInterval(fetchDashboardSummary, SYNC_INTERVAL);
+    };
 
-    // Start background sync
-    if (state.syncIntervalId) clearInterval(state.syncIntervalId);
-    state.syncIntervalId = setInterval(prefetchAll, 60000);
+    const stopPolling = () => {
+      if (state.syncIntervalId) clearInterval(state.syncIntervalId);
+      state.syncIntervalId = null;
+    };
+
+    // Initial start
+    startPolling();
+
+    // Visibility Listener
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        fetchDashboardSummary(); // Immediate sync on resume
+        startPolling();
+      } else {
+        stopPolling();
+      }
+    });
   } catch (err) {
     console.error("Auth check failed:", err.message);
 
@@ -48,17 +70,17 @@ export async function boot(onReady) {
   }
 }
 
-export async function prefetchAll() {
+export async function fetchDashboardSummary() {
   try {
-    const data = await sync.getAll();
+    const data = await dashboard.getSummary();
     if (data.profile) state.teacherProfile = data.profile;
     if (data.stats) state.cachedStats = data.stats;
-    if (data.recentNotes) state.recentNotes = data.recentNotes;
-    if (data.recentAssignments) state.recentAssignments = data.recentAssignments;
+    if (data.recentNotes) state.cachedRecentNotes = data.recentNotes;
+    if (data.recentAssignments) state.cachedRecentAssignments = data.recentAssignments;
 
     state.dashboardLoaded = true;
   } catch (err) {
-    console.error("Background sync failed:", err.message);
+    console.error("Dashboard summary fetch failed:", err.message);
   }
 }
 

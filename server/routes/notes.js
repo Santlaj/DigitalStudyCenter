@@ -30,23 +30,26 @@ const upload = multer({
 router.get("/", authenticate, async (req, res) => {
   try {
     const query = req.query.search || "";
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = parseInt(req.query.offset) || 0;
     const userCourse = req.user.course || "all";
-    const cacheKey = `notes:list:${userCourse}:${query}`;
+    const cacheKey = `notes:list:${userCourse}:${query}:${limit}:${offset}`;
 
-    const data = await getOrSet(cacheKey, async () => {
+    const { notes, count } = await getOrSet(cacheKey, async () => {
       let q = supabaseAdmin
         .from("notes")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .range(offset, offset + limit - 1);
 
       if (query) q = q.ilike("title", `%${query}%`);
       if (req.user.role === "student" && req.user.course) {
         q = q.ilike("course", req.user.course);
       }
 
-      const { data: notesData, error } = await q;
+      const { data: notesData, count: totalCount, error } = await q;
       if (error) throw error;
-      if (!notesData || notesData.length === 0) return [];
+      if (!notesData || notesData.length === 0) return { notes: [], count: 0 };
 
       const teacherIds = [...new Set(notesData.map(n => n.teacher_id).filter(Boolean))];
       
@@ -62,13 +65,15 @@ router.get("/", authenticate, async (req, res) => {
         }
       }
 
-      return notesData.map(n => ({
+      const merged = notesData.map(n => ({
         ...n,
         users: usersMap[n.teacher_id] || null
       }));
+
+      return { notes: merged, count: totalCount || 0 };
     }, 120);
 
-    res.json({ notes: data, count: data.length });
+    res.json({ notes, count });
   } catch (err) {
     console.error("Fetch notes error:", err.message);
     res.status(500).json({ error: "Failed to fetch notes." });

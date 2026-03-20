@@ -4,41 +4,19 @@
  * Uses cache-first strategy: data is fetched once and re-rendered from state.
  */
 
-import { users, notes, assignments } from "../api.js";
 import { state } from "./state.js";
 import { $, escHtml, formatDate, formatDeadline } from "../shared/helpers.js";
 
 export async function fetchDashboardStats() {
-  if (state.dashboardLoaded) {
-    // Re-render from cached data without API calls
-    if (state.cachedStats) renderStats(state.cachedStats);
-    renderRecentNotes(state.recentNotes);
-    renderRecentAssignments(state.recentAssignments);
-    return;
-  }
-
-  try {
-    const { stats } = await users.getDashboardStats();
-    state.cachedStats = stats;
-    renderStats(stats);
-  } catch (err) { console.warn("Stats fetch error:", err.message); }
-
-  await Promise.all([loadRecentNotes(), loadRecentAssignments()]);
-  state.dashboardLoaded = true;
+  if (state.cachedStats) renderStats(state.cachedStats);
+  if (state.cachedRecentNotes) renderRecentNotes(state.cachedRecentNotes);
+  if (state.cachedRecentAssignments) renderRecentAssignments(state.cachedRecentAssignments);
 }
 
 function renderStats(stats) {
-  $("stat-students").textContent    = stats.students ?? "—";
-  $("stat-notes").textContent       = stats.notes ?? "—";
-  $("stat-assignments").textContent = stats.assignments ?? "—";
-}
-
-async function loadRecentNotes() {
-  try {
-    const { notes: data } = await notes.teacherNotes();
-    state.allNotes = data || [];
-    renderRecentNotes(state.allNotes);
-  } catch (e) { $("recent-notes-list").innerHTML = `<div class="empty-state-sm">Could not load notes.</div>`; }
+  $("stat-students").textContent    = stats.students ?? "0";
+  $("stat-notes").textContent       = stats.notes ?? "0";
+  $("stat-assignments").textContent = stats.assignments ?? "0";
 }
 
 function renderRecentNotes(data) {
@@ -55,14 +33,6 @@ function renderRecentNotes(data) {
       <span class="recent-badge badge-purple">PDF</span>
     </div>
   `).join("");
-}
-
-async function loadRecentAssignments() {
-  try {
-    const { assignments: data } = await assignments.teacherAssignments();
-    state.allAssignments = data || [];
-    renderRecentAssignments(state.allAssignments);
-  } catch (e) { $("recent-assignments-list").innerHTML = `<div class="empty-state-sm">Could not load assignments.</div>`; }
 }
 
 function renderRecentAssignments(data) {

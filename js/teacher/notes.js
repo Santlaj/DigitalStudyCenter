@@ -69,22 +69,45 @@ export function initFileDrop() {
   input.addEventListener("change", () => { if (input.files?.[0]) $("file-selected").textContent = `📎 ${input.files[0].name} (${(input.files[0].size/1024/1024).toFixed(2)} MB)`; });
 }
 
-export async function loadNotesTable(query = "") {
+export async function loadNotesTable(query = "", append = false) {
   const tbody = $("notes-tbody");
+  const loadMoreBtn = $("notes-load-more");
 
-  // Cache-first: if no search query and data already loaded, re-render from state
-  if (!query && state.notesLoaded && state.allNotes.length >= 0) {
+  if (!append) {
+    state.notesOffset = 0;
+    state.allNotes = [];
+    tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Loading…</td></tr>`;
+  }
+
+  // Cache-first optimization
+  if (!query && !append && state.notesLoaded && state.allNotes.length > 0) {
     renderNotesTable(tbody, state.allNotes);
     return;
   }
 
-  tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Loading…</td></tr>`;
   try {
-    const { notes: data } = await notes.teacherNotes(query);
-    state.allNotes = data || [];
-    if (!query) state.notesLoaded = true;
+    const limit = 20;
+    const { notes: data, count } = await notes.teacherNotes(query, limit, state.notesOffset);
+    
+    state.allNotes = append ? [...state.allNotes, ...data] : data;
+    state.notesOffset += limit;
+    
+    if (!query && !append) state.notesLoaded = true;
+
     renderNotesTable(tbody, state.allNotes);
-  } catch (err) { tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Error: ${escHtml(err.message)}</td></tr>`; }
+
+    if (loadMoreBtn) {
+      if (state.allNotes.length < count) {
+        loadMoreBtn.classList.remove("hidden");
+        loadMoreBtn.onclick = () => loadNotesTable(query, true);
+      } else {
+        loadMoreBtn.classList.add("hidden");
+      }
+    }
+  } catch (err) { 
+    if (!append) tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Error: ${escHtml(err.message)}</td></tr>`;
+    else showToast("Failed to load more: " + err.message, "error");
+  }
 }
 
 function renderNotesTable(tbody, data) {
