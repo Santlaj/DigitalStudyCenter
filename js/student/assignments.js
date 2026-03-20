@@ -81,21 +81,18 @@ function renderAssignmentsList(list, data) {
 
     return `
       <div class="assignment-card ${submitted ? "submitted" : dClass}">
-        <div class="assignment-body">
-          <div class="assignment-title">${escHtml(a.title)}</div>
-          <div class="assignment-meta">
-            <span><strong>Subject:</strong> ${escHtml(a.subject)}</span>
-            <span><strong>Teacher:</strong> ${escHtml(teacher)}</span>
-            <span><strong>Deadline:</strong> ${formatDeadline(a.deadline)}</span>
+        <div class="assign-left">
+          <div class="assign-title">${escHtml(a.title)} ${statusPill}</div>
+          <div class="assign-meta">
+            ${escHtml(a.subject)} · Uploaded by ${escHtml(teacher)} · Due ${formatDeadline(a.deadline)}
           </div>
-          ${a.description ? `<div class="assignment-desc">${escHtml(a.description)}</div>` : ""}
+          ${a.description ? `<div style="font-size:0.8rem;color:var(--text-muted);margin-top:6px">${escHtml(a.description.slice(0, 100))}</div>` : ""}
         </div>
-        <div class="assignment-actions">
-          ${statusPill}
-          ${countdown ? `<div class="deadline-countdown">${escHtml(countdown)}</div>` : ""}
+        <div class="assign-right">
+          ${countdown ? `<div class="deadline-countdown" style="margin-bottom:8px">${escHtml(countdown)}</div>` : ""}
           ${!submitted
-            ? `<button class="btn-success btn-submit-trigger" data-id="${escHtml(a.id)}" data-title="${escHtml(a.title)}">↑ Submit</button>`
-            : `<button class="btn-ghost" style="font-size:0.8rem;padding:7px 14px" disabled>Submitted</button>`}
+            ? `<button class="btn-primary btn-sm btn-submit-trigger" data-id="${escHtml(a.id)}" data-title="${escHtml(a.title)}">Submit Now</button>`
+            : `<button class="btn-ghost btn-sm" disabled>Submitted</button>`}
         </div>
       </div>
     `;
