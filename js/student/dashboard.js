@@ -9,8 +9,8 @@ import { $, escHtml, formatDate, formatDeadline } from "../shared/helpers.js";
 
 export async function fetchDashboardStats() {
   if (state.cachedStats) renderStats(state.cachedStats);
-  if (state.cachedRecentNotes) renderDashRecentNotes(state.cachedRecentNotes);
-  if (state.cachedRecentAssignments) renderDashRecentAssignments(state.cachedRecentAssignments);
+  if (state.cachedDashNotes) renderDashRecentNotes(state.cachedDashNotes);
+  if (state.cachedDashAssign) renderDashRecentAssignments(state.cachedDashAssign);
 }
 
 function renderStats(stats) {
@@ -30,7 +30,7 @@ function renderStats(stats) {
 }
 
 function renderDashRecentNotes(data) {
-  const el = $("recent-notes-list"); // IDs matched with HTML
+  const el = $("dash-recent-notes");
   if (!el) return;
   if (!data?.length) { el.innerHTML = `<div class="empty-state-sm">No notes available yet.</div>`; return; }
   el.innerHTML = data.map(n => `
@@ -47,7 +47,7 @@ function renderDashRecentNotes(data) {
 
 function renderDashRecentAssignments(data) {
   const recent = (data || []).slice(0, 5);
-  const el = $("recent-assignments-list");
+  const el = $("dash-recent-assignments");
   if (!el) return;
   if (!recent.length) { el.innerHTML = `<div class="empty-state-sm">No assignments yet.</div>`; return; }
   el.innerHTML = recent.map(a => {
