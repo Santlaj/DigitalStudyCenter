@@ -103,7 +103,7 @@ export function applyProfileToUI() {
   $("topnav-avatar").textContent         = ini;
   $("welcome-name").textContent          = short;
   if ($("popup-name-large")) $("popup-name-large").textContent = name;
-  if ($("popup-email")) $("popup-email").textContent = p?.email || "No email";
+  if ($("popup-email")) $("popup-email").textContent = p?.email || state.currentStudent?.email || "No email";
   if ($("popup-course")) $("popup-course").textContent = p?.course || p?.class || "No Course Linked";
   if ($("popup-avatar-large")) $("popup-avatar-large").textContent = ini;
 }
