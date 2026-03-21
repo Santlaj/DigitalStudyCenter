@@ -1980,7 +1980,8 @@ body.dark-mode .data-table tbody tr:hover td {
 body.dark-mode .field-input,
 body.dark-mode .search-input,
 body.dark-mode .topnav-search,
-body.dark-mode textarea {
+body.dark-mode textarea,
+body.dark-mode .att-note-input {
   background: rgba(0, 0, 0, 0.2) !important;
   color: #f8fafc !important;
   border-color: #334155 !important;
@@ -1989,7 +1990,8 @@ body.dark-mode textarea {
 body.dark-mode .field-input:focus,
 body.dark-mode .search-input:focus,
 body.dark-mode .topnav-search:focus,
-body.dark-mode textarea:focus {
+body.dark-mode textarea:focus,
+body.dark-mode .att-note-input:focus {
   background: rgba(0, 0, 0, 0.3) !important;
   border-color: var(--accent-light) !important;
 }
