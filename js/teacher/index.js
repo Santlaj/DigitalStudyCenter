@@ -13,7 +13,7 @@ import { fetchStudents, openAddStudentModal, closeAddStudentModal, addStudent, a
 import { loadAnalytics }                     from "./analytics.js";
 import { saveProfile }                       from "./profile.js";
 import {
-  setDefaultAttDate, loadSubjectsForClass, loadStudentsForAttendance,
+  setDefaultAttDate, loadStudentsForAttendance,
   saveAttendance, loadAttendanceHistory, markAll, toggleSelectAll,
   closeAttDetailModal,
 } from "./attendance.js";
@@ -125,7 +125,6 @@ function wireEvents() {
   $("att-load-btn").addEventListener("click", loadStudentsForAttendance);
   $("att-save-btn").addEventListener("click", saveAttendance);
   $("att-refresh-history").addEventListener("click", loadAttendanceHistory);
-  $("att-class").addEventListener("change", () => loadSubjectsForClass($("att-class").value));
   $("att-mark-all-present").addEventListener("click", () => markAll("present"));
   $("att-mark-all-absent").addEventListener("click",  () => markAll("absent"));
   $("att-check-all").addEventListener("change", (e) => toggleSelectAll(e.target.checked));

@@ -12,35 +12,29 @@ export function setDefaultAttDate() {
   if (el && !el.value) el.value = new Date().toISOString().slice(0, 10);
 }
 
-export async function loadSubjectsForClass(attClass) {
-  const select = $("att-subject");
-  if (!attClass) { select.innerHTML = `<option value="">Select Subject</option>`; return; }
-  select.innerHTML = `<option value="">Loading...</option>`;
-  try {
-    const { subjects } = await users.getSubjects();
-    if (!subjects || !subjects.length) {
-      select.innerHTML = `<option value="">No subjects found</option>`;
-      return;
-    }
-    select.innerHTML = `<option value="">Select Subject</option>` + 
-      subjects.map(s => `<option value="${escHtml(s)}">${escHtml(s)}</option>`).join("");
-  } catch (err) {
-    select.innerHTML = `<option value="">Error loading subjects</option>`;
-  }
-}
+
 
 export async function loadStudentsForAttendance() {
-  const date = $("att-date").value, attClass = $("att-class").value, subjectVal = $("att-subject").value;
+  const date = $("att-date").value, attClass = $("att-class").value;
   $("att-err").textContent = "";
   if (!date) { $("att-err").textContent = "Select date."; return; }
   if (!attClass) { $("att-err").textContent = "Select class."; return; }
-  if (!subjectVal) { $("att-err").textContent = "Select subject."; return; }
 
   const btn = $("att-load-btn");
   setLoading(btn, true, "Load Students");
   try {
-    const { students } = await attendance.getStudentsForClass(attClass);
+    const { students, subjects } = await attendance.getStudentsForClass(attClass);
     state.attStudents = students || [];
+    state.subjects = subjects || [];
+    
+    const select = $("att-subject");
+    if (!state.subjects.length) {
+      select.innerHTML = `<option value="">No subjects found</option>`;
+    } else {
+      select.innerHTML = `<option value="">Select Subject</option>` + 
+        state.subjects.map(s => `<option value="${escHtml(s)}">${escHtml(s)}</option>`).join("");
+    }
+
     state.attStatusMap = {}; state.attNoteMap = {};
     state.attStudents.forEach(s => { state.attStatusMap[s.id] = "present"; });
     renderAttTable(); updateAttSummary();
@@ -86,7 +80,9 @@ export function updateAttSummary() {
 
 export async function saveAttendance() {
   const date = $("att-date").value, attClass = $("att-class").value, subjectVal = $("att-subject").value;
-  if (!date || !attClass || !subjectVal) return;
+  $("att-err").textContent = "";
+  if (!date || !attClass) return;
+  if (!subjectVal) { $("att-err").textContent = "Please select a subject."; return; }
   const btn = $("att-save-btn");
   setLoading(btn, true, "Saving");
   try {

@@ -238,7 +238,21 @@ router.get("/students-for-class", authenticate, requireRole("teacher"), async (r
     const { data, error } = await query.order("full_name", { ascending: true });
 
     if (error) throw error;
-    res.json({ students: data || [] });
+    
+    // Fetch unique subjects if a class is provided
+    let uniqueSubjects = [];
+    if (req.query.class) {
+      const { data: subjData, error: subjErr } = await supabaseAdmin
+        .from("subjects")
+        .select("name")
+        .eq("class_level", req.query.class);
+        
+      if (!subjErr && subjData) {
+        uniqueSubjects = [...new Set(subjData.map(s => String(s.name).toLowerCase()))];
+      }
+    }
+
+    res.json({ students: data || [], subjects: uniqueSubjects });
   } catch (err) {
     console.error("Students for class error:", err.message);
     res.status(500).json({ error: "Failed to fetch students." });

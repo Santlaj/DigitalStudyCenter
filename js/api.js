@@ -371,8 +371,8 @@ const assignments = {
     return apiRequest("GET", `/assignments/teacher?${q}`);
   },
 
-  async create(title, subject, description, deadline) {
-    return apiRequest("POST", "/assignments", { title, subject, description, deadline });
+  async create(title, subject, description, deadline, course = "all") {
+    return apiRequest("POST", "/assignments", { title, subject, description, deadline, course });
   },
 
   async remove(id) {
@@ -426,10 +426,6 @@ const users = {
 
   async getDashboardStats() {
     return apiRequest("GET", "/users/dashboard-stats");
-  },
-
-  async getSubjects() {
-    return apiRequest("GET", "/users/subjects");
   },
 };
 

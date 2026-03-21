@@ -59,6 +59,7 @@ const createAssignmentRules = [
   body("subject").trim().notEmpty().withMessage("Subject is required.").isLength({ max: 100 }),
   body("description").optional().trim().isLength({ max: 2000 }),
   body("deadline").notEmpty().withMessage("Deadline is required.").isISO8601().withMessage("Invalid date format."),
+  body("course").optional().trim().isLength({ max: 100 }),
   handleValidation,
 ];
 

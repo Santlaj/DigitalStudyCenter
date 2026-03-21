@@ -362,6 +362,18 @@
                 <span class="error-msg" id="assign-subject-err"></span>
               </div>
               <div class="field-group">
+                <label class="field-label" for="assign-course">Target Class</label>
+                <select class="field-input field-select" id="assign-course">
+                  <option value="all">All</option>
+                  <option value="8">Class 8</option>
+                  <option value="9">Class 9</option>
+                  <option value="10">Class 10</option>
+                  <option value="11">Class 11</option>
+                  <option value="12">Class 12</option>
+                  <option value="foundation">Foundation Batch</option>
+                </select>
+              </div>
+              <div class="field-group">
                 <label class="field-label" for="assign-description">Description</label>
                 <textarea class="field-input field-textarea" id="assign-description"
                   placeholder="Assignment instructions…" rows="3"></textarea>
@@ -595,10 +607,22 @@
               <div class="panel-header" style="margin-bottom: 12px;">
                 <h2 class="panel-title">Post New Announcement</h2>
               </div>
-              <div class="form-row" style="grid-template-columns: 1fr; gap: 12px;">
+              <div class="form-row" style="grid-template-columns: 2fr 1fr; gap: 12px;">
                 <div class="field-group" style="margin-bottom:0;">
                   <label class="field-label" for="ann-title">Announcement Title</label>
                   <input class="field-input" type="text" id="ann-title" placeholder="e.g. Tomorrow's class shifted" />
+                </div>
+                <div class="field-group" style="margin-bottom:0;">
+                  <label class="field-label" for="ann-course">Target Class</label>
+                  <select class="field-input field-select" id="ann-course">
+                    <option value="all">All</option>
+                    <option value="8">Class 8</option>
+                    <option value="9">Class 9</option>
+                    <option value="10">Class 10</option>
+                    <option value="11">Class 11</option>
+                    <option value="12">Class 12</option>
+                    <option value="foundation">Foundation Batch</option>
+                  </select>
                 </div>
               </div>
               <div class="form-row" style="grid-template-columns: 1fr; gap: 12px; margin-top: 12px;">

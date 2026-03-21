@@ -15,12 +15,19 @@ const { getOrSet, invalidatePrefix } = require("../lib/cache");
  */
 router.get("/", authenticate, async (req, res) => {
   try {
-    const data = await getOrSet("announcements:list", async () => {
+    const userCourse = (req.user.course || "all").toLowerCase();
+    const data = await getOrSet(`announcements:list:${req.user.role}:${userCourse}`, async () => {
       // Step 1: Fetch announcements without relational join
-      const { data: annList, error } = await supabaseAdmin
+      let q = supabaseAdmin
         .from("announcements")
         .select("*")
         .order("created_at", { ascending: false });
+
+      if (req.user.role === "student" && req.user.course) {
+        q = q.or(`course.eq.all,course.eq.${userCourse},course.is.null`);
+      }
+
+      const { data: annList, error } = await q;
 
       if (error) throw error;
       if (!annList || annList.length === 0) return [];
@@ -58,13 +65,20 @@ router.get("/", authenticate, async (req, res) => {
  */
 router.get("/count", authenticate, async (req, res) => {
   try {
-    const count = await getOrSet("announcements:count", async () => {
-      const { count, error } = await supabaseAdmin
+    const userCourse = (req.user.course || "all").toLowerCase();
+    const count = await getOrSet(`announcements:count:${req.user.role}:${userCourse}`, async () => {
+      let q = supabaseAdmin
         .from("announcements")
         .select("id", { count: "exact", head: true });
 
+      if (req.user.role === "student" && req.user.course) {
+        q = q.or(`course.eq.all,course.eq.${userCourse},course.is.null`);
+      }
+      
+      const { count: exactCount, error } = await q;
+
       if (error) throw error;
-      return count ?? 0;
+      return exactCount ?? 0;
     }, 60);
 
     res.json({ count });
@@ -80,7 +94,7 @@ router.get("/count", authenticate, async (req, res) => {
  */
 router.post("/", authenticate, async (req, res) => {
   try {
-    const { title, message } = req.body;
+    const { title, message, course } = req.body;
     
     const isTeacher = req.user.role === "teacher";
     if (!isTeacher) {
@@ -91,11 +105,14 @@ router.post("/", authenticate, async (req, res) => {
       return res.status(400).json({ error: "Title and message are required." });
     }
     
+    const courseVal = course ? course.toLowerCase() : "all";
+
     const { data, error } = await supabaseAdmin
       .from("announcements")
       .insert({
         title,
         message,
+        course: courseVal,
         teacher_id: req.user.id
       })
       .select()

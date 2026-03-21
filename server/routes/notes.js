@@ -32,7 +32,7 @@ router.get("/", authenticate, async (req, res) => {
     const query = req.query.search || "";
     const limit = parseInt(req.query.limit) || 20;
     const offset = parseInt(req.query.offset) || 0;
-    const userCourse = req.user.course || "all";
+    const userCourse = (req.user.course || "all").toLowerCase();
     const cacheKey = `notes:list:${userCourse}:${query}:${limit}:${offset}`;
 
     const { notes, count } = await getOrSet(cacheKey, async () => {
@@ -44,7 +44,7 @@ router.get("/", authenticate, async (req, res) => {
 
       if (query) q = q.ilike("title", `%${query}%`);
       if (req.user.role === "student" && req.user.course) {
-        q = q.ilike("course", req.user.course);
+        q = q.or(`course.eq.all,course.eq.${req.user.course.toLowerCase()},course.is.null`);
       }
 
       const { data: notesData, count: totalCount, error } = await q;
@@ -181,7 +181,7 @@ router.post("/", authenticate, requireRole("teacher"), uploadLimiter, (req, res,
       teacher_id: req.user.id,
       title,
       subject,
-      course: course || null,
+      course: course ? course.toLowerCase() : "all",
       description: description || null,
       file_url: fileUrl,
       download_count: 0,

@@ -248,40 +248,6 @@ router.post("/students/auto-mark-inactive", authenticate, requireRole("teacher")
 });
 
 /**
- * GET /api/users/subjects
- * Get unique subjects taught by the teacher.
- */
-router.get("/subjects", authenticate, requireRole("teacher"), async (req, res) => {
-  try {
-    const role = req.user.role;
-    const cacheKey = `subjects:${role}:${req.user.id}`;
-    
-    const subjects = await getOrSet(cacheKey, async () => {
-      // Gather subjects from notes, assignments, and past attendance sessions
-      const [notesRes, assignmentsRes, sessionsRes] = await Promise.all([
-        supabaseAdmin.from("notes").select("subject").eq("teacher_id", req.user.id),
-        supabaseAdmin.from("assignments").select("subject").eq("teacher_id", req.user.id),
-        supabaseAdmin.from("attendance_sessions").select("subject").eq("teacher_id", req.user.id)
-      ]);
-      
-      const allSubjects = [
-        ...(notesRes.data || []),
-        ...(assignmentsRes.data || []),
-        ...(sessionsRes.data || [])
-      ].map(r => r.subject).filter(Boolean);
-      
-      const uniqueSubjects = Array.from(new Set(allSubjects)).sort();
-      return uniqueSubjects;
-    }, 60);
-
-    res.json({ subjects });
-  } catch (err) {
-    console.error("Subjects fetch error:", err.message);
-    res.status(500).json({ error: "Failed to fetch subjects." });
-  }
-});
-
-/**
  * GET /api/users/dashboard-stats
  * Aggregated stats for dashboard. Cached 60s.
  */

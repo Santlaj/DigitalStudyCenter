@@ -61,10 +61,12 @@ function renderAnnouncements(feed, countLabel, data) {
 export async function postAnnouncement() {
   const titleInput = $("ann-title");
   const msgInput = $("ann-message");
+  const courseInput = $("ann-course");
   const btn = $("btn-post-ann");
 
   const title = titleInput.value.trim();
   const message = msgInput.value.trim();
+  const course = courseInput.value;
 
   if (!title || !message) {
     return showToast("Please fill in both title and message.", "error");
@@ -74,11 +76,12 @@ export async function postAnnouncement() {
     btn.disabled = true;
     btn.textContent = "Posting...";
 
-    await announcements.create({ title, message });
+    await announcements.create({ title, message, course });
 
     showToast("Announcement posted!", "success");
     titleInput.value = "";
     msgInput.value = "";
+    courseInput.value = "all";
 
     // Invalidate cache and re-fetch
     state.announcementsLoaded = false;

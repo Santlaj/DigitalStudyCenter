@@ -38,7 +38,9 @@ router.get("/", authenticate, async (req, res) => {
     const query = req.query.search || "";
     const limit = parseInt(req.query.limit) || 20;
     const offset = parseInt(req.query.offset) || 0;
-    const cacheKey = `assignments:list:${query}:${limit}:${offset}`;
+    const userRole = req.user.role;
+    const userCourse = (req.user.course || "all").toLowerCase();
+    const cacheKey = `assignments:list:${userRole}:${userCourse}:${query}:${limit}:${offset}`;
 
     const { assignments, count } = await getOrSet(cacheKey, async () => {
       let q = supabaseAdmin
@@ -48,6 +50,9 @@ router.get("/", authenticate, async (req, res) => {
         .range(offset, offset + limit - 1);
 
       if (query) q = q.ilike("title", `%${query}%`);
+      if (userRole === "student" && req.user.course) {
+        q = q.or(`course.eq.all,course.eq.${userCourse},course.is.null`);
+      }
 
       const { data, count: totalCount, error } = await q;
       if (error) throw error;
@@ -91,12 +96,14 @@ router.get("/teacher", authenticate, requireRole("teacher"), async (req, res) =>
  */
 router.post("/", authenticate, requireRole("teacher"), createAssignmentRules, async (req, res) => {
   try {
-    const { title, subject, description, deadline } = req.body;
+    const { title, subject, description, deadline, course } = req.body;
+    const courseVal = course ? course.toLowerCase() : "all";
 
     const { data, error } = await supabaseAdmin.from("assignments").insert({
       teacher_id: req.user.id,
       title,
       subject,
+      course: courseVal,
       description: description || null,
       deadline: new Date(deadline).toISOString(),
     }).select().single();

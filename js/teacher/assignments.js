@@ -15,6 +15,7 @@ export async function createAssignment() {
 
   const title = $("assign-title").value.trim(), subject = $("assign-subject").value.trim();
   const description = $("assign-description").value.trim(), deadline = $("assign-deadline").value;
+  const course = $("assign-course").value;
 
   let valid = true;
   if (!title)    { $("assign-title-err").textContent    = "Title is required.";    valid = false; }
@@ -26,9 +27,10 @@ export async function createAssignment() {
   setLoading(btn, true, "Create Assignment");
 
   try {
-    await assignments.create(title, subject, description, new Date(deadline).toISOString());
+    await assignments.create(title, subject, description, new Date(deadline).toISOString(), course);
     showToast("Assignment created!", "success");
     ["assign-title","assign-subject","assign-description","assign-deadline"].forEach(id => { $(id).value = ""; });
+    $("assign-course").value = "all";
     state.assignmentsLoaded = false;
     state.dashboardLoaded = false;
     await loadAssignmentsTable();
