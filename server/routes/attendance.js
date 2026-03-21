@@ -242,13 +242,34 @@ router.get("/students-for-class", authenticate, requireRole("teacher"), async (r
     // Fetch unique subjects if a class is provided
     let uniqueSubjects = [];
     if (req.query.class) {
+      const classNum = String(req.query.class).replace(/\D/g, ""); // "10"
+      
+      // If the frontend sends "10", the DB likely has "Class 10", so use ilike
       const { data: subjData, error: subjErr } = await supabaseAdmin
         .from("subjects")
         .select("name")
-        .eq("class_level", req.query.class);
+        .ilike("class_level", `%${classNum}%`);
         
-      if (!subjErr && subjData) {
-        uniqueSubjects = [...new Set(subjData.map(s => String(s.name).toLowerCase()))];
+      if (!subjErr && subjData && subjData.length > 0) {
+        uniqueSubjects = [...new Set(subjData.map(s => {
+          const str = String(s.name).trim();
+          return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase(); // Normalize to Title Case
+        }))].sort();
+      } else {
+        // Fallback to scraping teacher's historically used subjects for this class
+        const { data: sessData } = await supabaseAdmin
+          .from("attendance_sessions")
+          .select("subject")
+          .eq("teacher_id", req.user.id)
+          .ilike("class_name", `%${classNum}%`);
+          
+        if (sessData) {
+          const names = sessData.map(s => s.subject).filter(Boolean);
+          uniqueSubjects = [...new Set(names.map(name => {
+            const str = String(name).trim();
+            return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+          }))].sort();
+        }
       }
     }
 
