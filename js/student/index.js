@@ -11,7 +11,6 @@ import { fetchAssignments, submitAssignment, closeSubmitModal, initSubmitFileDro
 import { fetchAttendance }                   from "./attendance.js";
 import { fetchFeePayment, updateFeeStatCard } from "./fees.js";
 import { fetchAnnouncements }                from "./announcements.js";
-import { loadActivityChart }                 from "./chart.js";
 import { saveProfile }                       from "./profile.js";
 import { loadDashAttendancePreview }         from "./attendance.js";
 
@@ -30,7 +29,6 @@ function navigateTo(section) {
   if (section === "attendance")    fetchAttendance();
   if (section === "fee-payment")   fetchFeePayment();
   if (section === "announcements") fetchAnnouncements();
-  if (section === "dashboard")     loadActivityChart();
 
   if (window.innerWidth <= 768) $("sidebar").classList.remove("open");
   document.querySelector(".main-content").scrollTop = 0;
@@ -119,7 +117,6 @@ document.addEventListener("DOMContentLoaded", () => {
     await updateFeeStatCard();
     await loadDashAttendancePreview();
   });
-  setTimeout(loadActivityChart, 600);
 });
 
 
