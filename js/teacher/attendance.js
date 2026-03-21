@@ -55,13 +55,17 @@ export function renderAttTable() {
         <td><input type="checkbox" class="att-row-check" data-sid="${s.id}"></td>
         <td><div class="att-student-cell"><div class="att-avatar-mini">${ini}</div><span>${escHtml(name)}</span></div></td>
         <td>${escHtml(s.email)}</td><td>${escHtml(s.course || "—")}</td>
-        <td><button class="att-status-btn ${status === "present" ? "active" : ""}" data-sid="${s.id}" data-status="present">Present</button>
-          <button class="att-status-btn ${status === "absent" ? "active" : ""}" data-sid="${s.id}" data-status="absent">Absent</button></td>
+        <td>
+          <label class="att-toggle">
+            <input type="checkbox" class="att-status-toggle" data-sid="${s.id}" ${status === "present" ? "checked" : ""}>
+            <span class="att-slider"></span>
+          </label>
+        </td>
         <td><input class="att-note-input" data-sid="${s.id}" value="${escHtml(state.attNoteMap[s.id] || "")}"></td>
       </tr>`;
   }).join("");
 
-  tbody.querySelectorAll(".att-status-btn").forEach(btn => { btn.onclick = () => setStudentStatus(btn.dataset.sid, btn.dataset.status); });
+  tbody.querySelectorAll(".att-status-toggle").forEach(chk => { chk.onchange = (e) => setStudentStatus(chk.dataset.sid, e.target.checked ? "present" : "absent"); });
   tbody.querySelectorAll(".att-note-input").forEach(input => { input.oninput = () => { state.attNoteMap[input.dataset.sid] = input.value; }; });
 }
 
