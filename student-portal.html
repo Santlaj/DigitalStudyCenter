@@ -68,10 +68,7 @@
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 3a1 1 0 00-1.447-.894L8.763 6H5a3 3 0 000 6h.28l1.771 5.316A1 1 0 008 18h1a1 1 0 001-1v-4.382l6.553 3.276A1 1 0 0018 15V3z" clip-rule="evenodd"/></svg>
           <span class="nav-label">Announcements</span>
         </a>
-        <a class="nav-item" data-section="profile">
-          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
-          <span class="nav-label">Profile</span>
-        </a>
+
       </nav>
 
       <!-- Mobile Sidebar Close -->
@@ -101,9 +98,18 @@
             <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
             <span class="notif-badge" id="notif-badge">0</span>
           </button>
-          <div class="topnav-student">
+          <div class="topnav-student" id="topnav-student-btn" tabindex="0" role="button">
             <div class="topnav-avatar" id="topnav-avatar">S</div>
             <span class="topnav-name" id="topnav-name">Student</span>
+            <!-- PROFILE POPUP -->
+            <div class="header-profile-popup hidden" id="header-profile-popup">
+              <div class="popup-avatar-large" id="popup-avatar-large">S</div>
+              <div class="popup-info">
+                <div class="popup-name-large" id="popup-name-large">Loading...</div>
+                <div class="popup-email" id="popup-email">...</div>
+                <div class="popup-course" id="popup-course">...</div>
+              </div>
+            </div>
           </div>
           <button class="topnav-logout-btn" id="topnav-logout">Logout</button>
         </div>
@@ -419,49 +425,6 @@
           </div>
         </section>
 
-        <!-- ══ PROFILE ══ -->
-        <section class="section" id="section-profile">
-          <div class="section-header">
-            <h1 class="section-title">My Profile</h1>
-            <p class="section-sub">Manage your account information.</p>
-          </div>
-          <div class="profile-layout">
-            <div class="profile-avatar-card">
-              <div class="profile-avatar-circle" id="profile-avatar-big">S</div>
-              <div class="profile-avatar-name" id="profile-display-name">Student</div>
-              <div class="profile-avatar-email" id="profile-display-email">—</div>
-              <span class="role-pill role-pill-student">Student</span>
-            </div>
-            <div class="form-card">
-              <h2 class="form-card-title">Update Information</h2>
-              <div class="form-row">
-                <div class="field-group">
-                  <label class="field-label" for="profile-firstname">First Name</label>
-                  <input class="field-input" type="text" id="profile-firstname" readonly/>
-                </div>
-                <div class="field-group">
-                  <label class="field-label" for="profile-lastname">Last Name</label>
-                  <input class="field-input" type="text" id="profile-lastname" readonly/>
-                </div>
-              </div>
-              <div class="field-group">
-                <label class="field-label" for="profile-email">Email</label>
-                <input class="field-input" type="email" id="profile-email" readonly/>
-              </div>
-              <div class="field-group">
-                <label class="field-label" for="profile-course">Course / Programme</label>
-                <input class="field-input" type="text" id="profile-course" placeholder="e.g. BSc Computer Science Year 2" readonly/>
-              </div>
-              <div class="field-group">
-                <label class="field-label" for="profile-bio">Bio</label>
-                <textarea class="field-input field-textarea" id="profile-bio" placeholder="Tell us a bit about yourself…" rows="3" readonly></textarea>
-              </div>
-              <span class="error-msg" id="profile-err"></span>
-              <div class="success-msg hidden" id="profile-success"></div>
-              <button class="btn-primary" id="profile-save-btn">Save Changes</button>
-            </div>
-          </div>
-        </section>
 
       </main>
     </div>

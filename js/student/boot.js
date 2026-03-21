@@ -102,14 +102,10 @@ export function applyProfileToUI() {
   $("topnav-name").textContent           = short;
   $("topnav-avatar").textContent         = ini;
   $("welcome-name").textContent          = short;
-  $("profile-display-name").textContent  = name;
-  $("profile-display-email").textContent = p?.email || "";
-  $("profile-avatar-big").textContent    = ini;
-  $("profile-email").value               = p?.email || "";
-  $("profile-firstname").value           = p?.first_name || "";
-  $("profile-lastname").value            = p?.last_name  || "";
-  $("profile-course").value              = p?.course     || "";
-  $("profile-bio").value                 = p?.bio        || "";
+  if ($("popup-name-large")) $("popup-name-large").textContent = name;
+  if ($("popup-email")) $("popup-email").textContent = p?.email || "No email";
+  if ($("popup-course")) $("popup-course").textContent = p?.course || p?.class || "No Course Linked";
+  if ($("popup-avatar-large")) $("popup-avatar-large").textContent = ini;
 }
 
 function showApp() {

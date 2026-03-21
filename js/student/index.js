@@ -95,7 +95,16 @@ function wireEvents() {
   $("submit-modal-close").addEventListener("click", closeSubmitModal);
   $("submit-modal").addEventListener("click", (e) => { if (e.target === e.currentTarget) closeSubmitModal(); });
 
-  $("profile-save-btn").addEventListener("click", saveProfile);
+  $("topnav-student-btn")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    $("header-profile-popup")?.classList.toggle("hidden");
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest("#topnav-student-btn")) {
+      $("header-profile-popup")?.classList.add("hidden");
+    }
+  });
 
   initSubmitFileDrop();
   setupGlobalSearch();
