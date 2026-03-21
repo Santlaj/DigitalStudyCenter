@@ -59,7 +59,7 @@ BEGIN
     COALESCE(NEW.raw_user_meta_data->>'course', NEW.raw_user_meta_data->>'class')
   );
 
-  INSERT INTO public.users (id, email, role, full_name, first_name, last_name, created_at)
+  INSERT INTO public.users (id, email, role, full_name, first_name, last_name, course, created_at)
   VALUES (
     NEW.id,
     NEW.email,
@@ -67,6 +67,7 @@ BEGIN
     COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
     COALESCE(NEW.raw_user_meta_data->>'first_name', ''),
     COALESCE(NEW.raw_user_meta_data->>'last_name', ''),
+    COALESCE(NEW.raw_user_meta_data->>'course', NEW.raw_user_meta_data->>'class'),
     NOW()
   ) ON CONFLICT (id) DO NOTHING;
 

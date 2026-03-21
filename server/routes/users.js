@@ -142,6 +142,12 @@ router.post("/students", authenticate, requireRole("teacher"), addStudentRules, 
       class: course || null
     }).eq("id", authData.user.id);
 
+    if (course) {
+      await supabaseAdmin.from("users").update({
+        course: course
+      }).eq("id", authData.user.id);
+    }
+
     invalidatePrefix("users:");
     res.status(201).json({ message: "Student added successfully." });
   } catch (err) {
