@@ -105,10 +105,36 @@ router.get("/students", authenticate, requireRole("teacher"), async (req, res) =
       q = q.or(`full_name.ilike.%${query}%,email.ilike.%${query}%`);
     }
 
-    const { data, count, error } = await q;
+    const { data: studentsList, count, error } = await q;
     if (error) throw error;
 
-    res.json({ students: data || [], count: count || 0 });
+    let students = studentsList || [];
+
+    // Dynamically attach the current month's fee status from fee_payments
+    if (students.length > 0) {
+      const today = new Date();
+      const month = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+      const studentIds = students.map(s => s.id);
+
+      const { data: fees } = await supabaseAdmin
+        .from("fee_payments")
+        .select("student_id, status")
+        .in("student_id", studentIds)
+        .eq("month", month);
+
+      if (fees && fees.length > 0) {
+        const feeMap = {};
+        fees.forEach(f => { feeMap[f.student_id] = f.status; });
+        students = students.map(s => ({
+          ...s,
+          fees_status: feeMap[s.id] || "unpaid"
+        }));
+      } else {
+        students = students.map(s => ({ ...s, fees_status: "unpaid" }));
+      }
+    }
+
+    res.json({ students, count: count || 0 });
   } catch (err) {
     console.error("Fetch students error:", err.message);
     res.status(500).json({ error: "Failed to fetch students." });
