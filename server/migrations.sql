@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   first_name  TEXT,
   last_name   TEXT,
   role        TEXT DEFAULT 'student' CHECK (role IN ('student', 'teacher', 'admin')),
+  email       TEXT,
   class       TEXT,
   subject     TEXT,
   bio         TEXT,
@@ -49,9 +50,10 @@ $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, full_name, first_name, last_name, role, class)
+  INSERT INTO public.profiles (id, email, full_name, first_name, last_name, role, class)
   VALUES (
     NEW.id,
+    NEW.email,
     COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
     COALESCE(NEW.raw_user_meta_data->>'first_name', ''),
     COALESCE(NEW.raw_user_meta_data->>'last_name', ''),

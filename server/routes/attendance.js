@@ -232,7 +232,7 @@ router.get("/students-for-class", authenticate, requireRole("teacher"), async (r
 
     if (req.query.class) {
       // The frontend sends "10", we can match it directly or use ilike if "Class 10" is used
-      query = query.ilike("course", `%${req.query.class}%`);
+      query = query.ilike("class", `%${req.query.class}%`);
     }
 
     const { data, error } = await query.order("full_name", { ascending: true });

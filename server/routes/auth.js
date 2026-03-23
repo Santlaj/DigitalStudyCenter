@@ -68,6 +68,7 @@ router.post("/login", authLimiter, loginRules, async (req, res) => {
       });
       await supabaseAdmin.from("profiles").upsert({
         id: user.id,
+        email: user.email,
         full_name: user.user_metadata?.full_name || null,
         first_name: user.user_metadata?.first_name || null,
         last_name: user.user_metadata?.last_name || null,

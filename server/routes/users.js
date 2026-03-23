@@ -64,7 +64,7 @@ router.patch("/profile", authenticate, updateProfileRules, async (req, res) => {
     };
 
     if (req.user.role === "student") {
-      updateData.course = course || null;
+      updateData.class = course || null;
     }
     if (req.user.role === "teacher") {
       updateData.subject = subject || null;
