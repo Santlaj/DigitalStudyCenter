@@ -105,6 +105,10 @@ DROP POLICY IF EXISTS "Profiles: Authorize insert" ON public.profiles;
 CREATE POLICY "Profiles: Authorize insert" ON public.profiles
   FOR INSERT WITH CHECK (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Profiles: Teachers can update students" ON public.profiles;
+CREATE POLICY "Profiles: Teachers can update students" ON public.profiles
+  FOR UPDATE USING (public.get_my_role() = 'teacher');
+
 -- 7. USERS POLICIES (Restricted & Secure)
 DROP POLICY IF EXISTS "Users: Personal read access" ON public.users;
 CREATE POLICY "Users: Personal read access" ON public.users

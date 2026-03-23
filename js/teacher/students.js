@@ -58,7 +58,7 @@ function renderStudentsTable(tbody, students) {
   tbody.innerHTML = students.map(s => {
     const name = s.full_name || `${s.first_name || ""} ${s.last_name || ""}`.trim() || "—";
     const ini = initials(name), lastAct = s.last_activity ? formatDate(s.last_activity) : "Never";
-    const isActive = s.is_active !== undefined ? s.is_active : (s.last_activity && (new Date() - new Date(s.last_activity)) < 7 * 86400000);
+    const isActive = s.is_active === true;
     const feesPaid = s.fees_status === "paid", feesLabel = feesPaid ? "Paid" : (s.fees_status || "Unpaid");
     const feesCls = feesPaid ? "pill-green" : "pill-amber", feesAction = feesPaid ? "unpaid" : "paid";
 
