@@ -25,7 +25,7 @@ router.get("/summary", authenticate, async (req, res) => {
 
       if (role === "teacher") {
         const [students, notes, assigns, recentNotes, recentAssigns] = await Promise.all([
-          supabaseAdmin.from("users").select("id", { count: "exact", head: true }).eq("role", "student"),
+          supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }).eq("role", "student"),
           supabaseAdmin.from("notes").select("id", { count: "exact", head: true }).eq("teacher_id", userId),
           supabaseAdmin.from("assignments").select("id", { count: "exact", head: true }).eq("teacher_id", userId),
           supabaseAdmin.from("notes").select("id, title, subject, created_at").eq("teacher_id", userId).order("created_at", { ascending: false }).limit(5),
@@ -42,7 +42,7 @@ router.get("/summary", authenticate, async (req, res) => {
 
       } else {
         // Student role
-        const course = profile?.course || null;
+        const course = profile?.class || null;
         let notesQuery = supabaseAdmin.from("notes").select("id", { count: "exact", head: true });
         if (course) notesQuery = notesQuery.ilike("course", course);
 

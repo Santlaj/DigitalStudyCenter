@@ -95,8 +95,8 @@ router.get("/students", authenticate, requireRole("teacher"), async (req, res) =
     const offset = parseInt(req.query.offset) || 0;
     
     let q = supabaseAdmin
-      .from("users")
-      .select("*", { count: "exact" })
+      .from("profiles")
+      .select("*, course:class", { count: "exact" })
       .eq("role", "student")
       .order("created_at", { ascending: false })
       .range(offset, offset + limit - 1);

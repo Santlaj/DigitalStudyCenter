@@ -225,8 +225,8 @@ router.delete("/sessions/:id", authenticate, requireRole("teacher"), async (req,
 router.get("/students-for-class", authenticate, requireRole("teacher"), async (req, res) => {
   try {
     let query = supabaseAdmin
-      .from("users")
-      .select("id, full_name, first_name, last_name, email, course")
+      .from("profiles")
+      .select("id, full_name, first_name, last_name, email, course:class")
       .eq("role", "student")
       .eq("is_active", true);
 

@@ -23,10 +23,10 @@ export async function boot(onReady) {
     applyProfileToUI();
     showApp();
     if (onReady) await onReady();
-    
+
     // Start background sync with Visibility API awareness
     const SYNC_INTERVAL = 1800000; // 30 minutes
-    
+
     const startPolling = () => {
       if (state.syncIntervalId) clearInterval(state.syncIntervalId);
       state.syncIntervalId = setInterval(fetchDashboardSummary, SYNC_INTERVAL);
@@ -89,24 +89,24 @@ export async function fetchDashboardSummary() {
 }
 
 export function applyProfileToUI() {
-  const p    = state.studentProfile;
+  const p = state.studentProfile;
   const name = p?.full_name
     || `${p?.first_name || ""} ${p?.last_name || ""}`.trim()
     || p?.email || "Student";
 
   const short = name.split(" ")[0] || "Student";
-  const ini   = initials(name);
+  const ini = initials(name);
 
-  $("sb-name").textContent               = name;
-  $("sb-avatar").textContent             = ini;
-  $("topnav-name").textContent           = short;
-  $("topnav-avatar").textContent         = ini;
-  $("welcome-name").textContent          = short;
+  $("sb-name").textContent = name;
+  $("sb-avatar").textContent = ini;
+  $("topnav-name").textContent = short;
+  $("topnav-avatar").textContent = ini;
+  $("welcome-name").textContent = short;
   if ($("popup-name-large")) $("popup-name-large").textContent = name;
   if ($("popup-email")) $("popup-email").textContent = p?.email || state.currentStudent?.email || "No email";
   if ($("popup-course")) {
     const userCourse = p?.course || p?.class;
-    $("popup-course").textContent = userCourse ? `Class / Batch: ${userCourse}` : "No Course Linked";
+    $("popup-course").textContent = userCourse ? `Class : ${userCourse}` : "No Course Linked";
   }
   if ($("popup-avatar-large")) $("popup-avatar-large").textContent = ini;
 }

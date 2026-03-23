@@ -52,8 +52,10 @@ export async function uploadNotes(navigateToFn) {
 }
 
 export function resetUploadForm() {
-  ["note-title","note-subject","note-course","note-description"].forEach(id => { $(id).value = ""; });
-  $("note-file").value = ""; $("file-selected").textContent = "";
+  ["note-title","note-subject","note-description"].forEach(id => { if ($(id)) $(id).value = ""; });
+  if ($("note-course")) $("note-course").value = "all";
+  if ($("note-file")) $("note-file").value = "";
+  if ($("file-selected")) $("file-selected").textContent = "";
 }
 
 export function initFileDrop() {

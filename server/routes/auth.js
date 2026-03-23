@@ -72,6 +72,7 @@ router.post("/login", authLimiter, loginRules, async (req, res) => {
         first_name: user.user_metadata?.first_name || null,
         last_name: user.user_metadata?.last_name || null,
         role: role,
+        class: user.user_metadata?.course || user.user_metadata?.class || null,
         is_active: true,
         last_activity: new Date().toISOString(),
         created_at: new Date().toISOString()
@@ -204,7 +205,7 @@ router.get("/session", authenticate, async (req, res) => {
         full_name: profile?.full_name || req.user.fullName,
         first_name: profile?.first_name || "",
         last_name: profile?.last_name || "",
-        course: profile?.course || "",
+        course: profile?.class || req.user.course || "",
         bio: profile?.bio || "",
         subject: profile?.subject || "",
         is_active: profile?.is_active !== false,
