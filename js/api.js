@@ -383,6 +383,10 @@ const assignments = {
     return apiRequest("GET", "/assignments/submissions");
   },
 
+  async getSubmissionsForAssignment(assignmentId) {
+    return apiRequest("GET", `/assignments/${assignmentId}/submissions`);
+  },
+
   async submit(assignmentId, file) {
     const formData = new FormData();
     formData.append("file", file);

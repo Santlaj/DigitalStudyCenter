@@ -162,6 +162,46 @@ router.get("/submissions", authenticate, async (req, res) => {
 });
 
 /**
+ * GET /api/assignments/:id/submissions
+ * Get all submissions for a specific assignment (teacher only).
+ */
+router.get("/:id/submissions", authenticate, requireRole("teacher"), async (req, res) => {
+  try {
+    const assignmentId = req.params.id;
+
+    // Verify it belongs to this teacher
+    const { data: assign, error: assignErr } = await supabaseAdmin
+      .from("assignments")
+      .select("id")
+      .eq("id", assignmentId)
+      .eq("teacher_id", req.user.id)
+      .maybeSingle();
+
+    if (assignErr) throw assignErr;
+    if (!assign) return res.status(404).json({ error: "Assignment not found or access denied." });
+
+    // Fetch submissions with student info from profiles
+    const { data, error } = await supabaseAdmin
+      .from("submissions")
+      .select(`
+        id, 
+        file_url, 
+        submitted_at, 
+        student_id,
+        profiles!submissions_student_id_fkey(full_name, first_name, last_name, class)
+      `)
+      .eq("assignment_id", assignmentId)
+      .order("submitted_at", { ascending: false });
+
+    if (error) throw error;
+    res.json({ submissions: data || [] });
+  } catch (err) {
+    console.error("Fetch assignment submissions error:", err.message);
+    res.status(500).json({ error: "Failed to fetch assignment submissions." });
+  }
+});
+
+/**
  * POST /api/assignments/:id/submit
  * Student submits a file for an assignment.
  */

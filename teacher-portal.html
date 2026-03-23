@@ -410,6 +410,38 @@
               </div>
             </div>
           </div>
+
+          <!-- VIEW SUBMISSIONS -->
+          <div class="dashboard-panels" style="grid-template-columns: 1fr; margin-top: 24px;">
+            <div class="dash-panel">
+              <div class="panel-header" style="margin-bottom: 16px;">
+                <h2 class="panel-title">View Submissions</h2>
+              </div>
+              <div class="form-row" style="margin-bottom: 16px; max-width: 400px;">
+                <div class="field-group" style="margin-bottom: 0;">
+                  <label class="field-label" for="submission-assign-select">Select Assignment</label>
+                  <select class="field-input field-select" id="submission-assign-select">
+                    <option value="">— Select an Assignment —</option>
+                  </select>
+                </div>
+              </div>
+              <div class="table-card hidden" id="submissions-table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>Class</th>
+                      <th>Submitted At</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="submissions-tbody">
+                    <tr><td colspan="4" class="table-empty">Loading…</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </section>
 
         <!-- STUDENTS -->

@@ -6,7 +6,7 @@
 
 import { assignments } from "../api.js";
 import { state } from "./state.js";
-import { $, escHtml, formatDeadline, deadlinePill, showToast, setLoading } from "../shared/helpers.js";
+import { $, escHtml, formatDate, formatDeadline, deadlinePill, showToast, setLoading } from "../shared/helpers.js";
 import { fetchDashboardStats } from "./dashboard.js";
 
 export async function createAssignment() {
@@ -65,6 +65,7 @@ export async function loadAssignmentsTable(append = false) {
     state.assignmentsLoaded = true;
 
     renderAssignmentsTable(tbody, state.allAssignments);
+    populateSubmissionsDropdown(state.allAssignments);
 
     if (loadMoreBtn) {
       if (state.allAssignments.length < count) {
@@ -110,3 +111,62 @@ async function deleteAssignment(id) {
   }
   catch (err) { showToast("Delete failed: " + err.message, "error"); }
 }
+
+function populateSubmissionsDropdown(data) {
+  const select = $("submission-assign-select");
+  if (!select) return;
+  
+  const currentVal = select.value;
+  select.innerHTML = '<option value="">— Select an Assignment —</option>' + 
+    data.map(a => `<option value="${escHtml(a.id)}">${escHtml(a.title)} (${escHtml(a.course === 'all' ? 'All' : 'Class '+a.course)})</option>`).join("");
+    
+  if (currentVal && data.some(a => a.id === currentVal)) {
+    select.value = currentVal;
+  }
+}
+
+async function loadSubmissionsForAssignment(assignmentId) {
+  const wrap = $("submissions-table-wrap");
+  const tbody = $("submissions-tbody");
+  
+  if (!assignmentId) {
+    wrap.classList.add("hidden");
+    tbody.innerHTML = "";
+    return;
+  }
+  
+  wrap.classList.remove("hidden");
+  tbody.innerHTML = `<tr><td colspan="4" class="table-empty">Loading submissions...</td></tr>`;
+  
+  try {
+    const { submissions: data } = await assignments.getSubmissionsForAssignment(assignmentId);
+    if (!data || data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4" class="table-empty">No submissions yet for this assignment.</td></tr>`;
+      return;
+    }
+    
+    tbody.innerHTML = data.map(s => {
+      const name = s.profiles?.full_name || `${s.profiles?.first_name || ""} ${s.profiles?.last_name || ""}`.trim() || "Unknown";
+      const course = s.profiles?.class || "—";
+      return `
+        <tr>
+          <td><strong>${escHtml(name)}</strong></td>
+          <td>${escHtml(course)}</td>
+          <td>${formatDate(s.submitted_at)}</td>
+          <td>
+            <a href="${escHtml(s.file_url)}" target="_blank" class="btn-ghost btn-sm">View File</a>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="4" class="table-empty">Error: ${escHtml(err.message)}</td></tr>`;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const select = $("submission-assign-select");
+  if (select) {
+    select.addEventListener("change", (e) => loadSubmissionsForAssignment(e.target.value));
+  }
+});
