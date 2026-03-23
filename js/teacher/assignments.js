@@ -146,8 +146,8 @@ async function loadSubmissionsForAssignment(assignmentId) {
     }
     
     tbody.innerHTML = data.map(s => {
-      const name = s.profiles?.full_name || `${s.profiles?.first_name || ""} ${s.profiles?.last_name || ""}`.trim() || "Unknown";
-      const course = s.profiles?.class || "—";
+      const name = s.users?.full_name || `${s.users?.first_name || ""} ${s.users?.last_name || ""}`.trim() || "Unknown";
+      const course = s.users?.course || "—";
       return `
         <tr>
           <td><strong>${escHtml(name)}</strong></td>
