@@ -27,10 +27,10 @@ export async function fetchStudents(query = "", append = false) {
   try {
     const limit = 20;
     const { students, count } = await users.listStudents(query, limit, state.studentsOffset);
-    
+
     state.allStudents = append ? [...state.allStudents, ...students] : students;
     state.studentsOffset += limit;
-    
+
     if (!query && !append) state.studentsLoaded = true;
 
     renderStudentsTable(tbody, state.allStudents);
@@ -45,7 +45,7 @@ export async function fetchStudents(query = "", append = false) {
       }
     }
 
-  } catch (err) { 
+  } catch (err) {
     if (!append) tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Error: ${escHtml(err.message)}</td></tr>`;
     else showToast("Failed to load more: " + err.message, "error");
   }
@@ -83,14 +83,16 @@ function renderStudentsTable(tbody, students) {
   });
   tbody.querySelectorAll(".deactivate-btn, .activate-btn").forEach(btn => {
     btn.addEventListener("click", async () => {
-      const newActive = btn.dataset.isActive === "false";
+      const isActivateAction = btn.classList.contains("activate-btn");
+      const actionLabel = isActivateAction ? "activate" : "deactivate";
+
       try {
-        await users.updateStudentStatus(btn.dataset.studentId, newActive);
-        showToast(`${btn.dataset.studentName} ${newActive ? "activated" : "deactivated"}.`, "success");
+        await users.updateStudentStatus(btn.dataset.studentId, isActivateAction);
+        showToast(`${btn.dataset.studentName} ${isActivateAction ? "activated" : "deactivated"}.`, "success");
         state.studentsLoaded = false; state.dashboardLoaded = false;
         await fetchStudents($("students-search").value);
       }
-      catch (err) { showToast("Update failed: " + err.message, "error"); }
+      catch (err) { showToast(`${actionLabel.charAt(0).toUpperCase() + actionLabel.slice(1)} failed: ` + err.message, "error"); }
     });
   });
 }
@@ -106,15 +108,15 @@ async function updateFeesStatus(studentId, studentName, newStatus) {
 
 // ── Add Student Modal ──
 export function openAddStudentModal() {
-  ["add-student-name-err","add-student-email-err","add-student-pass-err","add-student-general-err"].forEach(id => { const el = $(id); if (el) el.textContent = ""; });
-  ["add-student-firstname","add-student-lastname","add-student-email","add-student-course","add-student-password"].forEach(id => { const el = $(id); if (el) el.value = ""; });
+  ["add-student-name-err", "add-student-email-err", "add-student-pass-err", "add-student-general-err"].forEach(id => { const el = $(id); if (el) el.textContent = ""; });
+  ["add-student-firstname", "add-student-lastname", "add-student-email", "add-student-course", "add-student-password"].forEach(id => { const el = $(id); if (el) el.value = ""; });
   $("add-student-modal").classList.add("open");
 }
 
 export function closeAddStudentModal() { $("add-student-modal").classList.remove("open"); }
 
 export async function addStudent() {
-  ["add-student-name-err","add-student-email-err","add-student-pass-err","add-student-general-err"].forEach(id => { const el = $(id); if (el) el.textContent = ""; });
+  ["add-student-name-err", "add-student-email-err", "add-student-pass-err", "add-student-general-err"].forEach(id => { const el = $(id); if (el) el.textContent = ""; });
 
   const firstName = $("add-student-firstname").value.trim(), lastName = $("add-student-lastname").value.trim();
   const email = $("add-student-email").value.trim(), course = $("add-student-course").value.trim(), password = $("add-student-password").value;
