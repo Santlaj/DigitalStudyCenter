@@ -17,6 +17,7 @@ router.get("/summary", authenticate, async (req, res) => {
     const cacheKey = `dashboard:summary:${role}:${userId}`;
 
     const data = await getOrSet(cacheKey, async () => {
+      console.log(`[Dashboard] Cache MISS for ${cacheKey} — fetching fresh data`);
       const summary = { stats: {}, recentNotes: [], recentAssignments: [] };
 
       // 1. Shared Profile Cache (already minimal)
@@ -37,6 +38,7 @@ router.get("/summary", authenticate, async (req, res) => {
           notes: notes.count || 0,
           assignments: assigns.count || 0
         };
+        console.log(`[Dashboard] Fresh student count: ${summary.stats.students}`);
         summary.recentNotes = recentNotes.data || [];
         summary.recentAssignments = recentAssigns.data || [];
 
@@ -69,7 +71,7 @@ router.get("/summary", authenticate, async (req, res) => {
       }
 
       return summary;
-    }, 300); // 5 minute cache
+    }, 60); // 60 second cache — short TTL to avoid stale counts
 
     res.json(data);
   } catch (err) {

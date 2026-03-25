@@ -12,16 +12,16 @@ export async function fetchStudents(query = "", append = false) {
   const tbody = $("students-tbody");
   const loadMoreBtn = $("students-load-more");
 
+  // Cache-first: if no search query and not paginating, reuse existing data
+  if (!query && !append && state.studentsLoaded && state.allStudents.length > 0) {
+    renderStudentsTable(tbody, state.allStudents);
+    return;
+  }
+
   if (!append) {
     state.studentsOffset = 0;
     state.allStudents = [];
     tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Loading…</td></tr>`;
-  }
-
-  // Cache-first optimization
-  if (!query && !append && state.studentsLoaded && state.allStudents.length > 0) {
-    renderStudentsTable(tbody, state.allStudents);
-    return;
   }
 
   try {

@@ -79,6 +79,8 @@ export async function fetchDashboardSummary() {
     if (data.recentAssignments) state.cachedRecentAssignments = data.recentAssignments;
 
     state.dashboardLoaded = true;
+    // Reset student cache flags so next navigation fetches fresh data
+    state.studentsLoaded = false;
   } catch (err) {
     console.error("Dashboard summary fetch failed:", err.message);
   }

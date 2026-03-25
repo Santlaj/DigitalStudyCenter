@@ -175,6 +175,7 @@ router.post("/students", authenticate, requireRole("teacher"), addStudentRules, 
     }
 
     invalidatePrefix("users:");
+    invalidatePrefix("dashboard:");
     res.status(201).json({ message: "Student added successfully." });
   } catch (err) {
     console.error("Add student error:", err.message);
@@ -198,6 +199,7 @@ router.patch("/students/:id/status", authenticate, requireRole("teacher"), async
     if (error) throw error;
 
     invalidatePrefix("users:");
+    invalidatePrefix("dashboard:");
     res.json({ message: `Student ${is_active ? "activated" : "deactivated"}.` });
   } catch (err) {
     console.error("Update student status error:", err.message);
@@ -237,6 +239,7 @@ router.patch("/students/:id/fees", authenticate, requireRole("teacher"), async (
     }).eq("id", req.params.id);
 
     invalidatePrefix("users:");
+    invalidatePrefix("dashboard:");
     res.json({ message: `Fees marked as ${status}.` });
   } catch (err) {
     console.error("Update fees error:", err.message);
@@ -266,6 +269,7 @@ router.post("/students/auto-mark-inactive", authenticate, requireRole("teacher")
     if (error) throw error;
 
     invalidatePrefix("users:");
+    invalidatePrefix("dashboard:");
     res.json({ message: `${(data || []).length} students marked inactive.`, updated: (data || []).length });
   } catch (err) {
     console.error("Auto-mark inactive error:", err.message);
