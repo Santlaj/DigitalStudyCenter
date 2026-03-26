@@ -72,7 +72,7 @@ const apiStats = {
   log() {
     const now = Date.now();
     const mins = Math.max(1, (now - this.lastLog) / 60000);
-    console.log(`[API Stats] Auth: ${this.authCalls} (${(this.authCalls / mins).toFixed(1)}/min) | Sync: ${this.syncCalls} (${(this.syncCalls / mins).toFixed(1)}/min)`);
+    //console.log(`[API Stats] Auth: ${this.authCalls} (${(this.authCalls / mins).toFixed(1)}/min) | Sync: ${this.syncCalls} (${(this.syncCalls / mins).toFixed(1)}/min)`);
     // Reset counters periodically
     if (mins > 5) {
       this.authCalls = 0;
@@ -139,7 +139,7 @@ async function apiRequest(method, endpoint, body = null, options = {}) {
 
   try {
     const res = await fetch(url, fetchOpts);
-    
+
     // Log stats for auth and sync
     if (endpoint.includes("/auth")) apiStats.authCalls++;
     if (endpoint.includes("/sync")) apiStats.syncCalls++;
@@ -230,11 +230,11 @@ const auth = {
       try {
         const cachedUser = getUser();
         const token = getToken();
-        
+
         if (cachedUser && token) {
           const payload = parseJwt(token);
           const now = Math.floor(Date.now() / 1000);
-          
+
           // If token is valid for > 5 more minutes, use cache
           if (payload && payload.exp && (payload.exp - now > 300)) {
             return { user: cachedUser };
@@ -247,7 +247,7 @@ const auth = {
           if (refreshed) {
             return { user: getUser() || cachedUser };
           }
-          
+
           // Fallback to cached user only if refresh is already pending or failed silently
           return { user: cachedUser };
         }
@@ -278,7 +278,7 @@ const auth = {
     if (payload && payload.exp && (payload.exp - now > 600)) {
       return;
     }
-    
+
     // De-duplicate: If a refresh is already in progress, wait for it
     if (this._refreshPromise) return this._refreshPromise;
 
