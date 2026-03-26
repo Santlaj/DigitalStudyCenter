@@ -3,7 +3,7 @@
  * Auth guard, profile UI, logout for teacher portal.
  */
 
-import { auth, dashboard } from "../api.js";
+import { auth, dashboard, setUser } from "../api.js";
 import { state, resetAllCache } from "./state.js";
 import { $, initials, getCleanLink } from "../shared/helpers.js";
 
@@ -20,6 +20,9 @@ export async function boot(onReady) {
 
     await fetchDashboardSummary();
 
+    // Re-apply profile after dashboard fetch — the summary contains the real
+    // profile from the DB which may have the teacher's name, overriding stale
+    // session data that might only have the email.
     applyProfileToUI();
     showApp();
     if (onReady) await onReady();
@@ -73,7 +76,19 @@ export async function boot(onReady) {
 export async function fetchDashboardSummary() {
   try {
     const data = await dashboard.getSummary();
-    if (data.profile) state.teacherProfile = data.profile;
+    if (data.profile) {
+      state.teacherProfile = data.profile;
+      // Persist fresh profile to localStorage so next page load has correct name
+      const cachedUser = JSON.parse(localStorage.getItem("dsc_user") || "null");
+      if (cachedUser) {
+        setUser({
+          ...cachedUser,
+          full_name: data.profile.full_name || cachedUser.full_name || "",
+          first_name: data.profile.first_name || cachedUser.first_name || "",
+          last_name: data.profile.last_name || cachedUser.last_name || "",
+        });
+      }
+    }
     if (data.stats) state.cachedStats = data.stats;
     if (data.recentNotes) state.cachedRecentNotes = data.recentNotes;
     if (data.recentAssignments) state.cachedRecentAssignments = data.recentAssignments;

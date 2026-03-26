@@ -30,7 +30,7 @@ router.get("/summary", authenticate, async (req, res) => {
           supabaseAdmin.from("notes").select("id", { count: "exact", head: true }).eq("teacher_id", userId),
           supabaseAdmin.from("assignments").select("id", { count: "exact", head: true }).eq("teacher_id", userId),
           supabaseAdmin.from("notes").select("id, title, subject, created_at").eq("teacher_id", userId).order("created_at", { ascending: false }).limit(5),
-          supabaseAdmin.from("assignments").select("id, title, subject, created_at").eq("teacher_id", userId).order("created_at", { ascending: false }).limit(5),
+          supabaseAdmin.from("assignments").select("id, title, subject, deadline, created_at").eq("teacher_id", userId).order("created_at", { ascending: false }).limit(5),
         ]);
 
         summary.stats = {
