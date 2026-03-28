@@ -34,11 +34,13 @@ router.get("/summary", authenticate, async (req, res) => {
         ]);
 
         summary.stats = {
-          students: students.count || 0,
+          students: students.count ?? 0,
           notes: notes.count || 0,
           assignments: assigns.count || 0
         };
-        console.log(`[Dashboard] Fresh student count: ${summary.stats.students}`);
+        // Debug: log raw query results to diagnose count issue
+        // console.log(`[Dashboard] Student count raw:`, { count: students.count, error: students.error, status: students.status });
+        // console.log(`[Dashboard] Fresh student count: ${summary.stats.students}`);
         summary.recentNotes = recentNotes.data || [];
         summary.recentAssignments = recentAssigns.data || [];
 
@@ -60,7 +62,7 @@ router.get("/summary", authenticate, async (req, res) => {
         const attRecords = attendance.data || [];
         const present = attRecords.filter(r => r.status === "present").length;
         const total = attRecords.length;
-        
+
         summary.stats = {
           notes: notes.count || 0,
           assignments: assigns.count || 0,
