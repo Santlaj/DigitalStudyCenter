@@ -58,6 +58,7 @@ function renderAnnouncements(feed, countLabel, data) {
   }).join("");
 }
 
+
 export async function postAnnouncement() {
   const titleInput = $("ann-title");
   const msgInput = $("ann-message");

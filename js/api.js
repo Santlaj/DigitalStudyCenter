@@ -4,6 +4,8 @@
  * Replaces direct Supabase calls with backend API requests.
  */
 
+import { getCleanLink } from "./shared/helpers.js";
+
 const API_BASE = window.DIGITALSTUDYCENTER_API || "https://digitalstudycenter.onrender.com/api";
 
 /* ═══════════════════════════════════════════════════════
@@ -146,6 +148,11 @@ async function apiRequest(method, endpoint, body = null, options = {}) {
     apiStats.log();
 
     if (res.status === 401) {
+      if (endpoint === "/auth/login" || endpoint.includes("/login")) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || "Invalid Email or Password");
+      }
+
       // Try to refresh token
       const refreshed = await tryRefreshToken();
       if (refreshed) {

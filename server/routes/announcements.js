@@ -74,7 +74,7 @@ router.get("/count", authenticate, async (req, res) => {
       if (req.user.role === "student" && req.user.course) {
         q = q.or(`course.eq.all,course.eq.${userCourse},course.is.null`);
       }
-      
+
       const { count: exactCount, error } = await q;
 
       if (error) throw error;
@@ -95,16 +95,16 @@ router.get("/count", authenticate, async (req, res) => {
 router.post("/", authenticate, async (req, res) => {
   try {
     const { title, message, course } = req.body;
-    
+
     const isTeacher = req.user.role === "teacher";
     if (!isTeacher) {
       return res.status(403).json({ error: "Only teachers can post announcements." });
     }
-    
+
     if (!title || !message) {
       return res.status(400).json({ error: "Title and message are required." });
     }
-    
+
     const courseVal = course ? course.toLowerCase() : "all";
 
     const { data, error } = await supabaseAdmin
@@ -119,7 +119,7 @@ router.post("/", authenticate, async (req, res) => {
       .single();
 
     if (error) throw error;
-    
+
     invalidatePrefix("announcements:");
 
     res.status(201).json({ message: "Announcement created successfully.", announcement: data });
