@@ -8,10 +8,8 @@ import { getCleanLink } from "./shared/helpers.js";
 
 const API_BASE = window.DIGITALSTUDYCENTER_API || "https://digitalstudycenter.onrender.com/api";
 
-/* ═══════════════════════════════════════════════════════
-   TOKEN MANAGEMENT
-═══════════════════════════════════════════════════════ */
 
+// LOCAL STORAGE HELPERS
 function getToken() {
   return localStorage.getItem("dsc_token") || null;
 }
@@ -45,7 +43,7 @@ function getUser() {
 
 /**
  * Decode JWT to check expiry
- */
+ */// DECODE JWT
 function parseJwt(token) {
   try {
     const base64Url = token.split(".")[1];
@@ -62,10 +60,8 @@ function parseJwt(token) {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   PERFORMANCE LOGGING
-   ═══════════════════════════════════════════════════════ */
 
+// STATS API
 const apiStats = {
   authCalls: 0,
   syncCalls: 0,
@@ -86,14 +82,10 @@ const apiStats = {
 
 let _globalRefreshPromise = null;
 
-/* ═══════════════════════════════════════════════════════
-   CORE REQUEST HELPER
-═══════════════════════════════════════════════════════ */
 
-/* ═══════════════════════════════════════════════════════
-   AUTH RATE SAFETY GUARD
-   ═══════════════════════════════════════════════════════ */
 
+
+// AUTH RATE GUARD
 const authRateGuard = {
   callsInLastMinute: 0,
   lastReset: Date.now(),
@@ -109,7 +101,7 @@ const authRateGuard = {
     return this.callsInLastMinute <= this.THRESHOLD;
   }
 };
-
+// API REQUEST WRAPPER
 async function apiRequest(method, endpoint, body = null, options = {}) {
   // Rate guard for auth calls only
   if (endpoint.includes("/auth/session") || endpoint.includes("/auth/refresh")) {
@@ -215,10 +207,8 @@ async function tryRefreshToken() {
   return _globalRefreshPromise;
 }
 
-/* ═══════════════════════════════════════════════════════
-   AUTH API
-═══════════════════════════════════════════════════════ */
 
+// AUTH MODULE
 const auth = {
   async login(email, password, role) {
     const data = await apiRequest("POST", "/auth/login", { email, password, role });
@@ -325,10 +315,8 @@ const auth = {
   },
 };
 
-/* ═══════════════════════════════════════════════════════
-   NOTES API
-═══════════════════════════════════════════════════════ */
 
+// NOTES MODULE
 const notes = {
   async list(search = "", limit = 20, offset = 0) {
     const q = new URLSearchParams({ search, limit, offset }).toString();
@@ -363,10 +351,8 @@ const notes = {
   },
 };
 
-/* ═══════════════════════════════════════════════════════
-   ASSIGNMENTS API
-═══════════════════════════════════════════════════════ */
 
+// ASSIGNMENTS MODULE
 const assignments = {
   async list(search = "", limit = 20, offset = 0) {
     const q = new URLSearchParams({ search, limit, offset }).toString();
@@ -401,10 +387,8 @@ const assignments = {
   },
 };
 
-/* ═══════════════════════════════════════════════════════
-   USERS API
-═══════════════════════════════════════════════════════ */
 
+// USERS MODULE
 const users = {
   async getProfile() {
     return apiRequest("GET", "/users/profile");
@@ -440,10 +424,8 @@ const users = {
   },
 };
 
-/* ═══════════════════════════════════════════════════════
-   ATTENDANCE API
-═══════════════════════════════════════════════════════ */
 
+// ATTENDANCE MODULE
 const attendance = {
   async studentOverview() {
     return apiRequest("GET", "/attendance/student");
@@ -471,10 +453,8 @@ const attendance = {
   },
 };
 
-/* ═══════════════════════════════════════════════════════
-   FEES API
-═══════════════════════════════════════════════════════ */
 
+// FEES MODULE
 const fees = {
   async current() {
     return apiRequest("GET", "/fees/current");
@@ -489,20 +469,16 @@ const fees = {
   },
 };
 
-/* ═══════════════════════════════════════════════════════
-   COURSES API
-═══════════════════════════════════════════════════════ */
 
+// COURSES MODULE
 const courses = {
   async list() {
     return apiRequest("GET", "/courses");
   },
 };
 
-/* ═══════════════════════════════════════════════════════
-   ANNOUNCEMENTS API
-═══════════════════════════════════════════════════════ */
 
+// ANNOUNCEMENTS MODULE
 const announcements = {
   async list() {
     return apiRequest("GET", "/announcements");
@@ -517,10 +493,8 @@ const announcements = {
   },
 };
 
-/* ═══════════════════════════════════════════════════════
-   ANALYTICS API
-═══════════════════════════════════════════════════════ */
 
+// ANALYTICS MODULE
 const analytics = {
   async teacher() {
     return apiRequest("GET", "/analytics/teacher");
@@ -532,7 +506,7 @@ const analytics = {
 };
 
 /*   DASHBOARD API  */
-
+// DASHBOARD MODULE
 const dashboard = {
   async getSummary() {
     return apiRequest("GET", "/dashboard/summary");
@@ -540,7 +514,7 @@ const dashboard = {
 };
 
 /*   EXPORTS   */
-
+// EXPORTS
 export {
   API_BASE,
   getToken,

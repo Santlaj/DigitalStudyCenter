@@ -6,9 +6,7 @@
 
 import { auth } from "./api.js";
 
-/* ─────────────────────────────────────────────
-       SHARED FIELD MAP
-   ───────────────────────────────────────────── */
+// SHARED FIELD MAP
 const fieldMap = {
   student: {
     emailId: "s-email",
@@ -39,9 +37,7 @@ const redirectMap = {
   // admin: "admin-portal",
 };
 
-/* ─────────────────────────────────────────────
-       SHARED HELPERS
-   ───────────────────────────────────────────── */
+// SHARED HELPERS
 function clearErrors() {
   document
     .querySelectorAll(".error-msg")
@@ -83,9 +79,7 @@ function validateLoginFields(emailId, passId, emailErrId, passErrId) {
   return { valid, email, pass };
 }
 
-/* ─────────────────────────────────────────────
-       LOGIN — ROLE SWITCH
-   ───────────────────────────────────────────── */
+// LOGIN — ROLE SWITCH
 function switchRole(role) {
   document
     .querySelectorAll(".form-section")
@@ -102,9 +96,7 @@ document.querySelectorAll(".toggle-btn").forEach((btn) => {
   btn.addEventListener("click", () => switchRole(btn.dataset.role));
 });
 
-/* ─────────────────────────────────────────────
-       LOGIN — HANDLE LOGIN
-   ───────────────────────────────────────────── */
+// LOGIN — HANDLE LOGIN
 async function handleLogin(role) {
   clearErrors();
   const ids = fieldMap[role];
@@ -143,9 +135,7 @@ document
   .getElementById("a-submit")
   .addEventListener("click", () => handleLogin("admin"));
 
-/* ─────────────────────────────────────────────
-       ADMIN MODAL
-   ───────────────────────────────────────────── */
+// ADMIN MODAL
 document.getElementById("open-admin-modal").addEventListener("click", () => {
   document.getElementById("admin-modal").classList.add("open");
 });
@@ -162,9 +152,7 @@ document.getElementById("admin-modal").addEventListener("click", (e) => {
   }
 });
 
-/* ─────────────────────────────────────────────
-       ENTER KEY SUPPORT
-   ───────────────────────────────────────────── */
+// ENTER KEY SUPPORT
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Enter") return;
 
@@ -202,9 +190,7 @@ document.addEventListener("keydown", (e) => {
   if (active?.id === "form-teacher") handleLogin("teacher");
 });
 
-/* ═════════════════════════════════════════════
-       FORGOT PASSWORD SYSTEM
-   ═════════════════════════════════════════════ */
+// FORGOT PASSWORD SYSTEM
 
 /* Internal state */
 let fpEmail = "";
@@ -232,7 +218,7 @@ const stepSubs = [
   "Choose a strong new password for your account.",
 ];
 
-/* ── Open / close forgot modal ── */
+
 function openForgotModal() {
   resetForgotModal();
   modal.classList.add("open");
@@ -273,7 +259,7 @@ function resetForgotModal() {
   document.getElementById("pw-strength-label").textContent = "";
 }
 
-/* ── Step navigation ── */
+
 function goToFpStep(step) {
   fpCurrentStep = step;
 
@@ -293,12 +279,12 @@ function goToFpStep(step) {
   });
 }
 
-/* ── Open triggers ── */
+
 document.querySelectorAll("[data-open-forgot]").forEach((btn) => {
   btn.addEventListener("click", openForgotModal);
 });
 
-/* ── Close ── */
+
 document
   .getElementById("close-forgot-modal")
   .addEventListener("click", closeForgotModal);
@@ -307,7 +293,7 @@ modal.addEventListener("click", (e) => {
   if (e.target === e.currentTarget) closeForgotModal();
 });
 
-/* ── Back links ── */
+
 document
   .getElementById("fp-back-to-1")
   .addEventListener("click", () => goToFpStep(1));
@@ -315,14 +301,12 @@ document
   .getElementById("fp-back-to-2")
   .addEventListener("click", () => goToFpStep(2));
 
-/* ── Done / back to login ── */
+
 document
   .getElementById("fp-done-btn")
   .addEventListener("click", closeForgotModal);
 
-/* ─────────────────────────────────────────────
-       STEP 1 — sendResetEmail()
-   ───────────────────────────────────────────── */
+// STEP 1 — sendResetEmail()
 async function sendResetEmail() {
   document.getElementById("fp-email-err").textContent = "";
   document.getElementById("fp-step1-err").textContent = "";
@@ -381,9 +365,7 @@ document.getElementById("fp-resend-btn").addEventListener("click", async () => {
   }
 });
 
-/* ─────────────────────────────────────────────
-       STEP 2 — verifyOTP()
-   ───────────────────────────────────────────── */
+// STEP 2 — verifyOTP()
 async function verifyOTP() {
   document.getElementById("fp-otp-err").textContent = "";
   document.getElementById("fp-step2-err").textContent = "";
@@ -417,14 +399,12 @@ async function verifyOTP() {
 
 document.getElementById("fp-verify-btn").addEventListener("click", verifyOTP);
 
-/* ── Only allow digits in OTP field ── */
+
 document.getElementById("fp-otp").addEventListener("input", (e) => {
   e.target.value = e.target.value.replace(/\D/g, "").slice(0, 6);
 });
 
-/* ─────────────────────────────────────────────
-       STEP 3 — updatePassword()
-   ───────────────────────────────────────────── */
+// STEP 3 — updatePassword()
 async function updatePassword() {
   document.getElementById("fp-newpass-err").textContent = "";
   document.getElementById("fp-confirm-err").textContent = "";
@@ -483,9 +463,7 @@ document
   .getElementById("fp-update-btn")
   .addEventListener("click", updatePassword);
 
-/* ─────────────────────────────────────────────
-       PASSWORD STRENGTH METER
-   ───────────────────────────────────────────── */
+// PASSWORD STRENGTH METER
 function measureStrength(pw) {
   let score = 0;
   if (pw.length >= 8) score++;
@@ -518,9 +496,7 @@ document.getElementById("fp-newpass").addEventListener("input", (e) => {
   label.style.color = lvl.color;
 });
 
-/* ─────────────────────────────────────────────
-       HANDLE REDIRECT AFTER PASSWORD RESET LINK
-   ───────────────────────────────────────────── */
+// HANDLE REDIRECT AFTER PASSWORD RESET LINK
 function handleResetRedirect() {
   const params = new URLSearchParams(window.location.search);
   if (params.get("reset") !== "true") return;

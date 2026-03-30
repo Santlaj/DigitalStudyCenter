@@ -9,35 +9,31 @@ import {
   fees, courses, announcements, analytics, getUser, setUser,
 } from "./api.js";
 
-/* ═══════════════════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════════════════ */
-let currentStudent    = null;
-let studentProfile    = null;
-let allNotes          = [];
-let allAssignments    = [];
-let allFeeRecords     = [];
-let submittedIds      = new Set();
-let pendingSubmit     = null;
-let chartInitialised  = false;
+// MODULE STATE
+let currentStudent = null;
+let studentProfile = null;
+let allNotes = [];
+let allAssignments = [];
+let allFeeRecords = [];
+let submittedIds = new Set();
+let pendingSubmit = null;
+let chartInitialised = false;
 
-/* ═══════════════════════════════════════════════════════
-   DOM HELPERS
-═══════════════════════════════════════════════════════ */
-const $  = (id)  => document.getElementById(id);
+// DOM HELPERS
+const $ = (id) => document.getElementById(id);
 const $$ = (sel) => document.querySelectorAll(sel);
 
 function showToast(message, type = "info") {
   const t = $("toast");
   t.textContent = message;
-  t.className   = `toast ${type} show`;
+  t.className = `toast ${type} show`;
   clearTimeout(t._t);
   t._t = setTimeout(() => { t.className = "toast"; }, 3500);
 }
 
 function setLoading(btnEl, loading, idleHtml = "Submit") {
   if (!btnEl) return;
-  btnEl.disabled  = loading;
+  btnEl.disabled = loading;
   btnEl.innerHTML = loading
     ? `<span class="spinner"></span>Please wait…`
     : idleHtml;
@@ -62,7 +58,7 @@ function deadlineCountdown(iso) {
   if (!iso) return "";
   const diff = new Date(iso) - new Date();
   if (diff < 0) return "Overdue";
-  const days  = Math.floor(diff / 86400000);
+  const days = Math.floor(diff / 86400000);
   const hours = Math.floor((diff % 86400000) / 3600000);
   if (days > 0) return `${days}d ${hours}h remaining`;
   if (hours > 0) return `${hours}h remaining`;
@@ -103,9 +99,7 @@ function currentMonthLabel() {
   return new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" });
 }
 
-/* ═══════════════════════════════════════════════════════
-   BOOT — AUTH GUARD
-═══════════════════════════════════════════════════════ */
+// BOOT SETUP
 async function boot() {
   try {
     const data = await auth.checkSession();
@@ -126,31 +120,29 @@ async function boot() {
     window.location.href = "index.html";
   }
 }
+// PROFILE UI
 
-/* ═══════════════════════════════════════════════════════
-   PROFILE UI
-═══════════════════════════════════════════════════════ */
 function applyProfileToUI() {
   const name = studentProfile?.full_name
     || `${studentProfile?.first_name || ""} ${studentProfile?.last_name || ""}`.trim()
     || studentProfile?.email || "Student";
 
   const short = name.split(" ")[0] || "Student";
-  const ini   = initials(name);
+  const ini = initials(name);
 
-  $("sb-name").textContent             = name;
-  $("sb-avatar").textContent           = ini;
-  $("topnav-name").textContent         = short;
-  $("topnav-avatar").textContent       = ini;
-  $("welcome-name").textContent        = short;
-  $("profile-display-name").textContent  = name;
+  $("sb-name").textContent = name;
+  $("sb-avatar").textContent = ini;
+  $("topnav-name").textContent = short;
+  $("topnav-avatar").textContent = ini;
+  $("welcome-name").textContent = short;
+  $("profile-display-name").textContent = name;
   $("profile-display-email").textContent = studentProfile?.email || "";
-  $("profile-avatar-big").textContent    = ini;
-  $("profile-email").value               = studentProfile?.email || "";
-  $("profile-firstname").value           = studentProfile?.first_name || "";
-  $("profile-lastname").value            = studentProfile?.last_name  || "";
-  $("profile-course").value              = studentProfile?.course     || "";
-  $("profile-bio").value                 = studentProfile?.bio        || "";
+  $("profile-avatar-big").textContent = ini;
+  $("profile-email").value = studentProfile?.email || "";
+  $("profile-firstname").value = studentProfile?.first_name || "";
+  $("profile-lastname").value = studentProfile?.last_name || "";
+  $("profile-course").value = studentProfile?.course || "";
+  $("profile-bio").value = studentProfile?.bio || "";
 }
 
 function showApp() {
@@ -158,15 +150,13 @@ function showApp() {
   $("app-shell").classList.add("visible");
 }
 
-/* ═══════════════════════════════════════════════════════
-   FETCH DASHBOARD STATS
-═══════════════════════════════════════════════════════ */
+// DASHBOARD STATS
 async function fetchDashboardStats() {
   try {
     const { stats } = await users.getDashboardStats();
 
-    $("stat-courses").textContent     = stats.courses ?? "—";
-    $("stat-notes").textContent       = stats.notes ?? "—";
+    $("stat-courses").textContent = stats.courses ?? "—";
+    $("stat-notes").textContent = stats.notes ?? "—";
     $("stat-assignments").textContent = stats.pendingAssignments ?? "—";
 
     // Notification badge
@@ -230,8 +220,8 @@ async function loadDashRecentAssignments() {
     el.innerHTML = recent.map(a => {
       const diff = a.deadline ? new Date(a.deadline) - new Date() : null;
       let cls = "badge-green", txt = "Upcoming";
-      if (diff === null)        { cls = "badge-gray";  txt = "No deadline"; }
-      else if (diff < 0)        { cls = "badge-red";   txt = "Overdue"; }
+      if (diff === null) { cls = "badge-gray"; txt = "No deadline"; }
+      else if (diff < 0) { cls = "badge-red"; txt = "Overdue"; }
       else if (diff < 86400000) { cls = "badge-amber"; txt = "Due today"; }
       const done = submittedIds.has(a.id);
       if (done) { cls = "badge-teal"; txt = "Submitted"; }
@@ -251,9 +241,7 @@ async function loadDashRecentAssignments() {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   FETCH COURSES
-═══════════════════════════════════════════════════════ */
+// COURSES
 async function fetchCourses() {
   const grid = $("courses-grid");
   grid.innerHTML = `<div class="empty-state">Loading courses…</div>`;
@@ -267,12 +255,12 @@ async function fetchCourses() {
     }
 
     grid.innerHTML = data.map((c, idx) => {
-      const teacher  = c.users?.full_name
+      const teacher = c.users?.full_name
         || `${c.users?.first_name || ""} ${c.users?.last_name || ""}`.trim()
         || "Teacher";
       const gradient = COURSE_COLORS[idx % COURSE_COLORS.length];
       const notesCnt = c.notes_count || 0;
-      const assnCnt  = c.assignments_count || 0;
+      const assnCnt = c.assignments_count || 0;
       return `
         <div class="course-card">
           <div class="course-card-header">
@@ -302,9 +290,7 @@ async function fetchCourses() {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   FETCH NOTES
-═══════════════════════════════════════════════════════ */
+// NOTES LIST
 async function fetchNotes(query = "") {
   const tbody = $("notes-tbody");
   tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Loading…</td></tr>`;
@@ -327,7 +313,7 @@ async function fetchNotes(query = "") {
         <tr>
           <td>
             <strong>${escHtml(n.title)}</strong>
-            ${n.description ? `<br><span style="font-size:0.78rem;color:var(--text-muted)">${escHtml(n.description.slice(0,60))}${n.description.length > 60 ? "…" : ""}</span>` : ""}
+            ${n.description ? `<br><span style="font-size:0.78rem;color:var(--text-muted)">${escHtml(n.description.slice(0, 60))}${n.description.length > 60 ? "…" : ""}</span>` : ""}
           </td>
           <td><span class="pill pill-blue">${escHtml(n.subject)}</span></td>
           <td>${escHtml(teacher)}</td>
@@ -354,9 +340,7 @@ async function fetchNotes(query = "") {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   DOWNLOAD NOTE
-═══════════════════════════════════════════════════════ */
+// DOWNLOAD NOTES
 async function downloadNote(noteId, noteTitle, fileUrl) {
   if (!fileUrl) { showToast("File URL not available.", "error"); return; }
 
@@ -370,9 +354,7 @@ async function downloadNote(noteId, noteTitle, fileUrl) {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   FETCH ASSIGNMENTS
-═══════════════════════════════════════════════════════ */
+// ASSIGNMENTS LIST
 async function fetchAssignments(query = "") {
   const list = $("assignments-list");
   list.innerHTML = `<div class="empty-state-sm">Loading…</div>`;
@@ -396,18 +378,18 @@ async function fetchAssignments(query = "") {
     }
 
     list.innerHTML = allAssignments.map(a => {
-      const teacher    = a.users?.full_name
+      const teacher = a.users?.full_name
         || `${a.users?.first_name || ""} ${a.users?.last_name || ""}`.trim()
         || "Teacher";
-      const dClass     = deadlineClass(a.deadline);
-      const countdown  = deadlineCountdown(a.deadline);
-      const submitted  = submittedIds.has(a.id);
+      const dClass = deadlineClass(a.deadline);
+      const countdown = deadlineCountdown(a.deadline);
+      const submitted = submittedIds.has(a.id);
 
       let statusPill = "";
-      if (submitted)          statusPill = `<span class="pill pill-teal">✓ Submitted</span>`;
-      else if (dClass === "overdue")   statusPill = `<span class="pill pill-red">Overdue</span>`;
-      else if (dClass === "due-soon")  statusPill = `<span class="pill pill-amber">Due today</span>`;
-      else                             statusPill = `<span class="pill pill-green">Upcoming</span>`;
+      if (submitted) statusPill = `<span class="pill pill-teal">✓ Submitted</span>`;
+      else if (dClass === "overdue") statusPill = `<span class="pill pill-red">Overdue</span>`;
+      else if (dClass === "due-soon") statusPill = `<span class="pill pill-amber">Due today</span>`;
+      else statusPill = `<span class="pill pill-green">Upcoming</span>`;
 
       return `
         <div class="assignment-card ${submitted ? "submitted" : dClass}">
@@ -424,11 +406,11 @@ async function fetchAssignments(query = "") {
             ${statusPill}
             ${countdown ? `<div class="deadline-countdown">${escHtml(countdown)}</div>` : ""}
             ${!submitted
-              ? `<button class="btn-success btn-submit-trigger" data-id="${escHtml(a.id)}" data-title="${escHtml(a.title)}">
+          ? `<button class="btn-success btn-submit-trigger" data-id="${escHtml(a.id)}" data-title="${escHtml(a.title)}">
                    ↑ Submit
                  </button>`
-              : `<button class="btn-ghost" style="font-size:0.8rem;padding:7px 14px" disabled>Submitted</button>`
-            }
+          : `<button class="btn-ghost" style="font-size:0.8rem;padding:7px 14px" disabled>Submitted</button>`
+        }
           </div>
         </div>
       `;
@@ -442,18 +424,16 @@ async function fetchAssignments(query = "") {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   SUBMIT ASSIGNMENT
-═══════════════════════════════════════════════════════ */
+// SUBMIT ASSIGNMENTS
 function openSubmitModal(assignmentId, assignmentTitle) {
   pendingSubmit = { id: assignmentId, title: assignmentTitle };
   $("submit-assignment-title").textContent = assignmentTitle;
-  $("submit-file").value                   = "";
-  $("submit-file-selected").textContent    = "";
-  $("submit-file-err").textContent         = "";
-  $("submit-general-err").textContent      = "";
+  $("submit-file").value = "";
+  $("submit-file-selected").textContent = "";
+  $("submit-file-err").textContent = "";
+  $("submit-general-err").textContent = "";
   $("submit-progress-wrap").classList.add("hidden");
-  $("submit-progress-bar").style.width     = "0%";
+  $("submit-progress-bar").style.width = "0%";
   $("submit-modal").classList.add("open");
 }
 
@@ -461,15 +441,15 @@ function closeSubmitModal() {
   $("submit-modal").classList.remove("open");
   pendingSubmit = null;
 }
-
+// ASSIGNMENT SUBMISSION
 async function submitAssignment() {
-  $("submit-file-err").textContent    = "";
+  $("submit-file-err").textContent = "";
   $("submit-general-err").textContent = "";
 
   if (!pendingSubmit) return;
 
   const fileInput = $("submit-file");
-  const file      = fileInput.files?.[0];
+  const file = fileInput.files?.[0];
 
   if (!file) {
     $("submit-file-err").textContent = "Please select a file to submit.";
@@ -481,15 +461,15 @@ async function submitAssignment() {
     return;
   }
 
-  const btn          = $("submit-confirm-btn");
+  const btn = $("submit-confirm-btn");
   const progressWrap = $("submit-progress-wrap");
-  const progressBar  = $("submit-progress-bar");
-  const progressLbl  = $("submit-progress-label");
+  const progressBar = $("submit-progress-bar");
+  const progressLbl = $("submit-progress-label");
 
   setLoading(btn, true, "Submit Assignment");
   progressWrap.classList.remove("hidden");
-  progressBar.style.width   = "30%";
-  progressLbl.textContent   = "Uploading file…";
+  progressBar.style.width = "30%";
+  progressLbl.textContent = "Uploading file…";
 
   try {
     await assignments.submit(pendingSubmit.id, file);
@@ -518,9 +498,7 @@ async function submitAssignment() {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   FEE PAYMENT MODULE
-═══════════════════════════════════════════════════════ */
+// FEE REMINDER
 function shouldShowReminder(feeRecord) {
   if (!feeRecord || feeRecord.status === "paid") return false;
   return new Date().getDate() >= 5;
@@ -530,10 +508,10 @@ async function updateFeeStatCard() {
   try {
     const { fee, showReminder, currentMonth } = await fees.current();
 
-    const card      = $("fee-stat-card");
-    const badge     = $("stat-fee-status");
-    const trend     = $("stat-fee-trend");
-    const iconWrap  = $("fee-stat-icon-wrap");
+    const card = $("fee-stat-card");
+    const badge = $("stat-fee-status");
+    const trend = $("stat-fee-trend");
+    const iconWrap = $("fee-stat-icon-wrap");
 
     const status = fee?.status || "unpaid";
 
@@ -545,21 +523,21 @@ async function updateFeeStatCard() {
       badge.classList.add("paid");
       badge.textContent = "✓ Paid";
       trend.textContent = "This month";
-      trend.className   = "stat-trend positive";
+      trend.className = "stat-trend positive";
       iconWrap.style.setProperty("--accent", "#10b981");
     } else if (status === "pending") {
       card.classList.add("fee-pending");
       badge.classList.add("pending");
       badge.textContent = "⏳ Pending";
       trend.textContent = "Action needed";
-      trend.className   = "stat-trend neutral";
+      trend.className = "stat-trend neutral";
       iconWrap.style.setProperty("--accent", "#f59e0b");
     } else {
       card.classList.add("fee-unpaid");
       badge.classList.add("unpaid");
       badge.textContent = "✗ Unpaid";
       trend.textContent = "Pay now!";
-      trend.className   = "stat-trend negative";
+      trend.className = "stat-trend negative";
       iconWrap.style.setProperty("--accent", "#ef4444");
     }
 
@@ -567,7 +545,7 @@ async function updateFeeStatCard() {
     const banner = $("fee-reminder-banner");
     if (banner && showReminder) {
       const dayOfMonth = new Date().getDate();
-      const daysOver   = dayOfMonth - 5;
+      const daysOver = dayOfMonth - 5;
       $("fee-reminder-title").textContent =
         `⚠️ Fee Not Paid — ${daysOver > 0 ? daysOver + " day" + (daysOver > 1 ? "s" : "") + " overdue" : "Due today"}`;
       $("fee-reminder-text").textContent =
@@ -581,9 +559,7 @@ async function updateFeeStatCard() {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   ATTENDANCE MODULE
-═══════════════════════════════════════════════════════ */
+//ATTENDANCE MODULE
 const ATT_CIRC_LG = 527.79;
 const ATT_CIRC_SM = 201.06;
 
@@ -601,7 +577,7 @@ function animateCounter(el, target, duration = 900) {
   if (!el) return;
   const start = performance.now();
   function step(now) {
-    const t   = Math.min((now - start) / duration, 1);
+    const t = Math.min((now - start) / duration, 1);
     const ease = 1 - Math.pow(1 - t, 3);
     el.textContent = Math.round(target * ease);
     if (t < 1) requestAnimationFrame(step);
@@ -609,7 +585,7 @@ function animateCounter(el, target, duration = 900) {
   }
   requestAnimationFrame(step);
 }
-
+// ATTENDANCE DETAILS
 async function fetchAttendance() {
   // Reset UI
   const arc = $("att-ring-arc");
@@ -617,9 +593,9 @@ async function fetchAttendance() {
   $("att-ring-pct").textContent = "—";
   $("att-ring-footer").innerHTML = `<span>Loading…</span>`;
   $("att-subject-cards").innerHTML = `<div class="empty-state-sm">Loading subjects…</div>`;
-  $("att-timeline").innerHTML      = `<div class="empty-state-sm">Loading…</div>`;
+  $("att-timeline").innerHTML = `<div class="empty-state-sm">Loading…</div>`;
 
-  ["att-tile-present-num","att-tile-absent-num","att-tile-total-num"].forEach(id => {
+  ["att-tile-present-num", "att-tile-absent-num", "att-tile-total-num"].forEach(id => {
     const el = $(id);
     if (el) el.textContent = "—";
   });
@@ -642,20 +618,20 @@ async function fetchAttendance() {
 
   } catch (err) {
     console.error("Attendance error:", err.message);
-    $("att-ring-pct").textContent     = "Err";
-    $("att-ring-footer").innerHTML    = `<span style="color:#ef4444">${escHtml(err.message)}</span>`;
-    $("att-subject-cards").innerHTML  = `<div class="empty-state-sm" style="color:var(--red)">Error: ${escHtml(err.message)}</div>`;
-    $("att-timeline").innerHTML       = `<div class="empty-state-sm">Could not load sessions.</div>`;
+    $("att-ring-pct").textContent = "Err";
+    $("att-ring-footer").innerHTML = `<span style="color:#ef4444">${escHtml(err.message)}</span>`;
+    $("att-subject-cards").innerHTML = `<div class="empty-state-sm" style="color:var(--red)">Error: ${escHtml(err.message)}</div>`;
+    $("att-timeline").innerHTML = `<div class="empty-state-sm">Could not load sessions.</div>`;
   }
 }
 
 function renderAttHeroRing(pct, present, absent, total, subjectCount) {
-  const arc      = $("att-ring-arc");
-  const pctEl    = $("att-ring-pct");
+  const arc = $("att-ring-arc");
+  const pctEl = $("att-ring-pct");
   const footerEl = $("att-ring-footer");
-  const glowEl   = $("att-ring-glow");
-  const cls      = attColorClass(pct);
-  const color    = attStrokeColor(cls);
+  const glowEl = $("att-ring-glow");
+  const cls = attColorClass(pct);
+  const color = attStrokeColor(cls);
 
   const offset = ATT_CIRC_LG - (pct / 100) * ATT_CIRC_LG;
   arc.setAttribute("stroke", color);
@@ -665,7 +641,7 @@ function renderAttHeroRing(pct, present, absent, total, subjectCount) {
   }));
 
   if (glowEl) {
-    glowEl.classList.remove("danger","warning");
+    glowEl.classList.remove("danger", "warning");
     if (cls !== "good") glowEl.classList.add(cls);
   }
 
@@ -679,19 +655,19 @@ function renderAttHeroRing(pct, present, absent, total, subjectCount) {
   footerEl.innerHTML = `${present} present · ${absent} absent · ${total} total`;
 
   animateCounter($("att-tile-present-num"), present);
-  animateCounter($("att-tile-absent-num"),  absent);
-  animateCounter($("att-tile-total-num"),   total);
+  animateCounter($("att-tile-absent-num"), absent);
+  animateCounter($("att-tile-total-num"), total);
   if ($("att-tile-subjects-num")) $("att-tile-subjects-num").textContent = `${subjectCount} subject${subjectCount !== 1 ? "s" : ""}`;
 
   setTimeout(() => {
     const pBar = $("att-tile-present-bar");
     const aBar = $("att-tile-absent-bar");
-    if (pBar) pBar.style.width = total > 0 ? `${Math.round((present/total)*100)}%` : "0%";
-    if (aBar) aBar.style.width = total > 0 ? `${Math.round((absent/total)*100)}%`  : "0%";
+    if (pBar) pBar.style.width = total > 0 ? `${Math.round((present / total) * 100)}%` : "0%";
+    if (aBar) aBar.style.width = total > 0 ? `${Math.round((absent / total) * 100)}%` : "0%";
   }, 80);
 
   const alertTile = $("att-alert-tile");
-  const alertMsg  = $("att-alert-msg");
+  const alertMsg = $("att-alert-msg");
   if (alertTile && alertMsg) {
     if (pct < 60) {
       alertMsg.textContent = `⚠️ Critical! Attendance ${pct}% is below 60%. Risk of academic disqualification.`;
@@ -706,12 +682,12 @@ function renderAttHeroRing(pct, present, absent, total, subjectCount) {
 }
 
 function renderDashMiniRing(pct) {
-  const arc   = $("dash-att-arc");
+  const arc = $("dash-att-arc");
   const pctEl = $("dash-att-pct");
   if (!arc || !pctEl) return;
 
-  const cls    = attColorClass(pct);
-  const color  = attStrokeColor(cls);
+  const cls = attColorClass(pct);
+  const color = attStrokeColor(cls);
   const offset = ATT_CIRC_SM - (pct / 100) * ATT_CIRC_SM;
 
   arc.setAttribute("stroke", color);
@@ -777,7 +753,7 @@ function renderAttSubjectCardsFromAPI(subjects) {
 
 function renderAttTimelineFromAPI(recent) {
   const container = $("att-timeline");
-  const countEl   = $("att-recent-count");
+  const countEl = $("att-recent-count");
   if (countEl) countEl.textContent = `Last ${recent.length} classes`;
 
   if (!recent.length) {
@@ -786,7 +762,7 @@ function renderAttTimelineFromAPI(recent) {
   }
 
   container.innerHTML = recent.map((s, i) => {
-    const status  = s.status || "absent";
+    const status = s.status || "absent";
     return `
       <div class="att-timeline-item ${status}" style="animation-delay:${i * 0.04}s">
         <div class="att-timeline-card">
@@ -802,11 +778,11 @@ function renderAttTimelineFromAPI(recent) {
 }
 
 function renderEmptyAttendance() {
-  $("att-ring-pct").textContent  = "0%";
+  $("att-ring-pct").textContent = "0%";
   $("att-ring-footer").innerHTML = `<span>No attendance data recorded yet.</span>`;
   $("att-subject-cards").innerHTML = `<div class="empty-state">No subject records found.</div>`;
-  $("att-timeline").innerHTML      = `<div class="empty-state-sm">No sessions recorded yet.</div>`;
-  ["att-tile-present-num","att-tile-absent-num","att-tile-total-num"].forEach(id => {
+  $("att-timeline").innerHTML = `<div class="empty-state-sm">No sessions recorded yet.</div>`;
+  ["att-tile-present-num", "att-tile-absent-num", "att-tile-total-num"].forEach(id => {
     const el = $(id);
     if (el) el.textContent = "0";
   });
@@ -823,9 +799,7 @@ async function loadDashAttendancePreview() {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   FEE PAYMENT — full section
-═══════════════════════════════════════════════════════ */
+// FEE PAYMENT API
 async function fetchFeePayment() {
   try {
     const { fee, showReminder, currentMonth } = await fees.current();
@@ -834,7 +808,7 @@ async function fetchFeePayment() {
     const banner = $("fee-reminder-banner");
     if (showReminder) {
       const dayOfMonth = new Date().getDate();
-      const daysOver   = dayOfMonth - 5;
+      const daysOver = dayOfMonth - 5;
       $("fee-reminder-title").textContent =
         `Fee Not Paid — ${daysOver > 0 ? daysOver + " day" + (daysOver > 1 ? "s" : "") + " overdue" : "5 days passed"}`;
       $("fee-reminder-text").textContent =
@@ -851,11 +825,11 @@ async function fetchFeePayment() {
 }
 
 function renderCurrentFeeCard(feeRow, monthLabel, today) {
-  const card       = $("fee-current-card");
+  const card = $("fee-current-card");
   const statusBadge = $("fee-status-badge");
-  const badgeText  = $("fee-badge-text");
+  const badgeText = $("fee-badge-text");
   const paidDateEl = $("fee-paid-date");
-  const dueRow     = $("fee-due-row");
+  const dueRow = $("fee-due-row");
 
   $("fee-current-month").textContent = monthLabel;
 
@@ -864,13 +838,13 @@ function renderCurrentFeeCard(feeRow, monthLabel, today) {
   $("fee-amount-value").textContent = amount;
 
   if (feeRow?.due_date) {
-    const due     = new Date(feeRow.due_date);
-    const isLate  = due < today && status !== "paid";
+    const due = new Date(feeRow.due_date);
+    const isLate = due < today && status !== "paid";
     dueRow.textContent = `Due: ${formatDate(feeRow.due_date)}${isLate ? " — OVERDUE" : ""}`;
-    dueRow.className   = `fee-due-row${isLate ? " overdue" : ""}`;
+    dueRow.className = `fee-due-row${isLate ? " overdue" : ""}`;
   } else {
     dueRow.textContent = `Due: 5th of every month`;
-    dueRow.className   = "fee-due-row";
+    dueRow.className = "fee-due-row";
   }
 
   card.classList.remove("fee-paid", "fee-unpaid", "fee-pending");
@@ -911,14 +885,14 @@ async function loadFeeHistory() {
     }
 
     tbody.innerHTML = allFeeRecords.map(r => {
-      const status   = r.status || "unpaid";
-      const pillCls  = status === "paid" ? "fee-pill-paid"
-                     : status === "pending" ? "fee-pill-pending"
-                     : "fee-pill-unpaid";
+      const status = r.status || "unpaid";
+      const pillCls = status === "paid" ? "fee-pill-paid"
+        : status === "pending" ? "fee-pill-pending"
+          : "fee-pill-unpaid";
       const pillIcon = status === "paid" ? "✓" : status === "pending" ? "⏳" : "✗";
-      const amount   = r.amount ? `₹ ${Number(r.amount).toLocaleString("en-IN")}` : "—";
+      const amount = r.amount ? `₹ ${Number(r.amount).toLocaleString("en-IN")}` : "—";
       const [yr, mo] = (r.month || "").split("-");
-      const mLabel   = yr && mo
+      const mLabel = yr && mo
         ? new Date(parseInt(yr), parseInt(mo) - 1).toLocaleDateString("en-IN", { month: "long", year: "numeric" })
         : r.month || "—";
 
@@ -927,13 +901,13 @@ async function loadFeeHistory() {
           <td><strong>${escHtml(mLabel)}</strong></td>
           <td>${escHtml(amount)}</td>
           <td><span class="pill ${pillCls}">${pillIcon} ${escHtml(status.charAt(0).toUpperCase() + status.slice(1))}</span></td>
-          <td>${r.due_date  ? formatDate(r.due_date) : "5th of month"}</td>
-          <td>${r.paid_at   ? formatDate(r.paid_at)  : "—"}</td>
+          <td>${r.due_date ? formatDate(r.due_date) : "5th of month"}</td>
+          <td>${r.paid_at ? formatDate(r.paid_at) : "—"}</td>
           <td>
             ${r.receipt_url
-              ? `<a class="fee-receipt-link" href="${escHtml(r.receipt_url)}" target="_blank" rel="noopener">📄 Receipt</a>`
-              : `<span style="color:var(--text-muted);font-size:0.8rem">—</span>`
-            }
+          ? `<a class="fee-receipt-link" href="${escHtml(r.receipt_url)}" target="_blank" rel="noopener">📄 Receipt</a>`
+          : `<span style="color:var(--text-muted);font-size:0.8rem">—</span>`
+        }
           </td>
         </tr>
       `;
@@ -943,9 +917,7 @@ async function loadFeeHistory() {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   FETCH ANNOUNCEMENTS
-═══════════════════════════════════════════════════════ */
+// ANNOUNCEMENTS
 async function fetchAnnouncements() {
   const feed = $("announcements-feed");
   feed.innerHTML = `<div class="empty-state-sm">Loading…</div>`;
@@ -978,9 +950,7 @@ async function fetchAnnouncements() {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   ACTIVITY CHART
-═══════════════════════════════════════════════════════ */
+// ACTIVITY CHART
 async function loadActivityChart() {
   if (chartInitialised) return;
   chartInitialised = true;
@@ -1030,17 +1000,15 @@ async function loadActivityChart() {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   SAVE PROFILE
-═══════════════════════════════════════════════════════ */
+// PROFILE SAVE
 async function saveProfile() {
   $("profile-err").textContent = "";
   $("profile-success").classList.add("hidden");
 
   const firstName = $("profile-firstname").value.trim();
-  const lastName  = $("profile-lastname").value.trim();
-  const course    = $("profile-course").value.trim();
-  const bio       = $("profile-bio").value.trim();
+  const lastName = $("profile-lastname").value.trim();
+  const course = $("profile-course").value.trim();
+  const bio = $("profile-bio").value.trim();
 
   const btn = $("profile-save-btn");
   setLoading(btn, true, "Save Changes");
@@ -1062,16 +1030,12 @@ async function saveProfile() {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   LOGOUT
-═══════════════════════════════════════════════════════ */
+// LOGOUT
 function logoutStudent() {
   auth.logout();
 }
 
-/* ═══════════════════════════════════════════════════════
-   NAVIGATION
-═══════════════════════════════════════════════════════ */
+// NAVIGATION
 function navigateTo(section) {
   $$(".section").forEach(s => s.classList.remove("active"));
   const el = $(`section-${section}`);
@@ -1080,28 +1044,26 @@ function navigateTo(section) {
   $$(".nav-item").forEach(n => n.classList.remove("active"));
   $$(`[data-section="${section}"]`).forEach(n => n.classList.add("active"));
 
-  if (section === "courses")       fetchCourses();
-  if (section === "notes")         fetchNotes();
-  if (section === "assignments")   fetchAssignments();
-  if (section === "attendance")    fetchAttendance();
-  if (section === "fee-payment")   fetchFeePayment();
+  if (section === "courses") fetchCourses();
+  if (section === "notes") fetchNotes();
+  if (section === "assignments") fetchAssignments();
+  if (section === "attendance") fetchAttendance();
+  if (section === "fee-payment") fetchFeePayment();
   if (section === "announcements") fetchAnnouncements();
-  if (section === "dashboard")     loadActivityChart();
+  if (section === "dashboard") loadActivityChart();
 
   if (window.innerWidth <= 768) $("sidebar").classList.remove("open");
   document.querySelector(".main-content").scrollTop = 0;
 }
 
-/* ═══════════════════════════════════════════════════════
-   SUBMIT MODAL — File Drop
-═══════════════════════════════════════════════════════ */
+// FILE DROP INIT
 function initSubmitFileDrop() {
-  const zone  = $("submit-drop-zone");
+  const zone = $("submit-drop-zone");
   const input = $("submit-file");
   if (!zone || !input) return;
 
-  zone.addEventListener("dragover",  (e) => { e.preventDefault(); zone.classList.add("dragover"); });
-  zone.addEventListener("dragleave", ()  => zone.classList.remove("dragover"));
+  zone.addEventListener("dragover", (e) => { e.preventDefault(); zone.classList.add("dragover"); });
+  zone.addEventListener("dragleave", () => zone.classList.remove("dragover"));
   zone.addEventListener("drop", (e) => {
     e.preventDefault();
     zone.classList.remove("dragover");
@@ -1122,9 +1084,7 @@ function initSubmitFileDrop() {
   });
 }
 
-/* ═══════════════════════════════════════════════════════
-   GLOBAL SEARCH
-═══════════════════════════════════════════════════════ */
+// GLOBAL SEARCH
 function setupGlobalSearch() {
   const input = $("global-search");
   if (!input) return; // Search bar removed from UI
@@ -1140,9 +1100,7 @@ function setupGlobalSearch() {
   });
 }
 
-/* ═══════════════════════════════════════════════════════
-   EVENT WIRING
-═══════════════════════════════════════════════════════ */
+// EVENT WIRING
 function wireEvents() {
   $$(".nav-item[data-section]").forEach(item =>
     item.addEventListener("click", () => navigateTo(item.dataset.section))
@@ -1169,7 +1127,7 @@ function wireEvents() {
     }
   });
 
-  $("topnav-logout").addEventListener("click",  logoutStudent);
+  $("topnav-logout").addEventListener("click", logoutStudent);
 
   $("sidebar-toggle").addEventListener("click", () => {
     if (window.innerWidth <= 768) {
@@ -1194,7 +1152,7 @@ function wireEvents() {
   });
 
   $("submit-confirm-btn").addEventListener("click", submitAssignment);
-  $("submit-cancel-btn").addEventListener("click",  closeSubmitModal);
+  $("submit-cancel-btn").addEventListener("click", closeSubmitModal);
   $("submit-modal-close").addEventListener("click", closeSubmitModal);
   $("submit-modal").addEventListener("click", (e) => {
     if (e.target === e.currentTarget) closeSubmitModal();
@@ -1206,9 +1164,7 @@ function wireEvents() {
   setupGlobalSearch();
 }
 
-/* ═══════════════════════════════════════════════════════
-   INIT
-═══════════════════════════════════════════════════════ */
+// INIT EVENT
 document.addEventListener("DOMContentLoaded", () => {
   wireEvents();
   boot();
@@ -1222,7 +1178,7 @@ document.addEventListener("click", (e) => {
     document.body.classList.toggle("dark-mode"); document.documentElement.classList.toggle("dark-mode");
     localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
   }
-  
+
   const innerCollapse = e.target.closest("#sidebar-inner-collapse");
   if (innerCollapse) {
     const sb = document.getElementById("sidebar");

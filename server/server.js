@@ -15,10 +15,7 @@ const { globalLimiter } = require("./middleware/rateLimiter");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-/* ═══════════════════════════════════════════════════════
-   GLOBAL MIDDLEWARE
-═══════════════════════════════════════════════════════ */
-
+// GLOBAL MIDDLEWARE
 // Security headers
 app.use(helmet());
 
@@ -55,10 +52,7 @@ app.use(globalLimiter);
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 
-/* ═══════════════════════════════════════════════════════
-   ROUTES
-═══════════════════════════════════════════════════════ */
-
+// ROUTES
 // Root route for health check (using multiple patterns for robustness)
 app.get(["/", "/api", "/healthz"], (req, res) => {
   console.log(`Root/Health access: ${req.method} ${req.originalUrl}`);
@@ -94,10 +88,7 @@ app.use("/api/courses", coursesRouter);
 app.use("/api/announcements", announcementsRouter);
 app.use("/api/analytics", analyticsRouter);
 
-/* ═══════════════════════════════════════════════════════
-   HEALTH CHECK
-═══════════════════════════════════════════════════════ */
-
+// HEALTH CHECK
 app.get("/api/health", async (req, res) => {
   try {
     // Quick DB check
@@ -116,18 +107,12 @@ app.get("/api/health", async (req, res) => {
   }
 });
 
-/* ═══════════════════════════════════════════════════════
-   404 HANDLER
-═══════════════════════════════════════════════════════ */
-
+// 404 HANDLER
 app.use((req, res) => {
   res.status(404).json({ error: "Endpoint not found." });
 });
 
-/* ═══════════════════════════════════════════════════════
-   ERROR HANDLER
-═══════════════════════════════════════════════════════ */
-
+// ERROR HANDLER
 app.use((err, req, res, next) => {
   console.error("Unhandled error:", err.message);
   console.error(err.stack);
@@ -138,10 +123,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-/* ═══════════════════════════════════════════════════════
-   START SERVER
-═══════════════════════════════════════════════════════ */
-
+// START SERVER
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`\n🚀 DigitalStudyCenter API running on http://0.0.0.0:${PORT}`);
   console.log(`   Environment: ${process.env.NODE_ENV || "development"}`);

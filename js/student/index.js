@@ -14,8 +14,8 @@ import { fetchAnnouncements }                from "./announcements.js";
 import { saveProfile }                       from "./profile.js";
 import { loadDashAttendancePreview }         from "./attendance.js";
 
-/* ═══════════════════ NAVIGATION ═══════════════════ */
 
+// NAVIGATION
 function navigateTo(section) {
   $$(".section").forEach(s => s.classList.remove("active"));
   const el = $(`section-${section}`);
@@ -44,8 +44,8 @@ function setupGlobalSearch() {
   });
 }
 
-/* ═══════════════════ EVENT WIRING ═══════════════════ */
 
+// EVENT WIRING
 function wireEvents() {
   $$(".nav-item[data-section]").forEach(item =>
     item.addEventListener("click", () => navigateTo(item.dataset.section))
@@ -108,8 +108,8 @@ function wireEvents() {
   setupGlobalSearch();
 }
 
-/* ═══════════════════ INIT ═══════════════════ */
 
+// INIT
 document.addEventListener("DOMContentLoaded", () => {
   wireEvents();
   boot(async () => {

@@ -17,7 +17,7 @@ function handleValidation(req, res, next) {
   next();
 }
 
-/* ── Auth validators ── */
+/* Auth validators */
 
 const loginRules = [
   body("email").isEmail().withMessage("Enter a valid email address.").normalizeEmail(),
@@ -42,7 +42,7 @@ const resetPasswordRules = [
   handleValidation,
 ];
 
-/* ── Notes validators ── */
+/* Notes validators */
 
 const noteUploadRules = [
   body("title").trim().notEmpty().withMessage("Title is required.").isLength({ max: 200 }),
@@ -52,7 +52,7 @@ const noteUploadRules = [
   handleValidation,
 ];
 
-/* ── Assignment validators ── */
+/* Assignment validators */
 
 const createAssignmentRules = [
   body("title").trim().notEmpty().withMessage("Title is required.").isLength({ max: 200 }),
@@ -63,7 +63,7 @@ const createAssignmentRules = [
   handleValidation,
 ];
 
-/* ── Profile validators ── */
+/* Profile validators */
 
 const updateProfileRules = [
   body("first_name").optional().trim().isLength({ max: 50 }),
@@ -74,7 +74,7 @@ const updateProfileRules = [
   handleValidation,
 ];
 
-/* ── Student creation validators ── */
+/* Student creation validators */
 
 const addStudentRules = [
   body("email").isEmail().withMessage("Enter a valid email address.").normalizeEmail(),
@@ -85,7 +85,7 @@ const addStudentRules = [
   handleValidation,
 ];
 
-/* ── Attendance validators ── */
+/* Attendance validators */
 
 const saveAttendanceRules = [
   body("date").notEmpty().withMessage("Date is required."),
@@ -95,7 +95,7 @@ const saveAttendanceRules = [
   handleValidation,
 ];
 
-/* ── ID param validator ── */
+/* ID param validator */
 
 const idParamRule = [
   param("id").notEmpty().withMessage("ID is required."),

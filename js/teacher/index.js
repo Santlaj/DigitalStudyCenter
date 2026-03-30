@@ -19,8 +19,8 @@ import {
 } from "./attendance.js";
 import { fetchTeacherAnnouncements, postAnnouncement } from "./announcements.js";
 
-/* ═══════════════════ DELETE MODAL ═══════════════════ */
 
+// DELETE MODAL
 function openDeleteModal(name, callback) {
   $("delete-item-name").textContent = name;
   state.deleteCallback = callback;
@@ -34,8 +34,8 @@ function closeDeleteModal() {
   state.deleteCallback = null;
 }
 
-/* ═══════════════════ NAVIGATION ═══════════════════ */
 
+// NAVIGATION MAP
 const SECTION_TITLES = {
   "dashboard": "Dashboard", "upload-notes": "Upload Notes", "my-notes": "My Notes",
   "assignments": "Assignments", "students": "Students", "analytics": "Analytics",
@@ -63,8 +63,8 @@ function navigateTo(section) {
   document.querySelector(".main-content").scrollTop = 0;
 }
 
-/* ═══════════════════ EVENT WIRING ═══════════════════ */
 
+// EVENT WIRING
 function wireEvents() {
   $$(".nav-item[data-section]").forEach(item =>
     item.addEventListener("click", () => navigateTo(item.dataset.section))
@@ -145,8 +145,8 @@ function wireEvents() {
   initFileDrop();
 }
 
-/* ═══════════════════ INIT ═══════════════════ */
 
+// INIT
 document.addEventListener("DOMContentLoaded", () => {
   wireEvents();
   boot(async () => {

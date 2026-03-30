@@ -9,9 +9,7 @@ import {
   analytics, getUser, setUser,
 } from "./api.js";
 
-/* ═══════════════════════════════════════════════════════
-   MODULE STATE
-═══════════════════════════════════════════════════════ */
+// MODULE STATE
 let currentTeacher    = null;
 let teacherProfile    = null;
 let allNotes          = [];
@@ -20,9 +18,7 @@ let allStudents       = [];
 let deleteCallback    = null;
 let chartsInitialised = false;
 
-/* ═══════════════════════════════════════════════════════
-   DOM HELPERS
-═══════════════════════════════════════════════════════ */
+// DOM HELPERS
 const $  = (id)  => document.getElementById(id);
 const $$ = (sel) => document.querySelectorAll(sel);
 
@@ -72,9 +68,7 @@ function escHtml(str) {
     .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-/* ═══════════════════════════════════════════════════════
-   BOOT — AUTH GUARD
-═══════════════════════════════════════════════════════ */
+// BOOT — AUTH GUARD
 async function boot() {
   try {
     const data = await auth.checkSession();
@@ -124,9 +118,7 @@ function showApp() {
   $("app-shell").classList.add("visible");
 }
 
-/* ═══════════════════════════════════════════════════════
-   FETCH DASHBOARD STATS
-═══════════════════════════════════════════════════════ */
+// FETCH DASHBOARD STATS
 async function fetchDashboardStats() {
   try {
     const { stats } = await users.getDashboardStats();
@@ -198,9 +190,7 @@ async function loadRecentAssignments() {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   UPLOAD NOTES
-═══════════════════════════════════════════════════════ */
+// UPLOAD NOTES
 async function uploadNotes() {
   ["note-title-err","note-subject-err","note-file-err","upload-general-err"]
     .forEach(id => { $(id).textContent = ""; });
@@ -292,9 +282,7 @@ function updateFileLabel(file) {
     `📎 ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
 }
 
-/* ═══════════════════════════════════════════════════════
-   LOAD NOTES TABLE
-═══════════════════════════════════════════════════════ */
+// LOAD NOTES TABLE
 async function loadNotesTable(query = "") {
   const tbody = $("notes-tbody");
   tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Loading…</td></tr>`;
@@ -348,9 +336,7 @@ async function deleteNote(id) {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   CREATE ASSIGNMENT
-═══════════════════════════════════════════════════════ */
+// CREATE ASSIGNMENT
 async function createAssignment() {
   ["assign-title-err","assign-subject-err","assign-deadline-err","assign-general-err"]
     .forEach(id => { $(id).textContent = ""; });
@@ -385,9 +371,7 @@ async function createAssignment() {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   LOAD ASSIGNMENTS TABLE
-═══════════════════════════════════════════════════════ */
+// LOAD ASSIGNMENTS TABLE
 async function loadAssignmentsTable() {
   const tbody = $("assignments-tbody");
   tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Loading…</td></tr>`;
@@ -437,9 +421,7 @@ async function deleteAssignment(id) {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   FETCH STUDENTS
-═══════════════════════════════════════════════════════ */
+// FETCH STUDENTS
 async function fetchStudents(query = "") {
   const tbody = $("students-tbody");
   tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Loading…</td></tr>`;
@@ -527,9 +509,7 @@ async function fetchStudents(query = "") {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   ANALYTICS
-═══════════════════════════════════════════════════════ */
+// ANALYTICS
 async function loadAnalytics() {
   if (chartsInitialised) return;
   chartsInitialised = true;
@@ -606,9 +586,7 @@ async function loadAnalytics() {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   SAVE PROFILE
-═══════════════════════════════════════════════════════ */
+// SAVE PROFILE
 async function saveProfile() {
   $("profile-err").textContent = "";
   $("profile-success").classList.add("hidden");
@@ -641,16 +619,12 @@ async function saveProfile() {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   LOGOUT
-═══════════════════════════════════════════════════════ */
+// LOGOUT
 function logoutTeacher() {
   auth.logout();
 }
 
-/* ═══════════════════════════════════════════════════════
-   DELETE MODAL
-═══════════════════════════════════════════════════════ */
+// DELETE MODAL
 function openDeleteModal(name, callback) {
   $("delete-item-name").textContent = name;
   deleteCallback = callback;
@@ -662,9 +636,7 @@ function closeDeleteModal() {
   deleteCallback = null;
 }
 
-/* ═══════════════════════════════════════════════════════
-   NAVIGATION
-═══════════════════════════════════════════════════════ */
+// NAVIGATION
 const SECTION_TITLES = {
   "dashboard":     "Dashboard",
   "upload-notes":  "Upload Notes",
@@ -696,9 +668,7 @@ function navigateTo(section) {
   document.querySelector(".main-content").scrollTop = 0;
 }
 
-/* ═══════════════════════════════════════════════════════
-   EVENT WIRING
-═══════════════════════════════════════════════════════ */
+// EVENT WIRING
 function wireEvents() {
   $$(".nav-item[data-section]").forEach(item =>
     item.addEventListener("click", () => navigateTo(item.dataset.section))
@@ -797,10 +767,8 @@ function wireEvents() {
   initFileDrop();
 }
 
-/* ═══════════════════════════════════════════════════════
-   ATTENDANCE MODULE
-═══════════════════════════════════════════════════════ */
 
+// ATTENDANCE MODULE
 let attStudents = [];
 let attStatusMap = {};
 let attNoteMap = {};
@@ -1029,9 +997,7 @@ async function openAttDetailModal(sessionId, sessionDate, subjectName) {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   ADD STUDENT MODAL
-═══════════════════════════════════════════════════════ */
+// ADD STUDENT MODAL
 function openAddStudentModal() {
   ["add-student-name-err","add-student-email-err","add-student-pass-err","add-student-general-err"]
     .forEach(id => { const el = $(id); if (el) el.textContent = ""; });
@@ -1093,9 +1059,7 @@ async function addStudent() {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   FEES MANAGEMENT
-═══════════════════════════════════════════════════════ */
+// FEES MANAGEMENT
 async function updateFeesStatus(studentId, studentName, newStatus) {
   try {
     await users.updateStudentFees(studentId, newStatus);
@@ -1174,9 +1138,7 @@ async function loadAttendanceHistory() {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   INIT
-═══════════════════════════════════════════════════════ */
+// INIT
 document.addEventListener("DOMContentLoaded", () => {
   wireEvents();
   boot();
