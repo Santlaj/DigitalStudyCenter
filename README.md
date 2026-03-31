@@ -34,7 +34,7 @@
 
 **DigitalStudyCenter** is a comprehensive academic management platform designed for coaching centers and educational institutions. It provides role-based dashboards for **Students** and **Teachers** with real-time data synchronization, secure authentication, and a beautiful responsive UI.
 
-> 🎯 Built as a freelance project — designed, developed, and deployed end-to-end by **Santlaj Kumar**.
+> 🎯 Built as a freelance project — designed, developed, and deployed end-to-end by **Santlaj Kumar Mehta**.
 
 ---
 
@@ -249,5 +249,5 @@ See [LICENSE](./LICENSE) for full terms.
 ---
 
 <p align="center">
-  <sub>Built with ❤️ by Santlaj Kumar · © 2026 DigitalStudyCenter</sub>
+  <sub>Built with ❤️ by Santlaj Kumar Mehta · © 2026 DigitalStudyCenter</sub>
 </p>
