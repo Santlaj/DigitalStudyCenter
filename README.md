@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./icon1.jpg" alt="DigitalStudyCenter Logo" width="400" height="200" style="border-radius: 20px;" />
+  <img src="./icon.png" alt="DigitalStudyCenter Logo" width="300" height="200" style="border-radius: 20px;" />
 </p>
 
 <h1 align="center">📚 DigitalStudyCenter</h1>
