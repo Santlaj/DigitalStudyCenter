@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Santlaj/DigitalStudyCenter/main/icon.png" alt="DigitalStudyCenter Logo" width="100" height="100" style="border-radius: 20px;" />
+  <img src="https://127.0.0.1:49674/static/artifacts/9101a9b7-50fb-4b39-98b6-82fc07063242/readme_hero_banner_1774979227229.png?csrf=db54e394-d090-4c6a-bcc3-4cdf024ae7cb" alt="DigitalStudyCenter Logo" width="100" height="100" style="border-radius: 20px;" />
 </p>
 
 <h1 align="center">📚 DigitalStudyCenter</h1>
