@@ -34,7 +34,7 @@
 
 **DigitalStudyCenter** is a comprehensive academic management platform designed for coaching centers and educational institutions. It provides role-based dashboards for **Students** and **Teachers** with real-time data synchronization, secure authentication, and a beautiful responsive UI.
 
-> 🎯 Built as a freelance project — designed, developed, and deployed end-to-end by **Santlaj Kumar**.
+> 🎯 Built as a freelance project — designed, developed, and deployed end-to-end by **Santlaj Kumar Mehta**.
 
 ---
 
@@ -223,32 +223,6 @@ DigitalStudyCenter/
 
 ---
 
-## 📋 API Endpoints
-
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `POST` | `/api/auth/login` | ❌ | Authenticate user |
-| `POST` | `/api/auth/forgot-password` | ❌ | Send OTP to email |
-| `POST` | `/api/auth/verify-otp` | ❌ | Verify 6-digit OTP |
-| `POST` | `/api/auth/reset-password` | ✅ | Set new password |
-| `GET` | `/api/auth/session` | ✅ | Validate current session |
-| `GET` | `/api/dashboard/summary` | ✅ | Aggregated dashboard data |
-| `GET` | `/api/notes` | ✅ | List notes (paginated) |
-| `POST` | `/api/notes` | ✅ | Upload note with PDF |
-| `GET` | `/api/assignments` | ✅ | List assignments |
-| `POST` | `/api/assignments` | ✅ | Create assignment |
-| `POST` | `/api/assignments/:id/submit` | ✅ | Submit assignment file |
-| `GET` | `/api/users/students` | ✅ | List students (teacher) |
-| `POST` | `/api/users/students` | ✅ | Add new student |
-| `PATCH` | `/api/users/profile` | ✅ | Update profile |
-| `POST` | `/api/attendance` | ✅ | Save attendance session |
-| `GET` | `/api/attendance/sessions` | ✅ | List attendance history |
-| `GET` | `/api/fees/status` | ✅ | Get fee status |
-| `POST` | `/api/announcements` | ✅ | Create announcement |
-| `GET` | `/api/analytics/teacher` | ✅ | Teacher analytics data |
-
----
-
 ## 👤 Author
 
 <table>
@@ -275,5 +249,5 @@ See [LICENSE](./LICENSE) for full terms.
 ---
 
 <p align="center">
-  <sub>Built with ❤️ by Santlaj Kumar · © 2026 DigitalStudyCenter</sub>
+  <sub>Built with ❤️ by Santlaj Kumar Mehta · © 2026 DigitalStudyCenter</sub>
 </p>
