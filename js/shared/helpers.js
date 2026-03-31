@@ -70,7 +70,7 @@ export function initials(name) {
   return name.split(" ").map(p => p[0]?.toUpperCase() || "").filter(Boolean).slice(0, 2).join("");
 }
 
-export function escHtml(str) {
+export function escapeHtml(str) {
   if (str == null) return "";
   return String(str)
     .replace(/&/g, "&amp;").replace(/</g, "&lt;")

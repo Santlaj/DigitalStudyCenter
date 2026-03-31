@@ -5,7 +5,7 @@
 
 import { assignments } from "../api.js";
 import { state } from "./state.js";
-import { $, escHtml, formatDeadline, deadlineCountdown, deadlineClass, showToast, setLoading } from "../shared/helpers.js";
+import { $, escapeHtml, formatDeadline, deadlineCountdown, deadlineClass, showToast, setLoading } from "../shared/helpers.js";
 import { fetchDashboardStats } from "./dashboard.js";
 
 export async function fetchAssignments(query = "", append = false) {
@@ -51,7 +51,7 @@ export async function fetchAssignments(query = "", append = false) {
       }
     }
   } catch (err) {
-    if (!append) list.innerHTML = `<div class="empty-state-sm">Error: ${escHtml(err.message)}</div>`;
+    if (!append) list.innerHTML = `<div class="empty-state-sm">Error: ${escapeHtml(err.message)}</div>`;
     else showToast("Failed to load more: " + err.message, "error");
   }
 }
@@ -82,16 +82,16 @@ function renderAssignmentsList(list, data) {
     return `
       <div class="assignment-card ${submitted ? "submitted" : dClass}">
         <div class="assign-left">
-          <div class="assign-title">${escHtml(a.title)} ${statusPill}</div>
+          <div class="assign-title">${escapeHtml(a.title)} ${statusPill}</div>
           <div class="assign-meta">
-            ${escHtml(a.subject)} · Uploaded by ${escHtml(teacher)} · Due ${formatDeadline(a.deadline)}
+            ${escapeHtml(a.subject)} · Uploaded by ${escapeHtml(teacher)} · Due ${formatDeadline(a.deadline)}
           </div>
-          ${a.description ? `<div style="font-size:0.8rem;color:var(--text-muted);margin-top:6px">${escHtml(a.description.slice(0, 100))}</div>` : ""}
+          ${a.description ? `<div style="font-size:0.8rem;color:var(--text-muted);margin-top:6px">${escapeHtml(a.description.slice(0, 100))}</div>` : ""}
         </div>
         <div class="assign-right">
-          ${countdown ? `<div class="deadline-countdown" style="margin-bottom:8px">${escHtml(countdown)}</div>` : ""}
+          ${countdown ? `<div class="deadline-countdown" style="margin-bottom:8px">${escapeHtml(countdown)}</div>` : ""}
           ${!submitted
-            ? `<button class="btn-primary btn-sm btn-submit-trigger" data-id="${escHtml(a.id)}" data-title="${escHtml(a.title)}">Submit Now</button>`
+            ? `<button class="btn-primary btn-sm btn-submit-trigger" data-id="${escapeHtml(a.id)}" data-title="${escapeHtml(a.title)}">Submit Now</button>`
             : `<button class="btn-ghost btn-sm" disabled>Submitted</button>`}
         </div>
       </div>

@@ -5,7 +5,7 @@
 
 import { fees } from "../api.js";
 import { state } from "./state.js";
-import { $, escHtml, formatDate } from "../shared/helpers.js";
+import { $, escapeHtml, formatDate } from "../shared/helpers.js";
 
 export async function updateFeeStatCard() {
   try {
@@ -118,7 +118,7 @@ async function loadFeeHistory() {
     state.allFeeRecords = history || [];
     state.cachedFeeHistory = state.allFeeRecords;
     renderFeeHistory(state.allFeeRecords);
-  } catch (err) { tbody.innerHTML = `<tr><td colspan="6" class="table-empty">Error: ${escHtml(err.message)}</td></tr>`; }
+  } catch (err) { tbody.innerHTML = `<tr><td colspan="6" class="table-empty">Error: ${escapeHtml(err.message)}</td></tr>`; }
 }
 
 function renderFeeHistory(data) {
@@ -134,10 +134,10 @@ function renderFeeHistory(data) {
     const [yr, mo] = (r.month || "").split("-");
     const mLabel = yr && mo ? new Date(parseInt(yr), parseInt(mo) - 1).toLocaleDateString("en-IN", { month: "long", year: "numeric" }) : r.month || "—";
     return `<tr>
-      <td><strong>${escHtml(mLabel)}</strong></td><td>${escHtml(amount)}</td>
-      <td><span class="pill ${pillCls}">${pillIcon} ${escHtml(status.charAt(0).toUpperCase() + status.slice(1))}</span></td>
+      <td><strong>${escapeHtml(mLabel)}</strong></td><td>${escapeHtml(amount)}</td>
+      <td><span class="pill ${pillCls}">${pillIcon} ${escapeHtml(status.charAt(0).toUpperCase() + status.slice(1))}</span></td>
       <td>${r.due_date ? formatDate(r.due_date) : "5th of month"}</td><td>${r.paid_at ? formatDate(r.paid_at) : "—"}</td>
-      <td>${r.receipt_url ? `<a class="fee-receipt-link" href="${escHtml(r.receipt_url)}" target="_blank" rel="noopener">📄 Receipt</a>` : `<span style="color:var(--text-muted);font-size:0.8rem">—</span>`}</td>
+      <td>${r.receipt_url ? `<a class="fee-receipt-link" href="${escapeHtml(r.receipt_url)}" target="_blank" rel="noopener">📄 Receipt</a>` : `<span style="color:var(--text-muted);font-size:0.8rem">—</span>`}</td>
     </tr>`;
   }).join("");
 }

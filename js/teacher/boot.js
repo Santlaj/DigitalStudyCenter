@@ -110,8 +110,8 @@ export function applyProfileToUI() {
   const short = name.split(" ")[0] || "Teacher";
   const ini   = initials(name);
 
-  $("sb-name").textContent              = name;
-  $("sb-avatar").textContent            = ini;
+  $("sidebar-user-name").textContent     = name;
+  $("sidebar-avatar-text").textContent   = ini;
   $("topnav-name").textContent          = short;
   $("topnav-avatar").textContent        = ini;
   $("welcome-name").textContent         = short;

@@ -80,7 +80,7 @@ const apiStats = {
   }
 };
 
-let _globalRefreshPromise = null;
+let globalTokenRefreshPromise = null;
 
 
 
@@ -182,9 +182,9 @@ async function tryRefreshToken() {
   if (!refreshToken) return false;
 
   // Deduplicate: If another request is already refreshing, wait for it
-  if (_globalRefreshPromise) return _globalRefreshPromise;
+  if (globalTokenRefreshPromise) return globalTokenRefreshPromise;
 
-  _globalRefreshPromise = (async () => {
+  globalTokenRefreshPromise = (async () => {
     try {
       const res = await fetch(`${API_BASE}/auth/refresh`, {
         method: "POST",
@@ -200,11 +200,11 @@ async function tryRefreshToken() {
     } catch {
       return false;
     } finally {
-      _globalRefreshPromise = null;
+      globalTokenRefreshPromise = null;
     }
   })();
 
-  return _globalRefreshPromise;
+  return globalTokenRefreshPromise;
 }
 
 

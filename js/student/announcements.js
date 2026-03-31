@@ -6,7 +6,7 @@
 
 import { announcements } from "../api.js";
 import { state } from "./state.js";
-import { $, escHtml, formatDate } from "../shared/helpers.js";
+import { $, escapeHtml, formatDate } from "../shared/helpers.js";
 
 export async function fetchAnnouncements() {
   const feed = $("announcements-feed");
@@ -24,7 +24,7 @@ export async function fetchAnnouncements() {
     state.cachedAnnouncements = data || [];
     state.announcementsLoaded = true;
     renderAnnouncements(feed, state.cachedAnnouncements);
-  } catch (err) { feed.innerHTML = `<div class="empty-state-sm">Error: ${escHtml(err.message)}</div>`; }
+  } catch (err) { feed.innerHTML = `<div class="empty-state-sm">Error: ${escapeHtml(err.message)}</div>`; }
 }
 
 function renderAnnouncements(feed, data) {
@@ -37,11 +37,11 @@ function renderAnnouncements(feed, data) {
     return `
       <div class="announcement-card">
         <div class="announcement-header">
-          <div class="announcement-title">${escHtml(a.title)}</div>
+          <div class="announcement-title">${escapeHtml(a.title)}</div>
           <div class="announcement-date">${formatDate(a.created_at)}</div>
         </div>
-        <div class="announcement-teacher">📢 ${escHtml(teacher)}</div>
-        <div class="announcement-message">${escHtml(a.message)}</div>
+        <div class="announcement-teacher">📢 ${escapeHtml(teacher)}</div>
+        <div class="announcement-message">${escapeHtml(a.message)}</div>
       </div>`;
   }).join("");
 }

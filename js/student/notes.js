@@ -5,7 +5,7 @@
 
 import { notes } from "../api.js";
 import { state } from "./state.js";
-import { $, escHtml, formatDate, showToast } from "../shared/helpers.js";
+import { $, escapeHtml, formatDate, showToast } from "../shared/helpers.js";
 
 export async function fetchNotes(query = "", append = false) {
   const tbody = $("notes-tbody");
@@ -43,7 +43,7 @@ export async function fetchNotes(query = "", append = false) {
       }
     }
   } catch (err) { 
-    if (!append) tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Error: ${escHtml(err.message)}</td></tr>`;
+    if (!append) tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Error: ${escapeHtml(err.message)}</td></tr>`;
     else showToast("Failed to load more: " + err.message, "error");
   }
 }
@@ -59,17 +59,17 @@ function renderNotesTable(tbody, data) {
     return `
       <tr>
         <td>
-          <strong>${escHtml(n.title)}</strong>
-          ${n.description ? `<br><span style="font-size:0.78rem;color:var(--text-muted)">${escHtml(n.description.slice(0,60))}${n.description.length > 60 ? "…" : ""}</span>` : ""}
+          <strong>${escapeHtml(n.title)}</strong>
+          ${n.description ? `<br><span style="font-size:0.78rem;color:var(--text-muted)">${escapeHtml(n.description.slice(0,60))}${n.description.length > 60 ? "…" : ""}</span>` : ""}
         </td>
-        <td><span class="pill pill-blue">${escHtml(n.subject)}</span></td>
-        <td>${escHtml(teacher)}</td>
+        <td><span class="pill pill-blue">${escapeHtml(n.subject)}</span></td>
+        <td>${escapeHtml(teacher)}</td>
         <td>${formatDate(n.created_at)}</td>
         <td>
           <button class="btn-download"
-            data-note-id="${escHtml(n.id)}"
-            data-note-title="${escHtml(n.title)}"
-            data-file-url="${escHtml(n.file_url)}">
+            data-note-id="${escapeHtml(n.id)}"
+            data-note-title="${escapeHtml(n.title)}"
+            data-file-url="${escapeHtml(n.file_url)}">
             ↓ Download
           </button>
         </td>

@@ -5,7 +5,7 @@
  */
 
 import { state } from "./state.js";
-import { $, escHtml, formatDate, formatDeadline } from "../shared/helpers.js";
+import { $, escapeHtml, formatDate, formatDeadline } from "../shared/helpers.js";
 
 export async function fetchDashboardStats() {
   if (state.cachedStats) renderStats(state.cachedStats);
@@ -27,8 +27,8 @@ function renderRecentNotes(data) {
     <div class="recent-item">
       <div class="recent-dot"></div>
       <div class="recent-info">
-        <div class="recent-title">${escHtml(n.title)}</div>
-        <div class="recent-meta">${escHtml(n.subject)} · ${formatDate(n.created_at)}</div>
+        <div class="recent-title">${escapeHtml(n.title)}</div>
+        <div class="recent-meta">${escapeHtml(n.subject)} · ${formatDate(n.created_at)}</div>
       </div>
       <span class="recent-badge badge-purple">PDF</span>
     </div>
@@ -49,8 +49,8 @@ function renderRecentAssignments(data) {
       <div class="recent-item">
         <div class="recent-dot" style="background:var(--amber)"></div>
         <div class="recent-info">
-          <div class="recent-title">${escHtml(a.title)}</div>
-          <div class="recent-meta">${escHtml(a.subject)} · ${formatDeadline(a.deadline)}</div>
+          <div class="recent-title">${escapeHtml(a.title)}</div>
+          <div class="recent-meta">${escapeHtml(a.subject)} · ${formatDeadline(a.deadline)}</div>
         </div>
         <span class="recent-badge ${cls}">${txt}</span>
       </div>`;

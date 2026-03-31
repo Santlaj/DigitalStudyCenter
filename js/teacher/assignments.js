@@ -6,7 +6,7 @@
 
 import { assignments } from "../api.js";
 import { state } from "./state.js";
-import { $, escHtml, formatDate, formatDeadline, deadlinePill, showToast, setLoading } from "../shared/helpers.js";
+import { $, escapeHtml, formatDate, formatDeadline, deadlinePill, showToast, setLoading } from "../shared/helpers.js";
 import { fetchDashboardStats } from "./dashboard.js";
 
 export async function createAssignment() {
@@ -76,7 +76,7 @@ export async function loadAssignmentsTable(append = false) {
       }
     }
   } catch (err) { 
-    if (!append) tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Error: ${escHtml(err.message)}</td></tr>`;
+    if (!append) tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Error: ${escapeHtml(err.message)}</td></tr>`;
     else showToast("Failed to load more: " + err.message, "error");
   }
 }
@@ -86,11 +86,11 @@ function renderAssignmentsTable(tbody, data) {
 
   tbody.innerHTML = data.map(a => `
     <tr>
-      <td><strong>${escHtml(a.title)}</strong></td>
-      <td>${escHtml(a.subject)}</td>
+      <td><strong>${escapeHtml(a.title)}</strong></td>
+      <td>${escapeHtml(a.subject)}</td>
       <td>${formatDeadline(a.deadline)}</td>
       <td>${deadlinePill(a.deadline)}</td>
-      <td><button class="btn-icon delete" data-delete-assign="${escHtml(a.id)}" data-name="${escHtml(a.title)}" title="Delete">🗑</button></td>
+      <td><button class="btn-icon delete" data-delete-assign="${escapeHtml(a.id)}" data-name="${escapeHtml(a.title)}" title="Delete">🗑</button></td>
     </tr>`).join("");
 
   tbody.querySelectorAll("[data-delete-assign]").forEach(btn => {
@@ -118,7 +118,7 @@ function populateSubmissionsDropdown(data) {
   
   const currentVal = select.value;
   select.innerHTML = '<option value="">— Select an Assignment —</option>' + 
-    data.map(a => `<option value="${escHtml(a.id)}">${escHtml(a.title)} (${escHtml(a.course === 'all' ? 'All' : 'Class '+a.course)})</option>`).join("");
+    data.map(a => `<option value="${escapeHtml(a.id)}">${escapeHtml(a.title)} (${escapeHtml(a.course === 'all' ? 'All' : 'Class '+a.course)})</option>`).join("");
     
   if (currentVal && data.some(a => a.id === currentVal)) {
     select.value = currentVal;
@@ -150,17 +150,17 @@ async function loadSubmissionsForAssignment(assignmentId) {
       const course = s.users?.course || "—";
       return `
         <tr>
-          <td><strong>${escHtml(name)}</strong></td>
-          <td>${escHtml(course)}</td>
+          <td><strong>${escapeHtml(name)}</strong></td>
+          <td>${escapeHtml(course)}</td>
           <td>${formatDate(s.submitted_at)}</td>
           <td>
-            <a href="${escHtml(s.file_url)}" target="_blank" class="btn-ghost btn-sm">View File</a>
+            <a href="${escapeHtml(s.file_url)}" target="_blank" class="btn-ghost btn-sm">View File</a>
           </td>
         </tr>
       `;
     }).join("");
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="4" class="table-empty">Error: ${escHtml(err.message)}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4" class="table-empty">Error: ${escapeHtml(err.message)}</td></tr>`;
   }
 }
 

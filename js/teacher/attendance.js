@@ -5,7 +5,7 @@
 
 import { attendance, users } from "../api.js";
 import { state } from "./state.js";
-import { $, escHtml, initials, showToast, setLoading } from "../shared/helpers.js";
+import { $, escapeHtml, initials, showToast, setLoading } from "../shared/helpers.js";
 
 export function setDefaultAttDate() {
   const el = $("att-date");
@@ -32,7 +32,7 @@ export async function loadStudentsForAttendance() {
       select.innerHTML = `<option value="">No subjects found</option>`;
     } else {
       select.innerHTML = `<option value="">Select Subject</option>` + 
-        state.subjects.map(s => `<option value="${escHtml(s)}">${escHtml(s)}</option>`).join("");
+        state.subjects.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
     }
 
     state.attStatusMap = {}; state.attNoteMap = {};
@@ -53,15 +53,15 @@ export function renderAttTable() {
     return `
       <tr id="att-row-${s.id}" class="${rowClass}">
         <td><input type="checkbox" class="att-row-check" data-sid="${s.id}"></td>
-        <td><div class="att-student-cell"><div class="att-avatar-mini">${ini}</div><span>${escHtml(name)}</span></div></td>
-        <td>${escHtml(s.email)}</td><td>${escHtml(s.course || "—")}</td>
+        <td><div class="att-student-cell"><div class="att-avatar-mini">${ini}</div><span>${escapeHtml(name)}</span></div></td>
+        <td>${escapeHtml(s.email)}</td><td>${escapeHtml(s.course || "—")}</td>
         <td>
           <label class="att-toggle">
             <input type="checkbox" class="att-status-toggle" data-sid="${s.id}" ${status === "present" ? "checked" : ""}>
             <span class="att-slider"></span>
           </label>
         </td>
-        <td><input class="att-note-input" data-sid="${s.id}" value="${escHtml(state.attNoteMap[s.id] || "")}"></td>
+        <td><input class="att-note-input" data-sid="${s.id}" value="${escapeHtml(state.attNoteMap[s.id] || "")}"></td>
       </tr>`;
   }).join("");
 
@@ -113,7 +113,7 @@ export async function openAttDetailModal(sessionId, sessionDate, subjectName) {
     if (!records?.length) { $("att-detail-tbody").innerHTML = `<tr><td colspan="4" class="table-empty">No records found.</td></tr>`; return; }
     $("att-detail-tbody").innerHTML = records.map(r => {
       const u = r.users || {}, name = u.full_name || `${u.first_name || ""} ${u.last_name || ""}`.trim() || "—";
-      return `<tr><td>${escHtml(name)}</td><td>${escHtml(u.email || "—")}</td><td><span class="pill ${r.status === "present" ? "pill-green" : "pill-red"}">${escHtml(r.status)}</span></td><td>${escHtml(r.note || "—")}</td></tr>`;
+      return `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(u.email || "—")}</td><td><span class="pill ${r.status === "present" ? "pill-green" : "pill-red"}">${escapeHtml(r.status)}</span></td><td>${escapeHtml(r.note || "—")}</td></tr>`;
     }).join("");
 
     $("att-detail-delete-btn").onclick = async () => {
@@ -121,7 +121,7 @@ export async function openAttDetailModal(sessionId, sessionDate, subjectName) {
       try { await attendance.deleteSession(sessionId); closeAttDetailModal(); showToast("Session deleted.", "success"); state.attendanceLoaded = false; loadAttendanceHistory(); }
       catch (err) { showToast("Delete failed: " + err.message, "error"); }
     };
-  } catch (err) { $("att-detail-tbody").innerHTML = `<tr><td colspan="4" class="table-empty">Error: ${escHtml(err.message)}</td></tr>`; }
+  } catch (err) { $("att-detail-tbody").innerHTML = `<tr><td colspan="4" class="table-empty">Error: ${escapeHtml(err.message)}</td></tr>`; }
 }
 
 export async function loadAttendanceHistory() {
@@ -139,17 +139,17 @@ export async function loadAttendanceHistory() {
     state.attendanceSessions = sessions || [];
     state.attendanceLoaded = true;
     renderAttHistory(tbody, state.attendanceSessions);
-  } catch (err) { tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Error: ${escHtml(err.message)}</td></tr>`; }
+  } catch (err) { tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Error: ${escapeHtml(err.message)}</td></tr>`; }
 }
 
 function renderAttHistory(tbody, sessions) {
   if (!sessions?.length) { tbody.innerHTML = `<tr><td colspan="7">No records yet.</td></tr>`; return; }
   tbody.innerHTML = sessions.map(row => {
     const subjectName = row.subject || "—";
-    return `<tr><td>${escHtml(row.date || row.session_date || "—")}</td><td>${escHtml(row.class_name || row.class_level || "—")}</td>
-      <td>${escHtml(subjectName)}</td><td><span class="pill pill-green">—</span></td><td><span class="pill pill-red">—</span></td>
+    return `<tr><td>${escapeHtml(row.date || row.session_date || "—")}</td><td>${escapeHtml(row.class_name || row.class_level || "—")}</td>
+      <td>${escapeHtml(subjectName)}</td><td><span class="pill pill-green">—</span></td><td><span class="pill pill-red">—</span></td>
       <td><span class="pill pill-blue">—</span></td>
-      <td><button class="btn-view" data-sess-id="${row.id}" data-sess-date="${escHtml(row.date || row.session_date || '')}" data-sess-subject="${escHtml(subjectName)}">View</button></td></tr>`;
+      <td><button class="btn-view" data-sess-id="${row.id}" data-sess-date="${escapeHtml(row.date || row.session_date || '')}" data-sess-subject="${escapeHtml(subjectName)}">View</button></td></tr>`;
   }).join("");
   tbody.querySelectorAll(".btn-view").forEach(btn => {
     btn.addEventListener("click", () => openAttDetailModal(btn.dataset.sessId, btn.dataset.sessDate, btn.dataset.sessSubject));

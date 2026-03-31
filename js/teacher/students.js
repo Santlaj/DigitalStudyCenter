@@ -5,7 +5,7 @@
 
 import { users, fees } from "../api.js";
 import { state } from "./state.js";
-import { $, escHtml, formatDate, initials, showToast, setLoading } from "../shared/helpers.js";
+import { $, escapeHtml, formatDate, initials, showToast, setLoading } from "../shared/helpers.js";
 import { fetchDashboardStats } from "./dashboard.js";
 
 export async function fetchStudents(query = "", append = false) {
@@ -46,7 +46,7 @@ export async function fetchStudents(query = "", append = false) {
     }
 
   } catch (err) {
-    if (!append) tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Error: ${escHtml(err.message)}</td></tr>`;
+    if (!append) tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Error: ${escapeHtml(err.message)}</td></tr>`;
     else showToast("Failed to load more: " + err.message, "error");
   }
 }
@@ -65,15 +65,15 @@ function renderStudentsTable(tbody, students) {
     return `
       <tr class="${!isActive ? 'student-row-inactive' : ''}">
         <td><div style="display:flex;align-items:center;gap:10px">
-          <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;font-weight:700;font-size:0.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">${escHtml(ini)}</div>
-          <span>${escHtml(name)}</span></div></td>
-        <td>${escHtml(s.email)}</td><td>${escHtml(s.course || "—")}</td><td>${lastAct}</td>
-        <td><span class="pill ${feesCls}">${escHtml(feesLabel)}</span></td>
+          <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;font-weight:700;font-size:0.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">${escapeHtml(ini)}</div>
+          <span>${escapeHtml(name)}</span></div></td>
+        <td>${escapeHtml(s.email)}</td><td>${escapeHtml(s.course || "—")}</td><td>${lastAct}</td>
+        <td><span class="pill ${feesCls}">${escapeHtml(feesLabel)}</span></td>
         <td><span class="pill ${isActive ? "pill-green" : "pill-red"}">${isActive ? "Active" : "Inactive"}</span></td>
         <td style="white-space:nowrap">
-          <button class="btn-icon fees-toggle-btn" data-student-id="${escHtml(s.id)}" data-student-name="${escHtml(name)}" data-fees-action="${feesAction}">
+          <button class="btn-icon fees-toggle-btn" data-student-id="${escapeHtml(s.id)}" data-student-name="${escapeHtml(name)}" data-fees-action="${feesAction}">
             ${feesPaid ? "💸 Mark Unpaid" : "✅ Mark Paid"}</button>
-          <button class="btn-icon ${isActive ? "deactivate-btn" : "activate-btn"}" data-student-id="${escHtml(s.id)}" data-student-name="${escHtml(name)}" data-is-active="${isActive}">
+          <button class="btn-icon ${isActive ? "deactivate-btn" : "activate-btn"}" data-student-id="${escapeHtml(s.id)}" data-student-name="${escapeHtml(name)}" data-is-active="${isActive}">
             ${isActive ? "🚫 Deactivate" : "✅ Activate"}</button>
         </td></tr>`;
   }).join("");

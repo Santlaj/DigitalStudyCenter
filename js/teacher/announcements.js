@@ -4,7 +4,7 @@
  * Uses cache-first: re-renders from state.allAnnouncements if already loaded.
  */
 
-import { $, escHtml, formatDate, showToast } from "../shared/helpers.js";
+import { $, escapeHtml, formatDate, showToast } from "../shared/helpers.js";
 import { announcements } from "../api.js";
 import { state } from "./state.js";
 
@@ -46,13 +46,13 @@ function renderAnnouncements(feed, countLabel, data) {
     return `
       <div class="announcement-card" style="background: var(--bg-card); border: 1px solid var(--border); padding: 12px; border-radius: 8px;">
         <div class="announcement-header" style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-          <div class="announcement-title" style="font-weight: 600; color: var(--text-main);">${escHtml(a.title)}</div>
+          <div class="announcement-title" style="font-weight: 600; color: var(--text-main);">${escapeHtml(a.title)}</div>
           <div class="announcement-date" style="font-size: 0.75rem; color: var(--text-muted);">${formatDate(a.created_at)}</div>
         </div>
         <div class="announcement-teacher" style="font-size: 0.8rem; color: var(--accent); margin-bottom: 6px;">
-          📢 ${escHtml(teacherName)} ${isMine ? "(You)" : ""}
+          📢 ${escapeHtml(teacherName)} ${isMine ? "(You)" : ""}
         </div>
-        <div class="announcement-message" style="color: var(--text-sub); white-space: pre-wrap; font-size: 0.875rem;">${escHtml(a.message)}</div>
+        <div class="announcement-message" style="color: var(--text-sub); white-space: pre-wrap; font-size: 0.875rem;">${escapeHtml(a.message)}</div>
       </div>
     `;
   }).join("");

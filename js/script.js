@@ -6,28 +6,28 @@
 
 import { auth } from "./api.js";
 
-// SHARED FIELD MAP
-const fieldMap = {
+// LOGIN FIELD ID MAP — Maps each role to its corresponding HTML element IDs
+const loginFieldIds = {
   student: {
-    emailId: "s-email",
-    passId: "s-pass",
-    emailErr: "s-email-err",
-    passErr: "s-pass-err",
-    genErr: "s-general-err",
+    emailId: "student-login-email",
+    passId: "student-login-password",
+    emailErr: "student-login-email-error",
+    passErr: "student-login-password-error",
+    genErr: "student-login-general-error",
   },
   teacher: {
-    emailId: "t-email",
-    passId: "t-pass",
-    emailErr: "t-email-err",
-    passErr: "t-pass-err",
-    genErr: "t-general-err",
+    emailId: "teacher-login-email",
+    passId: "teacher-login-password",
+    emailErr: "teacher-login-email-error",
+    passErr: "teacher-login-password-error",
+    genErr: "teacher-login-general-error",
   },
   admin: {
-    emailId: "a-email",
-    passId: "a-pass",
-    emailErr: "a-email-err",
-    passErr: "a-pass-err",
-    genErr: "a-general-err",
+    emailId: "admin-login-email",
+    passId: "admin-login-password",
+    emailErr: "admin-login-email-error",
+    passErr: "admin-login-password-error",
+    genErr: "admin-login-general-error",
   },
 };
 
@@ -99,7 +99,7 @@ document.querySelectorAll(".toggle-btn").forEach((btn) => {
 // LOGIN — HANDLE LOGIN
 async function handleLogin(role) {
   clearErrors();
-  const ids = fieldMap[role];
+  const ids = loginFieldIds[role];
   const { valid, email, pass } = validateLoginFields(
     ids.emailId,
     ids.passId,
@@ -108,7 +108,7 @@ async function handleLogin(role) {
   );
   if (!valid) return;
 
-  const btn = document.getElementById(role[0] + "-submit");
+  const btn = document.getElementById(role + "-login-submit");
   const idleLabel = role === "admin" ? "Login as Admin" : "Login";
   setLoading(btn, true, idleLabel);
 
@@ -126,13 +126,13 @@ async function handleLogin(role) {
 }
 
 document
-  .getElementById("s-submit")
+  .getElementById("student-login-submit")
   .addEventListener("click", () => handleLogin("student"));
 document
-  .getElementById("t-submit")
+  .getElementById("teacher-login-submit")
   .addEventListener("click", () => handleLogin("teacher"));
 document
-  .getElementById("a-submit")
+  .getElementById("admin-login-submit")
   .addEventListener("click", () => handleLogin("admin"));
 
 // ADMIN MODAL
@@ -162,15 +162,15 @@ document.addEventListener("keydown", (e) => {
     .classList.contains("open");
   if (forgotOpen) {
     const activeStep = document.querySelector("#forgot-modal .fp-step.active");
-    if (activeStep?.id === "fp-step-1") {
+    if (activeStep?.id === "forgot-password-step-1") {
       sendResetEmail();
       return;
     }
-    if (activeStep?.id === "fp-step-2") {
+    if (activeStep?.id === "forgot-password-step-2") {
       verifyOTP();
       return;
     }
-    if (activeStep?.id === "fp-step-3") {
+    if (activeStep?.id === "forgot-password-step-3") {
       updatePassword();
       return;
     }
@@ -193,17 +193,17 @@ document.addEventListener("keydown", (e) => {
 // FORGOT PASSWORD SYSTEM
 
 /* Internal state */
-let fpEmail = "";
-let fpCurrentStep = 1;
+let forgotPasswordEmail = "";
+let forgotPasswordCurrentStep = 1;
 
 const modal = document.getElementById("forgot-modal");
-const modalTitle = document.getElementById("fp-modal-title");
-const modalSub = document.getElementById("fp-modal-sub");
+const modalTitle = document.getElementById("forgot-password-modal-title");
+const modalSub = document.getElementById("forgot-password-modal-subtitle");
 
 const dots = [
-  document.getElementById("fp-dot-1"),
-  document.getElementById("fp-dot-2"),
-  document.getElementById("fp-dot-3"),
+  document.getElementById("forgot-password-step-dot-1"),
+  document.getElementById("forgot-password-step-dot-2"),
+  document.getElementById("forgot-password-step-dot-3"),
 ];
 
 const stepTitles = [
@@ -230,43 +230,43 @@ function closeForgotModal() {
 }
 
 function resetForgotModal() {
-  fpEmail = "";
-  fpCurrentStep = 1;
+  forgotPasswordEmail = "";
+  forgotPasswordCurrentStep = 1;
   goToFpStep(1);
 
-  ["fp-email", "fp-otp", "fp-newpass", "fp-confirmpass"].forEach((id) => {
+  ["forgot-password-email", "forgot-password-otp-input", "forgot-password-new-password", "forgot-password-confirm-password"].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.value = "";
   });
   [
-    "fp-email-err",
-    "fp-otp-err",
-    "fp-newpass-err",
-    "fp-confirm-err",
-    "fp-step1-err",
-    "fp-step2-err",
-    "fp-step3-err",
+    "forgot-password-email-error",
+    "forgot-password-otp-error",
+    "forgot-password-new-password-error",
+    "forgot-password-confirm-error",
+    "forgot-password-step-1-error",
+    "forgot-password-step-2-error",
+    "forgot-password-step-3-error",
   ].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.textContent = "";
   });
 
-  document.getElementById("fp-success").classList.remove("visible");
+  document.getElementById("forgot-password-success").classList.remove("visible");
   document.getElementById("fp-steps-indicator")?.classList?.remove("hidden");
   document.querySelector(".fp-steps-indicator").style.display = "flex";
 
-  document.getElementById("pw-fill").style.width = "0%";
-  document.getElementById("pw-strength-label").textContent = "";
+  document.getElementById("password-strength-fill").style.width = "0%";
+  document.getElementById("password-strength-label").textContent = "";
 }
 
 
 function goToFpStep(step) {
-  fpCurrentStep = step;
+  forgotPasswordCurrentStep = step;
 
   document
     .querySelectorAll(".fp-step")
     .forEach((s) => s.classList.remove("active"));
-  const target = document.getElementById("fp-step-" + step);
+  const target = document.getElementById("forgot-password-step-" + step);
   if (target) target.classList.add("active");
 
   modalTitle.textContent = stepTitles[step - 1];
@@ -295,44 +295,44 @@ modal.addEventListener("click", (e) => {
 
 
 document
-  .getElementById("fp-back-to-1")
+  .getElementById("forgot-password-back-to-step-1")
   .addEventListener("click", () => goToFpStep(1));
 document
-  .getElementById("fp-back-to-2")
+  .getElementById("forgot-password-back-to-step-2")
   .addEventListener("click", () => goToFpStep(2));
 
 
 document
-  .getElementById("fp-done-btn")
+  .getElementById("forgot-password-done-button")
   .addEventListener("click", closeForgotModal);
 
 // STEP 1 — sendResetEmail()
 async function sendResetEmail() {
-  document.getElementById("fp-email-err").textContent = "";
-  document.getElementById("fp-step1-err").textContent = "";
+  document.getElementById("forgot-password-email-error").textContent = "";
+  document.getElementById("forgot-password-step-1-error").textContent = "";
 
-  const emailVal = document.getElementById("fp-email").value.trim();
+  const emailVal = document.getElementById("forgot-password-email").value.trim();
 
   if (!emailVal) {
-    document.getElementById("fp-email-err").textContent = "Email is required.";
+    document.getElementById("forgot-password-email-error").textContent = "Email is required.";
     return;
   }
   if (!validateEmail(emailVal)) {
-    document.getElementById("fp-email-err").textContent =
+    document.getElementById("forgot-password-email-error").textContent =
       "Enter a valid email address.";
     return;
   }
 
-  const btn = document.getElementById("fp-send-btn");
+  const btn = document.getElementById("forgot-password-send-button");
   setLoading(btn, true, "Send Verification Code");
 
   try {
     await auth.forgotPassword(emailVal);
 
-    fpEmail = emailVal;
+    forgotPasswordEmail = emailVal;
     goToFpStep(2);
   } catch (err) {
-    document.getElementById("fp-step1-err").textContent =
+    document.getElementById("forgot-password-step-1-error").textContent =
       err.message || "Failed to send reset email. Please try again.";
   } finally {
     setLoading(btn, false, "Send Verification Code");
@@ -340,25 +340,25 @@ async function sendResetEmail() {
 }
 
 document
-  .getElementById("fp-send-btn")
+  .getElementById("forgot-password-send-button")
   .addEventListener("click", sendResetEmail);
 
 /* Resend */
-document.getElementById("fp-resend-btn").addEventListener("click", async () => {
-  const btn = document.getElementById("fp-resend-btn");
+document.getElementById("forgot-password-resend-button").addEventListener("click", async () => {
+  const btn = document.getElementById("forgot-password-resend-button");
   btn.disabled = true;
   btn.textContent = "Sending…";
-  document.getElementById("fp-step2-err").textContent = "";
+  document.getElementById("forgot-password-step-2-error").textContent = "";
 
   try {
-    await auth.forgotPassword(fpEmail);
+    await auth.forgotPassword(forgotPasswordEmail);
     btn.textContent = "Code Resent ✓";
     setTimeout(() => {
       btn.disabled = false;
       btn.textContent = "Resend Code";
     }, 4000);
   } catch (err) {
-    document.getElementById("fp-step2-err").textContent =
+    document.getElementById("forgot-password-step-2-error").textContent =
       err.message || "Failed to resend.";
     btn.disabled = false;
     btn.textContent = "Resend Code";
@@ -367,77 +367,77 @@ document.getElementById("fp-resend-btn").addEventListener("click", async () => {
 
 // STEP 2 — verifyOTP()
 async function verifyOTP() {
-  document.getElementById("fp-otp-err").textContent = "";
-  document.getElementById("fp-step2-err").textContent = "";
+  document.getElementById("forgot-password-otp-error").textContent = "";
+  document.getElementById("forgot-password-step-2-error").textContent = "";
 
-  const otp = document.getElementById("fp-otp").value.trim();
+  const otp = document.getElementById("forgot-password-otp-input").value.trim();
 
   if (!otp) {
-    document.getElementById("fp-otp-err").textContent =
+    document.getElementById("forgot-password-otp-error").textContent =
       "Verification code is required.";
     return;
   }
   if (!/^\d{6}$/.test(otp)) {
-    document.getElementById("fp-otp-err").textContent =
+    document.getElementById("forgot-password-otp-error").textContent =
       "Enter the 6-digit code from your email.";
     return;
   }
 
-  const btn = document.getElementById("fp-verify-btn");
+  const btn = document.getElementById("forgot-password-verify-button");
   setLoading(btn, true, "Verify Code");
 
   try {
-    await auth.verifyOtp(fpEmail, otp);
+    await auth.verifyOtp(forgotPasswordEmail, otp);
     goToFpStep(3);
   } catch (err) {
-    document.getElementById("fp-step2-err").textContent =
+    document.getElementById("forgot-password-step-2-error").textContent =
       err.message || "Invalid or expired code. Please try again.";
   } finally {
     setLoading(btn, false, "Verify Code");
   }
 }
 
-document.getElementById("fp-verify-btn").addEventListener("click", verifyOTP);
+document.getElementById("forgot-password-verify-button").addEventListener("click", verifyOTP);
 
 
-document.getElementById("fp-otp").addEventListener("input", (e) => {
+document.getElementById("forgot-password-otp-input").addEventListener("input", (e) => {
   e.target.value = e.target.value.replace(/\D/g, "").slice(0, 6);
 });
 
 // STEP 3 — updatePassword()
 async function updatePassword() {
-  document.getElementById("fp-newpass-err").textContent = "";
-  document.getElementById("fp-confirm-err").textContent = "";
-  document.getElementById("fp-step3-err").textContent = "";
+  document.getElementById("forgot-password-new-password-error").textContent = "";
+  document.getElementById("forgot-password-confirm-error").textContent = "";
+  document.getElementById("forgot-password-step-3-error").textContent = "";
 
-  const newPass = document.getElementById("fp-newpass").value;
-  const confirmPass = document.getElementById("fp-confirmpass").value;
+  const newPass = document.getElementById("forgot-password-new-password").value;
+  const confirmPass = document.getElementById("forgot-password-confirm-password").value;
 
   let valid = true;
 
   if (!newPass) {
-    document.getElementById("fp-newpass-err").textContent =
+    document.getElementById("forgot-password-new-password-error").textContent =
       "New password is required.";
     valid = false;
   } else if (newPass.length < 8) {
-    document.getElementById("fp-newpass-err").textContent =
+    document.getElementById("forgot-password-new-password-error").textContent =
       "Password must be at least 8 characters.";
     valid = false;
   }
 
   if (!confirmPass) {
-    document.getElementById("fp-confirm-err").textContent =
+    document.getElementById("forgot-password-confirm-error").textContent =
       "Please confirm your password.";
     valid = false;
   } else if (newPass !== confirmPass) {
-    document.getElementById("fp-confirm-err").textContent =
+    document.getElementById("forgot-password-confirm-error").textContent =
       "Passwords do not match.";
     valid = false;
   }
 
   if (!valid) return;
 
-  const btn = document.getElementById("fp-update-btn");
+  const btn = document.getElementById("forgot-password-update-button");
   setLoading(btn, true, "Update Password");
 
   try {
@@ -450,9 +450,9 @@ async function updatePassword() {
     document.querySelector(".fp-steps-indicator").style.display = "none";
     modalTitle.textContent = "All Done!";
     modalSub.textContent = "";
-    document.getElementById("fp-success").classList.add("visible");
+    document.getElementById("forgot-password-success").classList.add("visible");
   } catch (err) {
-    document.getElementById("fp-step3-err").textContent =
+    document.getElementById("forgot-password-step-3-error").textContent =
       err.message || "Failed to update password. Please try again.";
   } finally {
     setLoading(btn, false, "Update Password");
@@ -460,7 +460,7 @@ async function updatePassword() {
 }
 
 document
-  .getElementById("fp-update-btn")
+  .getElementById("forgot-password-update-button")
   .addEventListener("click", updatePassword);
 
 // PASSWORD STRENGTH METER
@@ -474,11 +474,11 @@ function measureStrength(pw) {
   return score;
 }
 
-document.getElementById("fp-newpass").addEventListener("input", (e) => {
+document.getElementById("forgot-password-new-password").addEventListener("input", (e) => {
   const pw = e.target.value;
   const score = measureStrength(pw);
-  const fill = document.getElementById("pw-fill");
-  const label = document.getElementById("pw-strength-label");
+  const fill = document.getElementById("password-strength-fill");
+  const label = document.getElementById("password-strength-label");
 
   const levels = [
     { pct: "0%", color: "", text: "" },

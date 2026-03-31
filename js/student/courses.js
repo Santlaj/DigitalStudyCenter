@@ -6,7 +6,7 @@
 
 import { courses } from "../api.js";
 import { state } from "./state.js";
-import { $, escHtml, COURSE_COLORS } from "../shared/helpers.js";
+import { $, escapeHtml, COURSE_COLORS } from "../shared/helpers.js";
 
 export async function fetchCourses() {
   const grid = $("courses-grid");
@@ -25,7 +25,7 @@ export async function fetchCourses() {
     state.coursesLoaded = true;
     renderCourseCards(grid, state.cachedCourses);
   } catch (err) {
-    grid.innerHTML = `<div class="empty-state">Error: ${escHtml(err.message)}</div>`;
+    grid.innerHTML = `<div class="empty-state">Error: ${escapeHtml(err.message)}</div>`;
   }
 }
 
@@ -43,12 +43,12 @@ function renderCourseCards(grid, data) {
       <div class="course-card">
         <div class="course-card-header">
           <div class="course-card-bar" style="background:${gradient}"></div>
-          <div class="course-card-title">${escHtml(c.title)}</div>
+          <div class="course-card-title">${escapeHtml(c.title)}</div>
           <div class="course-card-teacher">
             <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
-            ${escHtml(teacher)}
+            ${escapeHtml(teacher)}
           </div>
-          ${c.description ? `<div class="course-card-desc">${escHtml(c.description)}</div>` : ""}
+          ${c.description ? `<div class="course-card-desc">${escapeHtml(c.description)}</div>` : ""}
         </div>
         <div class="course-card-footer">
           <div class="course-stat">

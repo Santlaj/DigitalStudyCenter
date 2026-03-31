@@ -5,7 +5,7 @@
 
 import { attendance } from "../api.js";
 import { state } from "./state.js";
-import { $, escHtml, formatDate, animateCounter } from "../shared/helpers.js";
+import { $, escapeHtml, formatDate, animateCounter } from "../shared/helpers.js";
 
 const ATT_CIRC_LG = 527.79;
 const ATT_CIRC_SM = 201.06;
@@ -58,8 +58,8 @@ export async function fetchAttendance() {
   } catch (err) {
     console.error("Attendance error:", err.message);
     $("att-ring-pct").textContent    = "Err";
-    $("att-ring-footer").innerHTML   = `<span style="color:#ef4444">${escHtml(err.message)}</span>`;
-    $("att-subject-cards").innerHTML = `<div class="empty-state-sm" style="color:var(--red)">Error: ${escHtml(err.message)}</div>`;
+    $("att-ring-footer").innerHTML   = `<span style="color:#ef4444">${escapeHtml(err.message)}</span>`;
+    $("att-subject-cards").innerHTML = `<div class="empty-state-sm" style="color:var(--red)">Error: ${escapeHtml(err.message)}</div>`;
     $("att-timeline").innerHTML      = `<div class="empty-state-sm">Could not load sessions.</div>`;
   }
 }
@@ -122,7 +122,7 @@ function renderSubjectCards(subjects) {
     return `
       <div class="att-subject-card" style="animation-delay:${i * 0.07}s">
         <div class="att-subject-card-top">
-          <div class="att-subject-name">${escHtml(s.name)}</div>
+          <div class="att-subject-name">${escapeHtml(s.name)}</div>
           <span class="att-subject-pill ${cls}">${cls === "good" ? "✓ Good" : cls === "warning" ? "⚠ Low" : "✗ Critical"}</span>
         </div>
         <div class="att-subject-pct-row">
@@ -154,7 +154,7 @@ function renderTimeline(recent) {
     <div class="att-timeline-item ${s.status || "absent"}" style="animation-delay:${i * 0.04}s">
       <div class="att-timeline-card">
         <div class="att-timeline-left">
-          <div class="att-timeline-subject">${escHtml(s.subject)}</div>
+          <div class="att-timeline-subject">${escapeHtml(s.subject)}</div>
           <div class="att-timeline-date">${formatDate(s.date)}</div>
         </div>
         <span class="att-timeline-badge ${s.status || "absent"}">${s.status || "absent"}</span>

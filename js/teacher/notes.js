@@ -6,7 +6,7 @@
 
 import { notes } from "../api.js";
 import { state } from "./state.js";
-import { $, escHtml, formatDate, showToast, setLoading } from "../shared/helpers.js";
+import { $, escapeHtml, formatDate, showToast, setLoading } from "../shared/helpers.js";
 import { fetchDashboardStats } from "./dashboard.js";
 
 export async function uploadNotes(navigateToFn) {
@@ -107,7 +107,7 @@ export async function loadNotesTable(query = "", append = false) {
       }
     }
   } catch (err) { 
-    if (!append) tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Error: ${escHtml(err.message)}</td></tr>`;
+    if (!append) tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Error: ${escapeHtml(err.message)}</td></tr>`;
     else showToast("Failed to load more: " + err.message, "error");
   }
 }
@@ -116,11 +116,11 @@ function renderNotesTable(tbody, data) {
   if (!data.length) { tbody.innerHTML = `<tr><td colspan="5" class="table-empty">No notes found. Upload your first note!</td></tr>`; return; }
   tbody.innerHTML = data.map(n => `
     <tr>
-      <td><strong>${escHtml(n.title)}</strong>${n.course ? `<br><span style="font-size:0.78rem;color:var(--text-muted)">${escHtml(n.course)}</span>` : ""}</td>
-      <td>${escHtml(n.subject)}</td><td>${formatDate(n.created_at)}</td>
+      <td><strong>${escapeHtml(n.title)}</strong>${n.course ? `<br><span style="font-size:0.78rem;color:var(--text-muted)">${escapeHtml(n.course)}</span>` : ""}</td>
+      <td>${escapeHtml(n.subject)}</td><td>${formatDate(n.created_at)}</td>
       <td><span class="pill pill-blue">${n.download_count ?? 0}</span></td>
-      <td><a href="${escHtml(n.file_url)}" target="_blank" class="btn-icon" title="View PDF">📄 View</a>
-        <button class="btn-icon delete" data-delete-note="${escHtml(n.id)}" data-name="${escHtml(n.title)}" title="Delete">🗑</button></td>
+      <td><a href="${escapeHtml(n.file_url)}" target="_blank" class="btn-icon" title="View PDF">📄 View</a>
+        <button class="btn-icon delete" data-delete-note="${escapeHtml(n.id)}" data-name="${escapeHtml(n.title)}" title="Delete">🗑</button></td>
     </tr>`).join("");
   tbody.querySelectorAll("[data-delete-note]").forEach(btn => {
     btn.addEventListener("click", () => {
