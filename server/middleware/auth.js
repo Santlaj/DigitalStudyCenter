@@ -21,7 +21,7 @@ async function authenticate(req, res, next) {
 
   try {
     // 1. Validate JWT and get user from Supabase Auth
-    // Use auth.getUser(token) to check if token is still valid (revoked, etc.)
+    // Use auth.getUser(token) to check if token is still valid
     const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
     
     if (error || !user) {
@@ -29,7 +29,7 @@ async function authenticate(req, res, next) {
     }
 
     // 2. Attach basic user info from JWT metadata immediately
-    // This reduces the need to query the profile table if only role/id is needed downstream
+    // This reduces the need to query the profile table if only role is needed downstream
     req.user = {
       id: user.id,
       email: user.email,

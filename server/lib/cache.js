@@ -1,7 +1,5 @@
 /**
- * lib/cache.js
  * Simple in-memory cache using node-cache.
- * Good enough for ≤1000 students. No external service needed.
  */
 
 const NodeCache = require("node-cache");
@@ -10,7 +8,7 @@ const NodeCache = require("node-cache");
 const cache = new NodeCache({ stdTTL: 60, checkperiod: 120 });
 
 /**
- * Get cached value or fetch + cache it.
+ * Get cached value or fetch it and store it in cache.
  * @param {string} key   - Cache key
  * @param {Function} fetchFn - Async function to fetch data if cache miss
  * @param {number} ttl   - Time to live in seconds (default: 60)

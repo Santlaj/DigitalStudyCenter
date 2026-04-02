@@ -24,7 +24,7 @@ if (SUPABASE_SERVICE_ROLE_KEY && SUPABASE_SERVICE_ROLE_KEY === SUPABASE_ANON_KEY
 
 /**
  * Admin client — uses service_role key.
- * Bypasses RLS. Use only for admin operations (creating users, etc.).
+ * Bypasses RLS. Use only for admin operations.
  */
 const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY || SUPABASE_ANON_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
