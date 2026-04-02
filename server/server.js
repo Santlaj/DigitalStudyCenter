@@ -26,7 +26,6 @@ const allowedOrigins = [
   "https://digitalstudycenter.in",
   "https://www.digitalstudycenter.in",
   "https://localhost",
-  "capacitor://localhost",
 ].filter(Boolean);
 
 app.use(cors({

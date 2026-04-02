@@ -105,8 +105,8 @@ export const COURSE_COLORS = [
 ];
 
 export function getCleanLink(path) {
-  // If running in Capacitor (localhost or file://) or local dev, use .html
-  // Otherwise use the clean URL for production web
+  // If running locally (localhost or file://), use .html extensions
+  // Otherwise use clean URLs for production web
   const isWebProduction = !window.location.hostname.includes('localhost') && !window.location.protocol.includes('file:');
   
   if (path === './' || path === 'index') {

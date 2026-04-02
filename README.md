@@ -25,7 +25,6 @@
   <img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white" />
   <img src="https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white" />
   <img src="https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=white" />
-  <img src="https://img.shields.io/badge/Capacitor-119EFF?style=flat-square&logo=capacitor&logoColor=white" />
 </p>
 
 ---
@@ -167,7 +166,6 @@ DigitalStudyCenter/
 | **CSS3** | Custom responsive styling, dark mode, animations |
 | **Vanilla JavaScript** | ES Modules, no framework dependency |
 | **Chart.js** | Interactive analytics charts |
-| **Capacitor** | Android app packaging |
 
 </td>
 <td align="center" width="50%">
