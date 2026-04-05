@@ -227,7 +227,7 @@ DigitalStudyCenter/
 <tr>
 <td>
 
-**Santlaj Kumar**
+**Santlaj Kumar Mehta**
 
 🔗 GitHub: [@Santlaj](https://github.com/Santlaj)
 
