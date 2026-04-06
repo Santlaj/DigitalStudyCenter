@@ -1,0 +1,268 @@
+/* ═══════════════════════════════════════════════════════
+   TEACHER PORTAL — responsive.css
+   All @media queries for the teacher dashboard.
+   ═══════════════════════════════════════════════════════ */
+
+/* ── 1280px: 4-col stats → 2-col ── */
+@media (max-width: 1280px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── 1024px: multi-col layouts collapse ── */
+@media (max-width: 1024px) {
+  .assignments-layout { grid-template-columns: 1fr; }
+  .profile-layout     { grid-template-columns: 1fr; }
+  .analytics-grid     { grid-template-columns: 1fr; }
+  .chart-card.chart-wide { grid-column: auto; }
+  .main-content { padding: 24px 20px; }
+}
+
+/* ── 768px: sidebar slides off-screen, topnav adjusts ── */
+@media (max-width: 768px) {
+  :root { --sidebar-w: 260px; }
+
+  /* Sidebar: off-screen by default, slides in with .open */
+  .sidebar {
+    transform: translateX(calc(-1 * var(--sidebar-w)));
+    box-shadow: none;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 32px rgba(0,0,0,0.35);
+  }
+
+  /* Overlay dimmer when sidebar is open */
+  .sidebar.open::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    left: var(--sidebar-w);
+    background: rgba(0,0,0,0.45);
+    z-index: -1;
+  }
+
+  .main-wrap { margin-left: 0 !important; }
+
+  /* Topnav */
+  .topnav { padding: 0 14px; gap: 8px; }
+  .topnav-name { display: none; }
+  .topnav-divider { display: none; }
+  .topnav-logout-btn { padding: 7px 12px; font-size: 0.78rem; }
+
+  /* Breadcrumb tighter */
+  .topnav-breadcrumb { font-size: 0.85rem; }
+
+  /* Section content */
+  .main-content { padding: 18px 14px; }
+  .section-title { font-size: 1.25rem; }
+  .section-header { margin-bottom: 20px; }
+
+  /* Stats */
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .stat-card { padding: 16px 14px 12px; gap: 10px; }
+  .stat-number { font-size: 1.4rem; }
+  .stat-icon-wrap { width: 38px; height: 38px; }
+  .stat-trend { display: none; }
+
+  /* Dashboard panels: single column */
+  .dashboard-panels { grid-template-columns: 1fr; gap: 14px; }
+  .dash-panel { padding: 18px; }
+
+  /* Form rows become single column */
+  .form-row { grid-template-columns: 1fr; gap: 0; }
+
+  /* Form card */
+  .form-card { padding: 20px; }
+  .form-actions { flex-direction: column; }
+  .form-actions .btn-primary,
+  .form-actions .btn-ghost { width: 100%; justify-content: center; }
+
+  /* Table toolbar */
+  .table-toolbar {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .table-toolbar .search-input {
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+  .table-toolbar > div { width: 100%; }
+  .table-toolbar > div .btn-primary,
+  .table-toolbar > div .btn-ghost {
+    flex: 1;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* Assignments layout */
+  .assignments-layout { grid-template-columns: 1fr; }
+
+  /* Analytics charts: smaller height */
+  .chart-wrap { height: 200px; }
+  .chart-wrap canvas { max-height: 200px; }
+
+  /* Profile */
+  .profile-layout { grid-template-columns: 1fr; }
+  .profile-avatar-card { padding: 24px; }
+
+  /* Modals */
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .modal-box {
+    max-width: 100%;
+    width: 100%;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    padding: 24px 20px 32px;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.22s;
+  }
+  .modal-overlay.open .modal-box {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  /* Add a drag handle hint to bottom-sheet modals */
+  .modal-box::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    margin: 0 auto 18px;
+  }
+  .modal-box-wide { max-width: 100%; }
+  .modal-footer {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+  .modal-footer .btn-primary,
+  .modal-footer .btn-ghost,
+  .modal-footer .btn-danger {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+  .modal-box .form-row { grid-template-columns: 1fr; gap: 0; }
+
+  /* Attendance controls */
+  .att-controls { flex-direction: column; align-items: stretch; gap: 12px; }
+  .att-controls-left { flex-direction: column; align-items: stretch; gap: 10px; }
+  .att-controls-right {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .att-controls-right .btn-ghost { justify-content: center; text-align: center; }
+  .att-field { margin-bottom: 0; }
+  .att-field .field-input,
+  .att-field .field-select { min-width: 100%; width: 100%; }
+  #att-load-btn { width: 100%; justify-content: center; }
+
+  /* Attendance summary */
+  .att-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding: 16px;
+  }
+  .att-summary-divider { display: none; }
+  .att-summary-item { padding: 0; align-items: flex-start; }
+  .att-summary-num { font-size: 1.3rem; }
+  .att-summary-bar-wrap {
+    grid-column: 1 / -1;
+    min-width: 100%;
+    margin-left: 0;
+    margin-top: 4px;
+    height: 8px;
+  }
+
+  /* Attendance footer */
+  .att-footer { flex-direction: column; align-items: stretch; gap: 8px; }
+  .att-footer .btn-primary { width: 100%; justify-content: center; }
+  .att-footer .error-msg { text-align: center; }
+
+  /* Toast */
+  .toast {
+    bottom: 16px;
+    right: 14px;
+    left: 14px;
+    max-width: none;
+    text-align: center;
+  }
+
+  /* Students section action buttons */
+  #btn-add-student,
+  #btn-auto-mark-inactive {
+    flex: 1;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.78rem;
+    padding: 8px 10px;
+  }
+
+  /* Collapse btn label */
+  .collapse-btn-label { display: none; }
+  .sidebar-collapse-btn { padding: 7px 10px; }
+}
+
+/* ── 480px: single column everything ── */
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-card { padding: 14px 12px 10px; }
+  .stat-number { font-size: 1.25rem; }
+  .stat-label { font-size: 0.72rem; }
+  .stat-icon-wrap { width: 34px; height: 34px; }
+
+  .main-content { padding: 14px 12px; }
+
+  .topnav { padding: 0 10px; }
+  .topnav-right { gap: 8px; }
+  .topnav-icon-btn { width: 34px; height: 34px; }
+
+  .section-title { font-size: 1.1rem; }
+
+  /* Form card full padding reduction */
+  .form-card { padding: 16px 14px; }
+
+  /* Profile avatar smaller */
+  .profile-avatar-circle { width: 64px; height: 64px; font-size: 1.4rem; }
+
+  /* Attendance summary 2x2 grid */
+  .att-summary { grid-template-columns: 1fr 1fr; }
+
+  /* Hide non-essential table columns on very small screens */
+  .data-table .col-hide-mobile { display: none; }
+
+  /* Chart height reduction */
+  .chart-wrap { height: 170px; }
+  .chart-wrap canvas { max-height: 170px; }
+
+  /* Table card padding tighter */
+  .data-table th { padding: 10px 12px; font-size: 0.65rem; }
+  .data-table td { padding: 11px 12px; }
+}
+
+/* ── 360px: ultra-narrow phones ── */
+@media (max-width: 360px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .topnav-logout-btn { padding: 4px 8px; font-size: 0.70rem; }
+  .sidebar-collapse-btn { padding: 6px 8px; }
+  .att-controls-right { grid-template-columns: 1fr; }
+}
+
+/* ── Mobile: icon-only sidebar responsive ── */
+@media (max-width: 768px) {
+  .sidebar-icon-only {
+    width: var(--sidebar-w);
+    transform: translateX(calc(-1 * var(--sidebar-w)));
+  }
+  .sidebar-icon-only.open {
+    transform: translateX(0);
+    width: var(--sidebar-w);
+  }
+}

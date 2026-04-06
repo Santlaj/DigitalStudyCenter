@@ -1,0 +1,60 @@
+/* ═══════════════════════════════════════════════════════
+   STUDENT PORTAL — announcements.css
+   Announcements feed and announcement cards.
+   ═══════════════════════════════════════════════════════ */
+
+/* ── ANNOUNCEMENTS FEED ── */
+.announcements-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.announcement-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  border-left: 4px solid var(--accent);
+  transition: box-shadow 0.2s;
+}
+
+.announcement-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.announcement-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.announcement-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.announcement-date {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.announcement-teacher {
+  font-size: 0.78rem;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.announcement-message {
+  font-size: 0.875rem;
+  color: var(--text-sub);
+  line-height: 1.65;
+}

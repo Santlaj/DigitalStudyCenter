@@ -1,0 +1,312 @@
+/* ═══════════════════════════════════════════════════════
+   TEACHER PORTAL — sidebar.css
+   Sidebar layout, logo, teacher card, navigation,
+   collapse, icon-only mode.
+   ═══════════════════════════════════════════════════════ */
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--sidebar-bg);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 200;
+  transition: width 0.28s cubic-bezier(0.4,0,0.2,1),
+              transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ── Logo ── */
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid var(--sidebar-border);
+  flex-shrink: 0;
+}
+
+.sidebar-logo-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+}
+
+.sidebar-logo-text {
+  font-family: 'Sora', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.2px;
+  transition: opacity 0.2s, width 0.2s;
+}
+
+.sidebar-logo-text em {
+  font-style: normal;
+  color: var(--accent-light);
+}
+
+/* ── Teacher Card ── */
+.sidebar-teacher-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--sidebar-border);
+  flex-shrink: 0;
+}
+
+.sidebar-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+  color: #fff;
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-teacher-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-teacher-badge {
+  font-size: 0.7rem;
+  color: var(--accent-light);
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+.sidebar-teacher-info {
+  transition: opacity 0.2s, width 0.2s;
+}
+
+/* ── Navigation ── */
+.sidebar-nav {
+  flex: 1;
+  padding: 14px 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--sidebar-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.18s, color 0.18s;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,0.07);
+  color: #e2e8f0;
+}
+
+.nav-item.active {
+  background: rgba(99,102,241,0.18);
+  color: var(--sidebar-active);
+}
+
+.nav-item.active .nav-icon { color: var(--accent-light); }
+
+.nav-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.nav-item.active .nav-icon { opacity: 1; }
+
+.nav-label {
+  transition: opacity 0.2s, width 0.2s;
+}
+
+/* ── Sidebar Logout ── */
+.sidebar-logout {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px 26px;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--sidebar-border);
+  color: #64748b;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: color 0.18s;
+  flex-shrink: 0;
+}
+
+.sidebar-logout:hover { color: var(--red); }
+
+/* ── SIDEBAR INNER COLLAPSE BUTTON ── */
+.sidebar-inner-collapse {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 13px 26px;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--sidebar-border);
+  color: #64748b;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: color 0.18s, background 0.18s;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar-inner-collapse:hover {
+  color: #e2e8f0;
+  background: rgba(255,255,255,0.06);
+}
+
+.sidebar-inner-collapse .nav-label {
+  transition: opacity 0.2s, width 0.2s;
+}
+
+/* Rotate arrow when collapsed */
+.collapse-arrow-icon {
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  flex-shrink: 0;
+}
+
+/* ── ICON-ONLY SIDEBAR (narrow collapsed) ── */
+:root {
+  --sidebar-w-collapsed: 68px;
+}
+
+.sidebar-icon-only {
+  width: var(--sidebar-w-collapsed);
+}
+
+/* When icon-only: push main content */
+.sidebar-icon-only ~ .main-wrap,
+.app-shell:has(.sidebar-icon-only) .main-wrap {
+  margin-left: var(--sidebar-w-collapsed);
+}
+
+/* Hide text labels inside icon-only sidebar */
+.sidebar-icon-only .sidebar-logo-text,
+.sidebar-icon-only .sidebar-teacher-info,
+.sidebar-icon-only .nav-label,
+.sidebar-icon-only .sidebar-logout .nav-label,
+.sidebar-icon-only .sidebar-inner-collapse .nav-label {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Adjust paddings for icon-only mode */
+.sidebar-icon-only .sidebar-logo {
+  padding: 28px 0 20px;
+  justify-content: center;
+  gap: 0;
+}
+
+.sidebar-icon-only .sidebar-teacher-card {
+  padding: 14px 0;
+  justify-content: center;
+}
+
+.sidebar-icon-only .nav-item {
+  padding: 11px 0;
+  justify-content: center;
+  gap: 0;
+}
+
+.sidebar-icon-only .sidebar-logout {
+  padding: 14px 0;
+  justify-content: center;
+}
+
+.sidebar-icon-only .sidebar-inner-collapse {
+  padding: 13px 0;
+  justify-content: center;
+}
+
+/* Flip arrow to point right when collapsed */
+.sidebar-icon-only .collapse-arrow-icon {
+  transform: rotate(180deg);
+}
+
+/* Tooltip on hover in icon-only mode */
+.sidebar-icon-only .nav-item {
+  position: relative;
+}
+
+.sidebar-icon-only .nav-item::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: #1e293b;
+  color: #f1f5f9;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s;
+  z-index: 300;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.sidebar-icon-only .nav-item::before {
+  content: '';
+  position: absolute;
+  left: calc(100% + 6px);
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-right-color: #1e293b;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s;
+  z-index: 300;
+}
+
+.sidebar-icon-only .nav-item:hover::after,
+.sidebar-icon-only .nav-item:hover::before {
+  opacity: 1;
+}

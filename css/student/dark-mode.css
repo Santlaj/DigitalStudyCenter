@@ -1,0 +1,178 @@
+/* ═══════════════════════════════════════════════════════
+   STUDENT PORTAL — dark-mode.css
+   All dark mode variable overrides and component styles.
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Dark Mode Variables ── */
+body.dark-mode {
+  --bg-page: #0f172a;
+  --bg-card: #1e293b;
+  --border: #334155;
+  --border-light: #1e293b;
+  --text-main: #f8fafc;
+  --text-sub: #cbd5e1;
+  --text-muted: #94a3b8;
+  --topnav-bg: #1e293b;
+  --topnav-border: #334155;
+}
+
+body.dark-mode .topnav-icon-btn,
+body.dark-mode .search-input,
+body.dark-mode .topnav-search {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border-color: var(--border);
+}
+
+.dark-mode-toggle {
+  color: var(--text-sub);
+}
+
+.dark-mode-toggle:hover {
+  color: var(--accent);
+}
+
+/* ── Dark Mode Hover Overrides ── */
+body.dark-mode .topnav-icon-btn:hover,
+body.dark-mode .sidebar-toggle:hover,
+body.dark-mode .sidebar-collapse-btn:hover,
+body.dark-mode .action-btn:hover,
+body.dark-mode .btn-secondary:hover,
+body.dark-mode .btn-outline:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+}
+
+body.dark-mode .data-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+body.dark-mode .field-input,
+body.dark-mode .search-input,
+body.dark-mode .topnav-search,
+body.dark-mode textarea {
+  background: rgba(0, 0, 0, 0.2) !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+body.dark-mode .field-input:focus,
+body.dark-mode .search-input:focus,
+body.dark-mode .topnav-search:focus,
+body.dark-mode textarea:focus {
+  background: rgba(0, 0, 0, 0.3) !important;
+  border-color: var(--accent-light) !important;
+}
+
+body.dark-mode .file-drop-zone {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border-color: #334155 !important;
+}
+
+body.dark-mode .file-drop-zone:hover,
+body.dark-mode .file-drop-zone.dragover {
+  background: rgba(79, 70, 229, 0.15) !important;
+  border-color: var(--accent-light) !important;
+}
+
+/* ── Cards & Panels ── */
+body.dark-mode .modal-content,
+body.dark-mode .card,
+body.dark-mode .stat-card,
+body.dark-mode .dash-panel,
+body.dark-mode .course-card {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+  border-color: #334155 !important;
+  background: #1e293b !important;
+}
+
+/* ── Table ── */
+body.dark-mode .data-table thead {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+body.dark-mode .data-table th,
+body.dark-mode .data-table td {
+  border-color: #334155 !important;
+}
+
+/* ── Tabs & Filters ── */
+body.dark-mode .active-tab,
+body.dark-mode .filter-btn.active {
+  background: var(--accent) !important;
+  color: #fff !important;
+}
+
+body.dark-mode .detail-row {
+  border-color: #334155 !important;
+}
+
+/* ── Modals & HTML ── */
+html.dark-mode {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+body.dark-mode {
+  min-height: 100vh;
+}
+
+body.dark-mode .modal-box {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+  border-color: #334155 !important;
+  background: #1e293b !important;
+}
+
+body.dark-mode .modal-title {
+  color: #f8fafc !important;
+}
+
+body.dark-mode .modal-body-text {
+  color: #cbd5e1 !important;
+}
+
+body.dark-mode .modal-sub {
+  color: #94a3b8 !important;
+}
+
+body.dark-mode .btn-ghost {
+  color: #94a3b8 !important;
+  background: transparent !important;
+}
+
+body.dark-mode .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+}
+
+body.dark-mode .modal-close {
+  color: #94a3b8 !important;
+}
+
+body.dark-mode .modal-close:hover {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ── Profile Popup ── */
+body.dark-mode .header-profile-popup {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.dark-mode .popup-course {
+  background: rgba(99, 102, 241, 0.15);
+  color: #c7d2fe;
+}

@@ -1,0 +1,277 @@
+/* ═══════════════════════════════════════════════════════
+   TEACHER PORTAL — attendance.css
+   Attendance controls, summary bar, toggle switch,
+   note input, checkbox, row highlights, footer, history,
+   detail pills, student cell, field-select.
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Controls ── */
+.att-controls {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.att-controls-left {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.att-controls-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.att-field { margin-bottom: 0; }
+.att-field .field-input { min-width: 180px; }
+
+.att-mark-all {
+  font-size: 0.8rem;
+  padding: 8px 14px;
+}
+
+/* ── Summary bar ── */
+.att-summary {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.att-summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 28px;
+  gap: 2px;
+}
+
+.att-summary-item:first-child { padding-left: 0; }
+
+.att-summary-num {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1;
+}
+
+.att-present-count .att-summary-num { color: var(--green); }
+.att-absent-count  .att-summary-num { color: var(--red); }
+.att-late-count    .att-summary-num { color: var(--amber); }
+
+.att-summary-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.att-summary-divider {
+  width: 1px;
+  height: 36px;
+  background: var(--border);
+}
+
+.att-summary-bar-wrap {
+  flex: 1;
+  height: 10px;
+  background: var(--border-light);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  margin-left: 24px;
+  min-width: 140px;
+}
+
+.att-summary-bar {
+  height: 100%;
+  background: var(--green);
+  transition: width 0.45s cubic-bezier(0.4,0,0.2,1);
+  width: 0%;
+}
+
+.att-bar-late   { background: var(--amber); }
+.att-bar-absent { background: var(--red); }
+
+/* ── Toggle switch ── */
+.att-toggle {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+  cursor: pointer;
+}
+.att-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.att-slider {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: var(--red);
+  background-image: linear-gradient(135deg, #ef4444, #dc2626);
+  transition: 0.35s cubic-bezier(0.4, 0.0, 0.2, 1);
+  border-radius: 34px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.15);
+}
+.att-slider:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.35s cubic-bezier(0.4, 0.0, 0.2, 1);
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.att-toggle input:checked + .att-slider {
+  background-color: var(--green);
+  background-image: linear-gradient(135deg, #0fba81, #059669);
+}
+.att-toggle input:checked + .att-slider:before {
+  transform: translateX(24px);
+}
+.att-toggle:hover .att-slider {
+  filter: brightness(1.1);
+}
+
+/* ── Note input inside table cell ── */
+.att-note-input {
+  width: 100%;
+  max-width: 200px;
+  padding: 6px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  color: var(--text-main);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.att-note-input:focus {
+  border-color: var(--accent-light);
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.1);
+}
+
+/* ── Checkbox ── */
+.att-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* ── Row highlight ── */
+.att-row-present { background: rgba(17, 221, 153, 0.14) !important; }
+.att-row-absent  { background: rgba(239,68,68,0.14)  !important; }
+.att-row-late    { background: rgba(245,158,11,0.14)  !important; }
+
+.att-row-present:hover td {
+  background: rgba(16,185,129,0.04) !important;
+}
+
+.att-row-absent:hover td {
+  background: rgba(239,68,68,0.04) !important;
+}
+
+.att-row-late:hover td {
+  background: rgba(245,158,11,0.04) !important;
+}
+
+/* ── Footer ── */
+.att-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+  margin-bottom: 32px;
+}
+
+.att-footer .error-msg { margin: 0; flex: 1; }
+.att-footer .success-msg { flex: 1; margin: 0; }
+.att-footer .success-msg.hidden { display: none; }
+
+/* ── History ── */
+.att-history-wrap { margin-top: 8px; }
+
+/* ── Detail status pills in modal ── */
+.att-pill-present { background: #dcfce7; color: #15803d; }
+.att-pill-absent  { background: var(--red-soft); color: var(--red); }
+.att-pill-late    { background: #fef9c3; color: #92400e; }
+
+/* ── Student avatar mini ── */
+.att-student-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.att-avatar-mini {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+  color: #fff;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── History action buttons ── */
+.btn-view {
+  padding: 5px 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-view:hover { background: var(--accent); color: #fff; }
+
+/* ── Select / Dropdown ── */
+.field-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 34px;
+  cursor: pointer;
+}
+
+.field-select:focus {
+  border-color: var(--accent-light);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+  outline: none;
+}
+
+/* Attendance dropdowns width */
+.att-field .field-select { min-width: 155px; }
+.att-field:first-child .field-input { min-width: 160px; }

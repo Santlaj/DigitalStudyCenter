@@ -1,0 +1,185 @@
+/* ═══════════════════════════════════════════════════════
+   STUDENT PORTAL — responsive.css
+   All @media queries for the student dashboard.
+   ═══════════════════════════════════════════════════════ */
+
+/* ── 1280px: Stats grid 2-col ── */
+@media (max-width: 1280px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── 1024px: Profile + attendance adjustments ── */
+@media (max-width: 1024px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .main-content {
+    padding: 24px 20px;
+  }
+
+  /* Attendance hero */
+  .att-hero-row {
+    grid-template-columns: 240px 1fr;
+  }
+
+  .att-ring-outer {
+    width: 170px;
+    height: 170px;
+  }
+
+  .att-ring-svg {
+    width: 170px;
+    height: 170px;
+  }
+
+  .att-ring-pct-big {
+    font-size: 2.2rem;
+  }
+}
+
+/* ── 768px: Sidebar off-screen, layout collapses ── */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-w: 240px;
+  }
+
+  .sidebar {
+    transform: translateX(calc(-1 * var(--sidebar-w)));
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .main-wrap {
+    margin-left: 0;
+  }
+
+  .dashboard-panels {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .topnav {
+    padding: 0 18px;
+  }
+
+  .topnav-name {
+    display: none;
+  }
+
+  .topnav-search {
+    width: 180px;
+  }
+
+  .topnav-search:focus {
+    width: 200px;
+  }
+
+  /* Attendance */
+  .att-hero-row {
+    grid-template-columns: 1fr;
+  }
+
+  .att-ring-card {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 22px 20px;
+    min-height: auto;
+    gap: 14px;
+  }
+
+  .att-ring-outer {
+    width: 140px;
+    height: 140px;
+  }
+
+  .att-ring-svg {
+    width: 140px;
+    height: 140px;
+  }
+
+  .att-stat-tiles {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .att-tile-total {
+    grid-column: span 1;
+  }
+
+  .att-tile-alert {
+    grid-column: span 2;
+  }
+
+  .dash-attendance-card {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+}
+
+/* ── 640px: Fee payment responsive ── */
+@media (max-width: 640px) {
+  .fee-current-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 22px 20px;
+  }
+
+  .fee-current-right {
+    align-items: flex-start;
+  }
+
+  .fee-reminder-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ── 480px: Single column, smallest layout ── */
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .main-content {
+    padding: 16px 14px;
+  }
+
+  .table-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .assignment-card {
+    flex-direction: column;
+  }
+
+  .assignment-actions {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  /* Attendance */
+  .att-stat-tiles {
+    grid-template-columns: 1fr;
+  }
+
+  .att-tile-total,
+  .att-tile-alert {
+    grid-column: span 1;
+  }
+
+  .att-timeline {
+    padding-left: 24px;
+  }
+}
