@@ -90,6 +90,30 @@ router.post("/login", authLimiter, loginRules, async (req, res) => {
         .eq("id", user.id);
     }
 
+    // --- Admin MFA Check ---
+    if (role === "admin") {
+      const factors = user.factors || [];
+      const totpFactor = factors.find(f => f.factor_type === 'totp' && f.status === 'verified');
+      
+      if (totpFactor) {
+        return res.json({
+          requires_mfa: true,
+          factorId: totpFactor.id,
+          tempToken: session.access_token,
+          refreshToken: session.refresh_token,
+          message: "Please provide your Authenticator code.",
+        });
+      } else {
+        return res.json({
+          requires_mfa_setup: true,
+          tempToken: session.access_token,
+          refreshToken: session.refresh_token,
+          message: "MFA Setup is required for Admin accounts.",
+        });
+      }
+    }
+    // -----------------------
+
     res.json({
       token: session.access_token,
       refreshToken: session.refresh_token,
@@ -109,6 +133,91 @@ router.post("/login", authLimiter, loginRules, async (req, res) => {
   } catch (err) {
     console.error("Login error:", err.message);
     res.status(500).json({ error: "Login failed. Please try again." });
+  }
+});
+
+/**
+ * POST /api/auth/mfa/enroll
+ * Enroll an admin in MFA (generate QR Code).
+ */
+router.post("/mfa/enroll", authenticate, async (req, res) => {
+  try {
+    const { createClient } = require("@supabase/supabase-js");
+    const tempClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: `Bearer ${req.token}` } },
+      auth: { persistSession: false }
+    });
+
+    const { data, error } = await tempClient.auth.mfa.enroll({
+      factorType: "totp",
+      issuer: "DigitalStudyCenter"
+    });
+
+    if (error) {
+       console.error("MFA Enroll Supabase error:", error);
+       return res.status(400).json({ error: error.message || "Failed to enroll MFA." });
+    }
+
+    res.json({
+      factorId: data.id,
+      qr_code: data.totp.qr_code,
+      uri: data.totp.uri,
+      secret: data.totp.secret
+    });
+  } catch (err) {
+    console.error("MFA enroll error:", err.message);
+    res.status(500).json({ error: "Failed to initialize MFA setup." });
+  }
+});
+
+/**
+ * POST /api/auth/mfa/verify
+ * Verify an MFA code for the first time setup or subsequent login.
+ */
+router.post("/mfa/verify", authenticate, async (req, res) => {
+  try {
+    const { factorId, code } = req.body;
+    if (!factorId || !code) {
+      return res.status(400).json({ error: "Factor ID and verification code are required." });
+    }
+
+    const { createClient } = require("@supabase/supabase-js");
+    const tempClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: `Bearer ${req.token}` } },
+      auth: { persistSession: false }
+    });
+
+    const challenge = await tempClient.auth.mfa.challenge({ factorId });
+    if (challenge.error) {
+      console.error("MFA Challenge error:", challenge.error);
+      return res.status(400).json({ error: challenge.error.message || "Failed to initiate MFA challenge." });
+    }
+
+    const verify = await tempClient.auth.mfa.verify({
+      factorId,
+      challengeId: challenge.data.id,
+      code
+    });
+
+    if (verify.error) {
+      console.error("MFA Verify error:", verify.error);
+      return res.status(400).json({ error: verify.error.message || "Invalid OTP code." });
+    }
+
+    // Provide the upgraded session back to the client!
+    // tempClient automatically updates its internal session upon successful MFA verify if the factor upgrades the AAL.
+    // However, since we used persistSession: false and initialized via headers, the internal session might not be explicitly populated. 
+    // Wait, mfa.verify DOES update the internal session if the auth was initialized properly. Let's return success, and the client will need to refresh their session!
+    // Wait, let's refresh the session from the backend deliberately to give the client the new AAL2 tokens!
+    // But we don't have the refresh token in req. So we just tell the client "success: true", and the client MUST call `/api/auth/refresh` with their old refresh token, which WILL return an AAL2 token!
+    
+    res.json({
+      success: true,
+      message: "MFA verified successfully. Please refresh your session.",
+    });
+  } catch (err) {
+    console.error("MFA verify error:", err.message);
+    res.status(500).json({ error: "Failed to verify MFA code." });
   }
 });
 

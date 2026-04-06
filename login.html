@@ -162,6 +162,55 @@
     </div>
   </div>
 
+  <!-- ADMIN MFA VERIFY MODAL -->
+  <div class="modal-overlay" id="admin-mfa-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span class="modal-title">Two-Factor Authentication</span>
+        <button class="modal-close" id="close-admin-mfa">✕</button>
+      </div>
+      <p class="modal-sub">Enter the 6-digit code from your Authenticator app.</p>
+      
+      <div class="field-group">
+        <label class="field-label">Authenticator Code</label>
+        <input class="field-input otp-input" type="text" id="admin-mfa-code" placeholder="000000" maxlength="6"
+               autocomplete="one-time-code" inputmode="numeric" />
+        <span class="error-msg" id="admin-mfa-error"></span>
+      </div>
+
+      <button class="btn-login" id="admin-mfa-submit">Verify</button>
+    </div>
+  </div>
+
+  <!-- ADMIN MFA ENROLL MODAL -->
+  <div class="modal-overlay" id="admin-enroll-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span class="modal-title">Set up 2FA</span>
+        <button class="modal-close" id="close-admin-enroll">✕</button>
+      </div>
+      <p class="modal-sub">Scan this QR code with Google Authenticator or Authy, then enter the code.</p>
+      
+      <div id="mfa-qr-container" style="text-align: center; margin: 20px 0; background: #fff; padding: 10px; border-radius: 8px; display:inline-block; width:100%">
+        <!-- QR Canvas will be injected here -->
+      </div>
+      
+      <div class="field-group">
+        <label class="field-label">Secret Key (Manual Entry)</label>
+        <code id="mfa-secret-text" style="display:block; padding:8px; background:var(--bg-hover); word-break:break-all; text-align:center;"></code>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Verification Code</label>
+        <input class="field-input otp-input" type="text" id="admin-enroll-code" placeholder="000000" maxlength="6"
+               autocomplete="one-time-code" inputmode="numeric" />
+        <span class="error-msg" id="admin-enroll-error"></span>
+      </div>
+
+      <button class="btn-login" id="admin-enroll-submit">Complete Setup</button>
+    </div>
+  </div>
+
   <!-- FORGOT PASSWORD MODAL (new) -->
   <div class="modal-overlay" id="forgot-modal">
     <div class="modal-box">
@@ -245,6 +294,8 @@
       </div>
     </div>
   </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <script type="module" src="./js/script.js"></script>
 </body>
 

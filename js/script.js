@@ -34,7 +34,7 @@ const loginFieldIds = {
 const redirectMap = {
   student: "student-portal",
   teacher: "teacher-portal",
-  // admin: "admin-portal",
+  admin: "admin-portal",
 };
 
 // SHARED HELPERS
@@ -96,6 +96,9 @@ document.querySelectorAll(".toggle-btn").forEach((btn) => {
   btn.addEventListener("click", () => switchRole(btn.dataset.role));
 });
 
+// STATE FOR MFA
+let pendingMfaData = null;
+
 // LOGIN — HANDLE LOGIN
 async function handleLogin(role) {
   clearErrors();
@@ -114,6 +117,21 @@ async function handleLogin(role) {
 
   try {
     const data = await auth.login(email, pass, role);
+
+    if (data.requires_mfa_setup) {
+      pendingMfaData = data;
+      document.getElementById("admin-modal").classList.remove("open");
+      document.getElementById("admin-enroll-modal").classList.add("open");
+      initMfaEnrollment();
+      return;
+    }
+    
+    if (data.requires_mfa) {
+      pendingMfaData = data;
+      document.getElementById("admin-modal").classList.remove("open");
+      document.getElementById("admin-mfa-modal").classList.add("open");
+      return;
+    }
 
     // Redirect to dashboard
     window.location.href = redirectMap[role] || "index.html";
@@ -134,6 +152,90 @@ document
 document
   .getElementById("admin-login-submit")
   .addEventListener("click", () => handleLogin("admin"));
+
+// ADMIN MFA UI HANDLERS
+document.getElementById("close-admin-mfa").addEventListener("click", () => {
+    document.getElementById("admin-mfa-modal").classList.remove("open");
+});
+document.getElementById("close-admin-enroll").addEventListener("click", () => {
+    document.getElementById("admin-enroll-modal").classList.remove("open");
+});
+
+async function initMfaEnrollment() {
+   try {
+       const res = await fetch("/api/auth/mfa/enroll", {
+           method: "POST",
+           headers: { Authorization: `Bearer ${pendingMfaData.tempToken}` }
+       });
+       if (!res.ok) throw new Error("Failed to initialize MFA setup.");
+       const data = await res.json();
+       pendingMfaData.factorId = data.factorId;
+       
+       document.getElementById("mfa-secret-text").textContent = data.secret;
+       
+       const canvasContainer = document.getElementById("mfa-qr-container");
+       canvasContainer.innerHTML = "<canvas id='mfa-qr-canvas'></canvas>";
+       QRCode.toCanvas(document.getElementById("mfa-qr-canvas"), data.uri, {
+            width: 200,
+            margin: 2
+       });
+   } catch(err) {
+       document.getElementById("admin-enroll-error").textContent = err.message;
+   }
+}
+
+async function verifyMfaFactor(code, isEnrollment = false) {
+    const endpoint = "/api/auth/mfa/verify";
+    const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${pendingMfaData.tempToken}` 
+        },
+        body: JSON.stringify({
+            factorId: pendingMfaData.factorId,
+            code: code
+        })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Invalid verification code.");
+    
+    // We expect the server to say success. The token we currently have is aal1. 
+    // To proceed, we must actually call the standard refresh endpoint!
+    const refreshRes = await fetch("/api/auth/refresh", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken: pendingMfaData.refreshToken })
+    });
+    const refreshData = await refreshRes.json();
+    if (!refreshRes.ok) throw new Error("Failed to finalize session upgrade.");
+    
+    // Final session saved
+    localStorage.setItem("dsc_token", refreshData.token);
+    localStorage.setItem("dsc_refresh_token", refreshData.refreshToken);
+    
+    window.location.href = "admin-portal";
+}
+
+document.getElementById("admin-enroll-submit").addEventListener("click", async () => {
+    const code = document.getElementById("admin-enroll-code").value.trim();
+    if (!code || code.length !== 6) return;
+    try {
+        await verifyMfaFactor(code, true);
+    } catch(err) {
+        document.getElementById("admin-enroll-error").textContent = err.message;
+    }
+});
+
+document.getElementById("admin-mfa-submit").addEventListener("click", async () => {
+    const code = document.getElementById("admin-mfa-code").value.trim();
+    if (!code || code.length !== 6) return;
+    try {
+        await verifyMfaFactor(code, false);
+    } catch(err) {
+        document.getElementById("admin-mfa-error").textContent = err.message;
+    }
+});
 
 // ADMIN MODAL
 document.getElementById("open-admin-modal").addEventListener("click", () => {

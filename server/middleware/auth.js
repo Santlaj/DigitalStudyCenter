@@ -54,6 +54,14 @@ async function authenticate(req, res, next) {
       req.user.is_active = profile.is_active !== false;
     }
 
+    // Parse JWT to extract AAL level (Authentication Assurance Level)
+    try {
+      const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+      req.aal = payload.aal || 'aal1';
+    } catch(e) {
+      req.aal = 'aal1';
+    }
+
     req.token = token;
     next();
   } catch (err) {
@@ -73,6 +81,10 @@ function requireRole(...roles) {
     }
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({ error: "Access denied. Insufficient permissions." });
+    }
+    // Enforce MFA for Admin endpoints
+    if (req.user.role === "admin" && req.aal !== "aal2") {
+      return res.status(403).json({ error: "Admin access requires Two-Factor Authentication (MFA). Please complete 2FA." });
     }
     next();
   };

@@ -4,6 +4,7 @@
   "description": "DigitalStudyCenter — Academic Management Platform",
   "scripts": {},
   "dependencies": {
-    "cors": "^2.8.6"
+    "cors": "^2.8.6",
+    "qrcode": "^1.5.4"
   }
 }

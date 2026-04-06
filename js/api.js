@@ -513,6 +513,25 @@ const dashboard = {
   }
 };
 
+// ADMIN MODULE
+const admin = {
+  async stats() {
+    return apiRequest("GET", "/admin/stats");
+  },
+  async getTeachers() {
+    return apiRequest("GET", "/admin/teachers");
+  },
+  async addTeacher(data) {
+    return apiRequest("POST", "/admin/teachers", data);
+  },
+  async removeTeacher(id) {
+    return apiRequest("DELETE", `/admin/teachers/${id}`);
+  },
+  async activities() {
+    return apiRequest("GET", "/admin/activities");
+  }
+};
+
 /*   EXPORTS   */
 // EXPORTS
 export {
@@ -531,4 +550,5 @@ export {
   courses,
   announcements,
   analytics,
+  admin,
 };

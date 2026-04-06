@@ -75,6 +75,7 @@ const feesRouter = require("./routes/fees");
 const coursesRouter = require("./routes/courses");
 const announcementsRouter = require("./routes/announcements");
 const analyticsRouter = require("./routes/analytics");
+const adminRouter = require("./routes/admin");
 
 app.use("/api/auth", authRouter);
 app.use("/api/dashboard", dashboardRouter);
@@ -86,6 +87,7 @@ app.use("/api/fees", feesRouter);
 app.use("/api/courses", coursesRouter);
 app.use("/api/announcements", announcementsRouter);
 app.use("/api/analytics", analyticsRouter);
+app.use("/api/admin", adminRouter);
 
 // HEALTH CHECK
 app.get("/api/health", async (req, res) => {

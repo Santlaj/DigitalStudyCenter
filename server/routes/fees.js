@@ -97,7 +97,7 @@ router.patch("/:studentId", authenticate, requireRole("teacher"), async (req, re
     // Sync to profiles table
     await supabaseAdmin
       .from("profiles")
-      .update({ 
+      .update({
         last_payment_month: status === "paid" ? month : null,
         is_active: status === "paid" ? true : undefined
       })
