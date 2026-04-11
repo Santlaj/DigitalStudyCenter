@@ -35,8 +35,7 @@ function setLoading(btnEl, loading, idleHtml = "Submit") {
   if (!btnEl) return;
   btnEl.disabled = loading;
   btnEl.innerHTML = loading
-    ? `<span class="spinner"></span>Please wait…`
-    : idleHtml;
+    ? `<span class="spinner"></span>Please wait…` : idleHtml;
 }
 
 function formatDate(iso) {

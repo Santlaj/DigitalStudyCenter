@@ -14,8 +14,8 @@ export async function fetchDashboardStats() {
 }
 
 function renderStats(stats) {
-  $("stat-students").textContent    = stats.students ?? "0";
-  $("stat-notes").textContent       = stats.notes ?? "0";
+  $("stat-students").textContent = stats.students ?? "0";
+  $("stat-notes").textContent = stats.notes ?? "0";
   $("stat-assignments").textContent = stats.assignments ?? "0";
 }
 
@@ -42,9 +42,19 @@ function renderRecentAssignments(data) {
   el.innerHTML = recent.map(a => {
     const diff = a.deadline ? new Date(a.deadline) - new Date() : null;
     let cls = "badge-green", txt = "Upcoming";
-    if (diff === null)        { cls = "badge-gray";  txt = "No deadline"; }
-    else if (diff < 0)        { cls = "badge-red";   txt = "Overdue"; }
-    else if (diff < 86400000) { cls = "badge-amber"; txt = "Due today"; }
+    if (diff === null) {
+      cls = "badge-gray";
+      txt = "No deadline";
+    }
+    else if (diff < 0) {
+      cls = "badge-red";
+      txt = "Overdue";
+    }
+    else if (diff < 86400000) {
+      cls = "badge-amber";
+      txt = "Due today";
+    }
+
     return `
       <div class="recent-item">
         <div class="recent-dot" style="background:var(--amber)"></div>

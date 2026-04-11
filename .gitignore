@@ -14,7 +14,6 @@ yarn-error.log*
 package-lock.json
 
 # Old monolithic CSS (replaced by modular css/student/ and css/teacher/)
-css/student-dashboard.css
-css/teacher-dashboard.css
+
 css/student-dashboard.css.bak
 css/teacher-dashboard.css.bak

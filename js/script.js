@@ -1,12 +1,14 @@
 /**
  * script.js
  * DigitalStudyCenter — Login Page
- * Uses backend API instead of direct Supabase calls.
+ * Handles student/teacher login and forgot-password flow.
  */
 
 import { auth } from "./api.js";
 
-// LOGIN FIELD ID MAP — Maps each role to its corresponding HTML element IDs
+// ── CONFIG ──────────────────────────────────────────────
+
+/** Maps each role to its login form element IDs */
 const loginFieldIds = {
   student: {
     emailId: "student-login-email",
@@ -22,32 +24,24 @@ const loginFieldIds = {
     passErr: "teacher-login-password-error",
     genErr: "teacher-login-general-error",
   },
-  admin: {
-    emailId: "admin-login-email",
-    passId: "admin-login-password",
-    emailErr: "admin-login-email-error",
-    passErr: "admin-login-password-error",
-    genErr: "admin-login-general-error",
-  },
 };
 
+/** Where to redirect after successful login */
 const redirectMap = {
   student: "student-portal",
   teacher: "teacher-portal",
-  admin: "admin-portal",
 };
 
-// SHARED HELPERS
+// ── HELPERS ─────────────────────────────────────────────
+
 function clearErrors() {
-  document
-    .querySelectorAll(".error-msg")
-    .forEach((el) => (el.textContent = ""));
+  document.querySelectorAll(".error-msg").forEach((el) => (el.textContent = ""));
 }
 
-function setLoading(btnEl, loading, idleText) {
-  if (!btnEl) return;
-  btnEl.disabled = loading;
-  btnEl.innerHTML = loading
+function setLoading(btn, loading, idleText) {
+  if (!btn) return;
+  btn.disabled = loading;
+  btn.innerHTML = loading
     ? '<span class="spinner"></span>Please wait…'
     : idleText;
 }
@@ -60,33 +54,31 @@ function validateLoginFields(emailId, passId, emailErrId, passErrId) {
   let valid = true;
   const email = document.getElementById(emailId).value.trim();
   const pass = document.getElementById(passId).value;
+
   if (!email) {
     document.getElementById(emailErrId).textContent = "Email is required.";
     valid = false;
   } else if (!validateEmail(email)) {
-    document.getElementById(emailErrId).textContent =
-      "Enter a valid email address.";
+    document.getElementById(emailErrId).textContent = "Enter a valid email address.";
     valid = false;
   }
+
   if (!pass) {
     document.getElementById(passErrId).textContent = "Password is required.";
     valid = false;
   } else if (pass.length < 6) {
-    document.getElementById(passErrId).textContent =
-      "Password must be at least 6 characters.";
+    document.getElementById(passErrId).textContent = "Password must be at least 6 characters.";
     valid = false;
   }
+
   return { valid, email, pass };
 }
 
-// LOGIN — ROLE SWITCH
+// ── ROLE SWITCH (Student / Teacher tabs) ────────────────
+
 function switchRole(role) {
-  document
-    .querySelectorAll(".form-section")
-    .forEach((f) => f.classList.remove("active"));
-  document
-    .querySelectorAll(".toggle-btn")
-    .forEach((b) => b.classList.remove("active"));
+  document.querySelectorAll(".form-section").forEach((f) => f.classList.remove("active"));
+  document.querySelectorAll(".toggle-btn").forEach((b) => b.classList.remove("active"));
   document.getElementById("form-" + role).classList.add("active");
   document.getElementById("btn-" + role).classList.add("active");
   clearErrors();
@@ -96,207 +88,57 @@ document.querySelectorAll(".toggle-btn").forEach((btn) => {
   btn.addEventListener("click", () => switchRole(btn.dataset.role));
 });
 
-// STATE FOR MFA
-let pendingMfaData = null;
+// ── LOGIN ───────────────────────────────────────────────
 
-// LOGIN — HANDLE LOGIN
 async function handleLogin(role) {
   clearErrors();
   const ids = loginFieldIds[role];
   const { valid, email, pass } = validateLoginFields(
-    ids.emailId,
-    ids.passId,
-    ids.emailErr,
-    ids.passErr,
+    ids.emailId, ids.passId, ids.emailErr, ids.passErr
   );
   if (!valid) return;
 
   const btn = document.getElementById(role + "-login-submit");
-  const idleLabel = role === "admin" ? "Login as Admin" : "Login";
-  setLoading(btn, true, idleLabel);
+  setLoading(btn, true, "Login");
 
   try {
-    const data = await auth.login(email, pass, role);
-
-    if (data.requires_mfa_setup) {
-      pendingMfaData = data;
-      document.getElementById("admin-modal").classList.remove("open");
-      document.getElementById("admin-enroll-modal").classList.add("open");
-      initMfaEnrollment();
-      return;
-    }
-    
-    if (data.requires_mfa) {
-      pendingMfaData = data;
-      document.getElementById("admin-modal").classList.remove("open");
-      document.getElementById("admin-mfa-modal").classList.add("open");
-      return;
-    }
-
-    // Redirect to dashboard
+    await auth.login(email, pass, role);
     window.location.href = redirectMap[role] || "index.html";
   } catch (err) {
     document.getElementById(ids.genErr).textContent =
       err.message || "Login failed. Please try again.";
   } finally {
-    setLoading(btn, false, idleLabel);
+    setLoading(btn, false, "Login");
   }
 }
 
-document
-  .getElementById("student-login-submit")
-  .addEventListener("click", () => handleLogin("student"));
-document
-  .getElementById("teacher-login-submit")
-  .addEventListener("click", () => handleLogin("teacher"));
-document
-  .getElementById("admin-login-submit")
-  .addEventListener("click", () => handleLogin("admin"));
+document.getElementById("student-login-submit").addEventListener("click", () => handleLogin("student"));
+document.getElementById("teacher-login-submit").addEventListener("click", () => handleLogin("teacher"));
 
-// ADMIN MFA UI HANDLERS
-document.getElementById("close-admin-mfa").addEventListener("click", () => {
-    document.getElementById("admin-mfa-modal").classList.remove("open");
-});
-document.getElementById("close-admin-enroll").addEventListener("click", () => {
-    document.getElementById("admin-enroll-modal").classList.remove("open");
-});
+// ── ENTER KEY SUPPORT ───────────────────────────────────
 
-async function initMfaEnrollment() {
-   try {
-       const res = await fetch("/api/auth/mfa/enroll", {
-           method: "POST",
-           headers: { Authorization: `Bearer ${pendingMfaData.tempToken}` }
-       });
-       if (!res.ok) throw new Error("Failed to initialize MFA setup.");
-       const data = await res.json();
-       pendingMfaData.factorId = data.factorId;
-       
-       document.getElementById("mfa-secret-text").textContent = data.secret;
-       
-       const canvasContainer = document.getElementById("mfa-qr-container");
-       canvasContainer.innerHTML = "<canvas id='mfa-qr-canvas'></canvas>";
-       QRCode.toCanvas(document.getElementById("mfa-qr-canvas"), data.uri, {
-            width: 200,
-            margin: 2
-       });
-   } catch(err) {
-       document.getElementById("admin-enroll-error").textContent = err.message;
-   }
-}
-
-async function verifyMfaFactor(code, isEnrollment = false) {
-    const endpoint = "/api/auth/mfa/verify";
-    const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { 
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${pendingMfaData.tempToken}` 
-        },
-        body: JSON.stringify({
-            factorId: pendingMfaData.factorId,
-            code: code
-        })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Invalid verification code.");
-    
-    // We expect the server to say success. The token we currently have is aal1. 
-    // To proceed, we must actually call the standard refresh endpoint!
-    const refreshRes = await fetch("/api/auth/refresh", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refreshToken: pendingMfaData.refreshToken })
-    });
-    const refreshData = await refreshRes.json();
-    if (!refreshRes.ok) throw new Error("Failed to finalize session upgrade.");
-    
-    // Final session saved
-    localStorage.setItem("dsc_token", refreshData.token);
-    localStorage.setItem("dsc_refresh_token", refreshData.refreshToken);
-    
-    window.location.href = "admin-portal";
-}
-
-document.getElementById("admin-enroll-submit").addEventListener("click", async () => {
-    const code = document.getElementById("admin-enroll-code").value.trim();
-    if (!code || code.length !== 6) return;
-    try {
-        await verifyMfaFactor(code, true);
-    } catch(err) {
-        document.getElementById("admin-enroll-error").textContent = err.message;
-    }
-});
-
-document.getElementById("admin-mfa-submit").addEventListener("click", async () => {
-    const code = document.getElementById("admin-mfa-code").value.trim();
-    if (!code || code.length !== 6) return;
-    try {
-        await verifyMfaFactor(code, false);
-    } catch(err) {
-        document.getElementById("admin-mfa-error").textContent = err.message;
-    }
-});
-
-// ADMIN MODAL
-document.getElementById("open-admin-modal").addEventListener("click", () => {
-  document.getElementById("admin-modal").classList.add("open");
-});
-
-document.getElementById("close-admin-modal").addEventListener("click", () => {
-  document.getElementById("admin-modal").classList.remove("open");
-  clearErrors();
-});
-
-document.getElementById("admin-modal").addEventListener("click", (e) => {
-  if (e.target === e.currentTarget) {
-    e.currentTarget.classList.remove("open");
-    clearErrors();
-  }
-});
-
-// ENTER KEY SUPPORT
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Enter") return;
 
-  // Forgot password modal takes priority if open
-  const forgotOpen = document
-    .getElementById("forgot-modal")
-    .classList.contains("open");
+  // Forgot-password modal takes priority if open
+  const forgotOpen = document.getElementById("forgot-modal").classList.contains("open");
   if (forgotOpen) {
     const activeStep = document.querySelector("#forgot-modal .fp-step.active");
-    if (activeStep?.id === "forgot-password-step-1") {
-      sendResetEmail();
-      return;
-    }
-    if (activeStep?.id === "forgot-password-step-2") {
-      verifyOTP();
-      return;
-    }
-    if (activeStep?.id === "forgot-password-step-3") {
-      updatePassword();
-      return;
-    }
+    if (activeStep?.id === "forgot-password-step-1") { sendResetEmail(); return; }
+    if (activeStep?.id === "forgot-password-step-2") { verifyOTP(); return; }
+    if (activeStep?.id === "forgot-password-step-3") { updatePassword(); return; }
     return;
   }
 
-  const adminOpen = document
-    .getElementById("admin-modal")
-    .classList.contains("open");
-  if (adminOpen) {
-    handleLogin("admin");
-    return;
-  }
-
+  // Otherwise submit whichever login tab is active
   const active = document.querySelector(".form-section.active");
   if (active?.id === "form-student") handleLogin("student");
   if (active?.id === "form-teacher") handleLogin("teacher");
 });
 
-// FORGOT PASSWORD SYSTEM
+// ── FORGOT PASSWORD ─────────────────────────────────────
 
-/* Internal state */
 let forgotPasswordEmail = "";
-let forgotPasswordCurrentStep = 1;
 
 const modal = document.getElementById("forgot-modal");
 const modalTitle = document.getElementById("forgot-password-modal-title");
@@ -308,18 +150,12 @@ const dots = [
   document.getElementById("forgot-password-step-dot-3"),
 ];
 
-const stepTitles = [
-  "Reset Password",
-  "Enter Verification Code",
-  "Set New Password",
-];
-
+const stepTitles = ["Reset Password", "Enter Verification Code", "Set New Password"];
 const stepSubs = [
   "We'll send a verification code to your email.",
   "Check your inbox and paste the 6-digit code below.",
   "Choose a strong new password for your account.",
 ];
-
 
 function openForgotModal() {
   resetForgotModal();
@@ -333,21 +169,19 @@ function closeForgotModal() {
 
 function resetForgotModal() {
   forgotPasswordEmail = "";
-  forgotPasswordCurrentStep = 1;
   goToFpStep(1);
 
+  // Clear all input fields
   ["forgot-password-email", "forgot-password-otp-input", "forgot-password-new-password", "forgot-password-confirm-password"].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.value = "";
   });
+
+  // Clear all error messages
   [
-    "forgot-password-email-error",
-    "forgot-password-otp-error",
-    "forgot-password-new-password-error",
-    "forgot-password-confirm-error",
-    "forgot-password-step-1-error",
-    "forgot-password-step-2-error",
-    "forgot-password-step-3-error",
+    "forgot-password-email-error", "forgot-password-otp-error",
+    "forgot-password-new-password-error", "forgot-password-confirm-error",
+    "forgot-password-step-1-error", "forgot-password-step-2-error", "forgot-password-step-3-error",
   ].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.textContent = "";
@@ -356,18 +190,12 @@ function resetForgotModal() {
   document.getElementById("forgot-password-success").classList.remove("visible");
   document.getElementById("fp-steps-indicator")?.classList?.remove("hidden");
   document.querySelector(".fp-steps-indicator").style.display = "flex";
-
   document.getElementById("password-strength-fill").style.width = "0%";
   document.getElementById("password-strength-label").textContent = "";
 }
 
-
 function goToFpStep(step) {
-  forgotPasswordCurrentStep = step;
-
-  document
-    .querySelectorAll(".fp-step")
-    .forEach((s) => s.classList.remove("active"));
+  document.querySelectorAll(".fp-step").forEach((s) => s.classList.remove("active"));
   const target = document.getElementById("forgot-password-step-" + step);
   if (target) target.classList.add("active");
 
@@ -381,34 +209,17 @@ function goToFpStep(step) {
   });
 }
 
+// Modal open/close listeners
+document.querySelectorAll("[data-open-forgot]").forEach((btn) => btn.addEventListener("click", openForgotModal));
+document.getElementById("close-forgot-modal").addEventListener("click", closeForgotModal);
+modal.addEventListener("click", (e) => { if (e.target === e.currentTarget) closeForgotModal(); });
 
-document.querySelectorAll("[data-open-forgot]").forEach((btn) => {
-  btn.addEventListener("click", openForgotModal);
-});
+// Step navigation
+document.getElementById("forgot-password-back-to-step-1").addEventListener("click", () => goToFpStep(1));
+document.getElementById("forgot-password-back-to-step-2").addEventListener("click", () => goToFpStep(2));
+document.getElementById("forgot-password-done-button").addEventListener("click", closeForgotModal);
 
-
-document
-  .getElementById("close-forgot-modal")
-  .addEventListener("click", closeForgotModal);
-
-modal.addEventListener("click", (e) => {
-  if (e.target === e.currentTarget) closeForgotModal();
-});
-
-
-document
-  .getElementById("forgot-password-back-to-step-1")
-  .addEventListener("click", () => goToFpStep(1));
-document
-  .getElementById("forgot-password-back-to-step-2")
-  .addEventListener("click", () => goToFpStep(2));
-
-
-document
-  .getElementById("forgot-password-done-button")
-  .addEventListener("click", closeForgotModal);
-
-// STEP 1 — sendResetEmail()
+// Step 1 — Send reset email
 async function sendResetEmail() {
   document.getElementById("forgot-password-email-error").textContent = "";
   document.getElementById("forgot-password-step-1-error").textContent = "";
@@ -420,8 +231,7 @@ async function sendResetEmail() {
     return;
   }
   if (!validateEmail(emailVal)) {
-    document.getElementById("forgot-password-email-error").textContent =
-      "Enter a valid email address.";
+    document.getElementById("forgot-password-email-error").textContent = "Enter a valid email address.";
     return;
   }
 
@@ -430,7 +240,6 @@ async function sendResetEmail() {
 
   try {
     await auth.forgotPassword(emailVal);
-
     forgotPasswordEmail = emailVal;
     goToFpStep(2);
   } catch (err) {
@@ -441,11 +250,9 @@ async function sendResetEmail() {
   }
 }
 
-document
-  .getElementById("forgot-password-send-button")
-  .addEventListener("click", sendResetEmail);
+document.getElementById("forgot-password-send-button").addEventListener("click", sendResetEmail);
 
-/* Resend */
+// Resend code
 document.getElementById("forgot-password-resend-button").addEventListener("click", async () => {
   const btn = document.getElementById("forgot-password-resend-button");
   btn.disabled = true;
@@ -455,19 +262,15 @@ document.getElementById("forgot-password-resend-button").addEventListener("click
   try {
     await auth.forgotPassword(forgotPasswordEmail);
     btn.textContent = "Code Resent ✓";
-    setTimeout(() => {
-      btn.disabled = false;
-      btn.textContent = "Resend Code";
-    }, 4000);
+    setTimeout(() => { btn.disabled = false; btn.textContent = "Resend Code"; }, 4000);
   } catch (err) {
-    document.getElementById("forgot-password-step-2-error").textContent =
-      err.message || "Failed to resend.";
+    document.getElementById("forgot-password-step-2-error").textContent = err.message || "Failed to resend.";
     btn.disabled = false;
     btn.textContent = "Resend Code";
   }
 });
 
-// STEP 2 — verifyOTP()
+// Step 2 — Verify OTP
 async function verifyOTP() {
   document.getElementById("forgot-password-otp-error").textContent = "";
   document.getElementById("forgot-password-step-2-error").textContent = "";
@@ -475,13 +278,11 @@ async function verifyOTP() {
   const otp = document.getElementById("forgot-password-otp-input").value.trim();
 
   if (!otp) {
-    document.getElementById("forgot-password-otp-error").textContent =
-      "Verification code is required.";
+    document.getElementById("forgot-password-otp-error").textContent = "Verification code is required.";
     return;
   }
   if (!/^\d{6}$/.test(otp)) {
-    document.getElementById("forgot-password-otp-error").textContent =
-      "Enter the 6-digit code from your email.";
+    document.getElementById("forgot-password-otp-error").textContent = "Enter the 6-digit code from your email.";
     return;
   }
 
@@ -501,12 +302,12 @@ async function verifyOTP() {
 
 document.getElementById("forgot-password-verify-button").addEventListener("click", verifyOTP);
 
-
+// OTP input — digits only, max 6
 document.getElementById("forgot-password-otp-input").addEventListener("input", (e) => {
   e.target.value = e.target.value.replace(/\D/g, "").slice(0, 6);
 });
 
-// STEP 3 — updatePassword()
+// Step 3 — Update password
 async function updatePassword() {
   document.getElementById("forgot-password-new-password-error").textContent = "";
   document.getElementById("forgot-password-confirm-error").textContent = "";
@@ -514,26 +315,21 @@ async function updatePassword() {
 
   const newPass = document.getElementById("forgot-password-new-password").value;
   const confirmPass = document.getElementById("forgot-password-confirm-password").value;
-
   let valid = true;
 
   if (!newPass) {
-    document.getElementById("forgot-password-new-password-error").textContent =
-      "New password is required.";
+    document.getElementById("forgot-password-new-password-error").textContent = "New password is required.";
     valid = false;
   } else if (newPass.length < 8) {
-    document.getElementById("forgot-password-new-password-error").textContent =
-      "Password must be at least 8 characters.";
+    document.getElementById("forgot-password-new-password-error").textContent = "Password must be at least 8 characters.";
     valid = false;
   }
 
   if (!confirmPass) {
-    document.getElementById("forgot-password-confirm-error").textContent =
-      "Please confirm your password.";
+    document.getElementById("forgot-password-confirm-error").textContent = "Please confirm your password.";
     valid = false;
   } else if (newPass !== confirmPass) {
-    document.getElementById("forgot-password-confirm-error").textContent =
-      "Passwords do not match.";
+    document.getElementById("forgot-password-confirm-error").textContent = "Passwords do not match.";
     valid = false;
   }
 
@@ -546,9 +342,7 @@ async function updatePassword() {
     await auth.resetPassword(newPass);
 
     // Show success state
-    document
-      .querySelectorAll(".fp-step")
-      .forEach((s) => s.classList.remove("active"));
+    document.querySelectorAll(".fp-step").forEach((s) => s.classList.remove("active"));
     document.querySelector(".fp-steps-indicator").style.display = "none";
     modalTitle.textContent = "All Done!";
     modalSub.textContent = "";
@@ -561,11 +355,10 @@ async function updatePassword() {
   }
 }
 
-document
-  .getElementById("forgot-password-update-button")
-  .addEventListener("click", updatePassword);
+document.getElementById("forgot-password-update-button").addEventListener("click", updatePassword);
 
-// PASSWORD STRENGTH METER
+// ── PASSWORD STRENGTH METER ─────────────────────────────
+
 function measureStrength(pw) {
   let score = 0;
   if (pw.length >= 8) score++;
@@ -598,15 +391,14 @@ document.getElementById("forgot-password-new-password").addEventListener("input"
   label.style.color = lvl.color;
 });
 
-// HANDLE REDIRECT AFTER PASSWORD RESET LINK
+// ── AUTO-REDIRECT (from password reset email link) ──────
+
 function handleResetRedirect() {
   const params = new URLSearchParams(window.location.search);
   if (params.get("reset") !== "true") return;
 
-  // Open straight to step 3
   openForgotModal();
   goToFpStep(3);
-  // Clean URL
   window.history.replaceState({}, "", window.location.pathname);
 }
 

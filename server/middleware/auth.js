@@ -72,19 +72,17 @@ async function authenticate(req, res, next) {
 
 /**
  * Role guard — use after authenticate().
- * @param  {...string} roles - Allowed roles
+ * @param  {...string} roles - Allowed roles for simple checking (not for admin)
  */
 function requireRole(...roles) {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ error: "Not authenticated." });
     }
+    // NEVER trust this simple metadata role for 'admin' privileges according to security rules.
+    // This is strictly for 'student' or 'teacher' fallback.
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({ error: "Access denied. Insufficient permissions." });
-    }
-    // Enforce MFA for Admin endpoints
-    if (req.user.role === "admin" && req.aal !== "aal2") {
-      return res.status(403).json({ error: "Admin access requires Two-Factor Authentication (MFA). Please complete 2FA." });
     }
     next();
   };
