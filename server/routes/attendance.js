@@ -106,7 +106,6 @@ router.get("/sessions", authenticate, requireRole("teacher"), async (req, res) =
     const { data, error } = await supabaseAdmin
       .from("attendance_sessions")
       .select("*")
-      .eq("teacher_id", req.user.id)
       .order("date", { ascending: false })
       .limit(50);
 
