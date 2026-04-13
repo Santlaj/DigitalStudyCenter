@@ -93,7 +93,7 @@ router.get("/students", authenticate, requireRole("teacher"), async (req, res) =
     const query = req.query.search || "";
     const limit = parseInt(req.query.limit) || 20;
     const offset = parseInt(req.query.offset) || 0;
-    
+
     let q = supabaseAdmin
       .from("profiles")
       .select("*, course:class", { count: "exact" })
@@ -162,17 +162,10 @@ router.post("/students", authenticate, requireRole("teacher"), addStudentRules, 
 
     if (authErr) throw authErr;
 
-    // Optional: Update profiles table if any additional fields are needed that aren't set by the trigger
-    // or to ensure it's synced immediately for the response (though trigger is very fast)
-    await supabaseAdmin.from("profiles").update({
-      class: course || null
-    }).eq("id", authData.user.id);
-
-    if (course) {
-      await supabaseAdmin.from("users").update({
-        course: course
-      }).eq("id", authData.user.id);
-    }
+    // NOTE: Do NOT run UPDATE on profiles/users here.
+    // The lock_profile_fields & lock_users_profile_fields triggers (BEFORE UPDATE)
+    // will block any update. The course data is already in user_metadata,
+    // so the on_auth_user_created trigger picks it up during INSERT.
 
     invalidatePrefix("users:");
     invalidatePrefix("dashboard:");

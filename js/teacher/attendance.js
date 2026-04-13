@@ -194,7 +194,7 @@ export async function loadAttendanceHistory() {
 
   } catch (err) {
     tbody.innerHTML =
-    `<tr>
+      `<tr>
     <td colspan="7" class="table-empty">Error: ${escapeHtml(err.message)}</td>
     </tr>`;
   }
