@@ -1,60 +1,118 @@
-/* ═══════════════════════════════════════════════════════
-   STUDENT PORTAL — announcements.css
+/*  STUDENT PORTAL — announcements.css
    Announcements feed and announcement cards.
-   ═══════════════════════════════════════════════════════ */
+*/
 
 /* ── ANNOUNCEMENTS FEED ── */
 .announcements-feed {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
+/* ── ANNOUNCEMENT CARD ── */
 .announcement-card {
+  --card-accent: #4f46e5;
+  position: relative;
   background: var(--bg-card);
   border-radius: var(--radius-lg);
-  padding: 22px 24px;
+  padding: 22px 24px 22px 28px;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-light);
-  border-left: 4px solid var(--accent);
-  transition: box-shadow 0.2s;
+  border-left: 5px solid var(--card-accent);
+  overflow: hidden;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
 }
 
 .announcement-card:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
 }
 
+/* ── HEADER ROW ── */
 .announcement-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 10px;
-}
-
-.announcement-title {
-  font-family: 'Sora', sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.announcement-date {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.announcement-teacher {
-  font-size: 0.78rem;
-  color: var(--accent);
-  font-weight: 600;
   margin-bottom: 8px;
 }
 
+/* ── TITLE ── */
+.announcement-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.4;
+}
+
+/* ── DATE BADGE ── */
+.announcement-date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+  background: rgba(79, 70, 229, 0.07);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+/* ── TEACHER LINE ── */
+.announcement-teacher {
+  font-size: 0.8rem;
+  color: var(--card-accent, var(--accent));
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* ── MESSAGE BODY ── */
 .announcement-message {
   font-size: 0.875rem;
   color: var(--text-sub);
-  line-height: 1.65;
+  line-height: 1.75;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-line;
+  background: rgba(99, 102, 241, 0.03);
+  border-radius: 10px;
+  padding: 14px 18px;
+  border: 1px solid rgba(99, 102, 241, 0.06);
+}
+
+/* ── DARK MODE ── */
+.dark-mode .announcement-card {
+  border-color: rgba(255, 255, 255, 0.06);
+  border-left-color: var(--card-accent);
+}
+
+.dark-mode .announcement-date {
+  background: rgba(99, 102, 241, 0.12);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.dark-mode .announcement-message {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .announcement-card {
+    padding: 16px 18px 16px 22px;
+  }
+
+  .announcement-message {
+    padding: 12px 14px;
+    font-size: 0.83rem;
+  }
+
+  .announcement-header {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .announcement-title {
+    font-size: 0.95rem;
+  }
 }

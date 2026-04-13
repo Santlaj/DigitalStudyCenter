@@ -1241,12 +1241,15 @@ async function fetchAnnouncements() {
       return;
     }
 
-    feed.innerHTML = data.map(a => {
+    const accentColors = ["#4f46e5","#0ea5e9","#10b981","#f59e0b","#ef4444","#8b5cf6","#ec4899"];
+
+    feed.innerHTML = data.map((a, idx) => {
       const teacher = a.users?.full_name
         || `${a.users?.first_name || ""} ${a.users?.last_name || ""}`.trim()
         || "Teacher";
+      const accent = accentColors[idx % accentColors.length];
       return `
-        <div class="announcement-card">
+        <div class="announcement-card" style="--card-accent:${accent}">
           <div class="announcement-header">
             <div class="announcement-title">${escHtml(a.title)}</div>
             <div class="announcement-date">${formatDate(a.created_at)}</div>
