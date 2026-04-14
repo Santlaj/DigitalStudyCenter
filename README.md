@@ -247,5 +247,5 @@ See [LICENSE](./LICENSE) for full terms.
 ---
 
 <p align="center">
-  <sub>Built with ❤️ by Santlaj Kumar Mehta · © 2026 DigitalStudyCenter</sub>
+  <sub>Built with ❤️ by Santlaj · © 2026 DigitalStudyCenter</sub>
 </p>
