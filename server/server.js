@@ -1,31 +1,25 @@
-/**
- * server.js
- * DigitalStudyCenter — Express API Server
- * Main entry point.
+/*
+  server.js
  */
 
 require("dotenv").config();
 
 const express = require("express");
-const cors = require("cors");
-const helmet = require("helmet");
-const morgan = require("morgan");
+const cors = require("cors");    // it control which frontend can access the backend
+const helmet = require("helmet"); // it add security headers to the backend
+const morgan = require("morgan"); // it log the requests in terminal
 const { globalLimiter } = require("./middleware/rateLimiter");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// GLOBAL MIDDLEWARE
-// Security headers
+// GLOBAL MIDDLEWARE - Security headers
 app.use(helmet());
 
-// CORS — allow client origin(s)
+// CORS — allow client origins
 const allowedOrigins = [
   process.env.CLIENT_URL,
-  "https://santlaj.github.io",
   "https://digitalstudycenter.in",
-  "https://www.digitalstudycenter.in",
-  "https://localhost",
 ].filter(Boolean);
 
 app.use(cors({
