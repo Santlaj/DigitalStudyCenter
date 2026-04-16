@@ -6,7 +6,8 @@
 
 import { getCleanLink } from "./shared/helpers.js";
 
-const API_BASE = window.DIGITALSTUDYCENTER_API || "https://digitalstudycenter.onrender.com/api";
+const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const API_BASE = window.DIGITALSTUDYCENTER_API || (isLocalhost ? "http://localhost:3000/api" : "https://digitalstudycenter.onrender.com/api");
 
 
 // LOCAL STORAGE HELPERS
@@ -70,7 +71,7 @@ const apiStats = {
   log() {
     const now = Date.now();
     const mins = Math.max(1, (now - this.lastLog) / 60000);
-    //console.log(`[API Stats] Auth: ${this.authCalls} (${(this.authCalls / mins).toFixed(1)}/min) | Sync: ${this.syncCalls} (${(this.syncCalls / mins).toFixed(1)}/min)`);
+
     // Reset counters periodically
     if (mins > 5) {
       this.authCalls = 0;
@@ -89,7 +90,7 @@ let globalTokenRefreshPromise = null;
 const authRateGuard = {
   callsInLastMinute: 0,
   lastReset: Date.now(),
-  THRESHOLD: 5, // Max 5 session refreshes per minute per tab
+  THRESHOLD: 5,  // Max 5 session refreshes per minute per tab
 
   check() {
     const now = Date.now();

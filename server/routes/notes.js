@@ -150,7 +150,9 @@ router.post("/", authenticate, requireRole("teacher"), uploadLimiter, (req, res,
   });
 }, async (req, res) => {
   try {
-    const { title, subject, course, description } = req.body;
+    const { title, course, description } = req.body;
+    // Normalize subject to lowercase for consistency (prevents duplicates)
+    const subject = (req.body.subject || "").trim().toLowerCase();
 
     if (!title || !subject) {
       return res.status(400).json({ error: "Title and subject are required." });
@@ -189,8 +191,9 @@ router.post("/", authenticate, requireRole("teacher"), uploadLimiter, (req, res,
 
     if (dbErr) throw new Error("Database: " + dbErr.message);
 
-    // Invalidate cache
+    // Invalidate cache (notes + dashboard stats)
     invalidatePrefix("notes:");
+    invalidatePrefix("dashboard:");
 
     res.status(201).json({ message: "Note uploaded successfully.", note });
   } catch (err) {
@@ -214,6 +217,7 @@ router.delete("/:id", authenticate, requireRole("teacher"), async (req, res) => 
     if (error) throw error;
 
     invalidatePrefix("notes:");
+    invalidatePrefix("dashboard:");
     res.json({ message: "Note deleted." });
   } catch (err) {
     console.error("Delete note error:", err.message);

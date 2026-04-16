@@ -37,7 +37,7 @@ function closeDeleteModal() {
 
 // NAVIGATION MAP
 const SECTION_TITLES = {
-  "dashboard": "Dashboard", "upload-notes": "Upload Notes", "my-notes": "My Notes",
+  "dashboard": "Dashboard", "my-notes": "My Notes",
   "assignments": "Assignments", "students": "Students", "analytics": "Analytics",
   "attendance": "Attendance", "profile": "Profile", "announcements": "Announcements",
 };
@@ -93,14 +93,32 @@ function wireEvents() {
     mainWrap.style.marginLeft = isNowCollapsed ? "var(--sidebar-w-collapsed)" : "var(--sidebar-w)";
   });
 
-  // Upload & Assignments
-  $("upload-notes-btn").addEventListener("click", () => uploadNotes(navigateTo));
+  // Upload Notes — open modal instead of navigating
+  $("btn-open-upload-modal").addEventListener("click", () => $("upload-notes-modal").classList.add("open"));
+  $("upload-modal-close").addEventListener("click", () => $("upload-notes-modal").classList.remove("open"));
+  $("upload-notes-modal").addEventListener("click", (e) => { if (e.target === e.currentTarget) $("upload-notes-modal").classList.remove("open"); });
+  $("upload-notes-btn").addEventListener("click", () => uploadNotes(() => {
+    $("upload-notes-modal").classList.remove("open");
+    loadNotesTable();
+  }));
   $("upload-reset-btn").addEventListener("click", resetUploadForm);
-  $("create-assignment-btn").addEventListener("click", createAssignment);
+
+  // New Assignment — modal
+  $("btn-open-assign-modal").addEventListener("click", () => $("assign-modal").classList.add("open"));
+  $("assign-modal-close").addEventListener("click", () => $("assign-modal").classList.remove("open"));
+  $("assign-cancel-btn").addEventListener("click", () => $("assign-modal").classList.remove("open"));
+  $("assign-modal").addEventListener("click", (e) => { if (e.target === e.currentTarget) $("assign-modal").classList.remove("open"); });
+  $("create-assignment-btn").addEventListener("click", () => createAssignment(() => $("assign-modal").classList.remove("open")));
+
+  // New Announcement — modal
+  $("btn-open-ann-modal").addEventListener("click", () => $("ann-modal").classList.add("open"));
+  $("ann-modal-close").addEventListener("click", () => $("ann-modal").classList.remove("open"));
+  $("ann-cancel-btn").addEventListener("click", () => $("ann-modal").classList.remove("open"));
+  $("ann-modal").addEventListener("click", (e) => { if (e.target === e.currentTarget) $("ann-modal").classList.remove("open"); });
 
   // Announcements
   if ($("btn-post-ann")) {
-    $("btn-post-ann").addEventListener("click", postAnnouncement);
+    $("btn-post-ann").addEventListener("click", () => postAnnouncement(() => $("ann-modal").classList.remove("open")));
   }
 
   // Search

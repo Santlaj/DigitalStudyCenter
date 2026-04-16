@@ -5,7 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Teacher Dashboard — DigitalStudyCenter</title>
-  <meta name="description" content="Teacher Dashboard for Digital Study Center. Upload notes, manage assignments, track attendance, and view analytics." />
+  <meta name="description"
+    content="Teacher Dashboard for Digital Study Center. Upload notes, manage assignments, track attendance, and view analytics." />
   <link rel="icon" type="image/png" href="/icon1.png" />
   <link rel="apple-touch-icon" href="/icon1.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -70,14 +71,7 @@
           </svg>
           <span class="nav-label">Dashboard</span>
         </a>
-        <a class="nav-item" data-section="upload-notes" data-tooltip="Upload Notes">
-          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd"
-              d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-              clip-rule="evenodd" transform="rotate(180,10,10)" />
-          </svg>
-          <span class="nav-label">Upload Notes</span>
-        </a>
+
         <a class="nav-item" data-section="my-notes" data-tooltip="My Notes">
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd"
@@ -265,70 +259,7 @@
           </div>
         </section>
 
-        <!-- UPLOAD NOTES -->
-        <section class="section" id="section-upload-notes">
-          <div class="section-header">
-            <h1 class="section-title">Upload Notes</h1>
-            <p class="section-sub">Share study materials with your students.</p>
-          </div>
-          <div class="form-card">
-            <div class="field-group">
-              <label class="field-label" for="note-title">Title</label>
-              <input class="field-input" type="text" id="note-title" placeholder="e.g. Introduction to Calculus" />
-              <span class="error-msg" id="note-title-err"></span>
-            </div>
-            <div class="form-row">
-              <div class="field-group">
-                <label class="field-label" for="note-subject">Subject</label>
-                <input class="field-input" type="text" id="note-subject" placeholder="e.g. Mathematics" />
-                <span class="error-msg" id="note-subject-err"></span>
-              </div>
-              <div class="field-group">
-                <label class="field-label" for="note-course">Target Class</label>
-                <select class="field-input field-select" id="note-course">
-                  <option value="all">All Students</option>
-                  <option value="8">Class 8</option>
-                  <option value="9">Class 9</option>
-                  <option value="10">Class 10</option>
-                </select>
-              </div>
-            </div>
-            <div class="field-group">
-              <label class="field-label" for="note-description">Description</label>
-              <textarea class="field-input field-textarea" id="note-description"
-                placeholder="Brief description of this material…" rows="3"></textarea>
-            </div>
-            <div class="field-group">
-              <label class="field-label">PDF File</label>
-              <div class="file-drop-zone" id="file-drop-zone">
-                <div class="file-drop-inner">
-                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5">
-                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                    <polyline points="17 8 12 3 7 8" />
-                    <line x1="12" y1="3" x2="12" y2="15" />
-                  </svg>
-                  <div class="file-drop-text">Drag & drop your PDF here or <span class="file-drop-link"
-                      id="file-browse-trigger">browse</span></div>
-                  <div class="file-drop-hint">PDF only · max 1 MB</div>
-                </div>
-                <input type="file" id="note-file" accept=".pdf" class="file-input-hidden" />
-              </div>
-              <div class="file-selected" id="file-selected"></div>
-              <span class="error-msg" id="note-file-err"></span>
-            </div>
-            <div class="upload-progress-wrap hidden" id="upload-progress-wrap">
-              <div class="upload-progress-track">
-                <div class="upload-progress-bar" id="upload-progress-bar"></div>
-              </div>
-              <span class="upload-progress-label" id="upload-progress-label">Uploading…</span>
-            </div>
-            <span class="error-msg" id="upload-general-err"></span>
-            <div class="form-actions">
-              <button class="btn-primary" id="upload-notes-btn">Upload Notes</button>
-              <button class="btn-ghost" id="upload-reset-btn">Clear Form</button>
-            </div>
-          </div>
-        </section>
+
 
         <!-- MY NOTES -->
         <section class="section" id="section-my-notes">
@@ -338,7 +269,7 @@
           </div>
           <div class="table-toolbar">
             <input class="search-input" type="text" id="notes-search" placeholder="Search notes…" />
-            <button class="btn-primary btn-sm" data-section="upload-notes">+ Upload New</button>
+            <button class="btn-primary btn-sm" id="btn-open-upload-modal">+ Upload New</button>
           </div>
           <div class="table-card">
             <table class="data-table">
@@ -369,61 +300,29 @@
             <h1 class="section-title">Assignments</h1>
             <p class="section-sub">Create and manage student assignments.</p>
           </div>
-          <div class="assignments-layout">
-            <div class="form-card form-card-compact">
-              <h2 class="form-card-title">New Assignment</h2>
-              <div class="field-group">
-                <label class="field-label" for="assign-title">Assignment Title</label>
-                <input class="field-input" type="text" id="assign-title" placeholder="e.g. Chapter 3 Exercises" />
-                <span class="error-msg" id="assign-title-err"></span>
-              </div>
-              <div class="field-group">
-                <label class="field-label" for="assign-subject">Subject</label>
-                <input class="field-input" type="text" id="assign-subject" placeholder="e.g. Physics" />
-                <span class="error-msg" id="assign-subject-err"></span>
-              </div>
-              <div class="field-group">
-                <label class="field-label" for="assign-course">Target Class</label>
-                <select class="field-input field-select" id="assign-course">
-                  <option value="all">All</option>
-                  <option value="8">Class 8</option>
-                  <option value="9">Class 9</option>
-                  <option value="10">Class 10</option>
-                </select>
-              </div>
-              <div class="field-group">
-                <label class="field-label" for="assign-description">Description</label>
-                <textarea class="field-input field-textarea" id="assign-description"
-                  placeholder="Assignment instructions…" rows="3"></textarea>
-              </div>
-              <div class="field-group">
-                <label class="field-label" for="assign-deadline">Deadline</label>
-                <input class="field-input" type="datetime-local" id="assign-deadline" />
-                <span class="error-msg" id="assign-deadline-err"></span>
-              </div>
-              <span class="error-msg" id="assign-general-err"></span>
-              <button class="btn-primary" id="create-assignment-btn">Create Assignment</button>
-            </div>
-            <div class="table-card">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Title</th>
-                    <th>Subject</th>
-                    <th>Deadline</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="assignments-tbody">
-                  <tr>
-                    <td colspan="5" class="table-empty">Loading…</td>
-                  </tr>
-                </tbody>
-              </table>
-              <div class="load-more-container" style="padding: 15px; text-align: center;">
-                <button id="assignments-load-more" class="btn-ghost btn-sm hidden">Load More Assignments</button>
-              </div>
+          <div class="table-toolbar">
+            <div></div>
+            <button class="btn-primary btn-sm" id="btn-open-assign-modal">+ New Assignment</button>
+          </div>
+          <div class="table-card">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Subject</th>
+                  <th>Deadline</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="assignments-tbody">
+                <tr>
+                  <td colspan="5" class="table-empty">Loading…</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="load-more-container" style="padding: 15px; text-align: center;">
+              <button id="assignments-load-more" class="btn-ghost btn-sm hidden">Load More Assignments</button>
             </div>
           </div>
 
@@ -633,7 +532,7 @@
                     <th>Subject</th>
                     <th>Present</th>
                     <th>Absent</th>
-                    <th>Rate</th>
+                    <th>Attended</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -653,47 +552,17 @@
             <h1 class="section-title">Announcements 📢</h1>
             <p class="section-sub">Broadcast important messages to all your students.</p>
           </div>
-
-          <div class="dashboard-panels" style="grid-template-columns: 1fr;">
-            <div class="dash-panel form-card">
-              <div class="panel-header" style="margin-bottom: 12px;">
-                <h2 class="panel-title">Post New Announcement</h2>
-              </div>
-              <div class="form-row" style="grid-template-columns: 2fr 1fr; gap: 12px;">
-                <div class="field-group" style="margin-bottom:0;">
-                  <label class="field-label" for="ann-title">Announcement Title</label>
-                  <input class="field-input" type="text" id="ann-title" placeholder="e.g. Tomorrow's class shifted" />
-                </div>
-                <div class="field-group" style="margin-bottom:0;">
-                  <label class="field-label" for="ann-course">Target Class</label>
-                  <select class="field-input field-select" id="ann-course">
-                    <option value="all">All</option>
-                    <option value="8">Class 8</option>
-                    <option value="9">Class 9</option>
-                    <option value="10">Class 10</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-row" style="grid-template-columns: 1fr; gap: 12px; margin-top: 12px;">
-                <div class="field-group" style="margin-bottom:0;">
-                  <label class="field-label" for="ann-message">Message</label>
-                  <textarea class="field-input field-textarea" id="ann-message"
-                    placeholder="Details about this announcement..." rows="3"></textarea>
-                </div>
-              </div>
-              <div class="form-actions" style="margin-top: 18px;">
-                <button class="btn-primary" id="btn-post-ann">Post Announcement</button>
-              </div>
+          <div class="table-toolbar">
+            <div></div>
+            <button class="btn-primary btn-sm" id="btn-open-ann-modal">+ New Announcement</button>
+          </div>
+          <div class="dash-panel">
+            <div class="panel-header">
+              <h2 class="panel-title">Past Announcements</h2>
+              <div class="count-label" id="ann-count">0 items</div>
             </div>
-
-            <div class="dash-panel">
-              <div class="panel-header">
-                <h2 class="panel-title">Past Announcements</h2>
-                <div class="count-label" id="ann-count">0 items</div>
-              </div>
-              <div id="teacher-ann-list" style="display: flex; flex-direction: column; gap: 10px;">
-                <div class="empty-state-sm">Loading announcements...</div>
-              </div>
+            <div id="teacher-ann-list" style="display: flex; flex-direction: column; gap: 10px;">
+              <div class="empty-state-sm">Loading announcements...</div>
             </div>
           </div>
         </section>
@@ -835,6 +704,145 @@
       <div class="modal-footer">
         <button class="btn-ghost" id="add-student-cancel-btn">Cancel</button>
         <button class="btn-primary" id="add-student-btn">Add Student</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- UPLOAD NOTES MODAL -->
+  <div class="modal-overlay" id="upload-notes-modal">
+    <div class="modal-box modal-box-wide">
+      <div class="modal-header">
+        <span class="modal-title">Upload Notes</span>
+        <button class="modal-close" id="upload-modal-close">✕</button>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="note-title">Title</label>
+        <input class="field-input" type="text" id="note-title" placeholder="e.g. Introduction to Calculus" />
+        <span class="error-msg" id="note-title-err"></span>
+      </div>
+      <div class="form-row">
+        <div class="field-group">
+          <label class="field-label" for="note-subject">Subject</label>
+          <input class="field-input" type="text" id="note-subject" placeholder="e.g. Mathematics" />
+          <span class="error-msg" id="note-subject-err"></span>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="note-course">Target Class</label>
+          <select class="field-input field-select" id="note-course">
+            <option value="all">All Students</option>
+            <option value="8">Class 8</option>
+            <option value="9">Class 9</option>
+            <option value="10">Class 10</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="note-description">Description</label>
+        <textarea class="field-input field-textarea" id="note-description" placeholder="Brief description…" rows="2"></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">PDF File</label>
+        <div class="file-drop-zone" id="file-drop-zone">
+          <div class="file-drop-inner">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <div class="file-drop-text">Drag & drop your PDF here or <span class="file-drop-link" id="file-browse-trigger">browse</span></div>
+            <div class="file-drop-hint">PDF only · max 1 MB</div>
+          </div>
+          <input type="file" id="note-file" accept=".pdf" class="file-input-hidden" />
+        </div>
+        <div class="file-selected" id="file-selected"></div>
+        <span class="error-msg" id="note-file-err"></span>
+      </div>
+      <div class="upload-progress-wrap hidden" id="upload-progress-wrap">
+        <div class="upload-progress-track">
+          <div class="upload-progress-bar" id="upload-progress-bar"></div>
+        </div>
+        <span class="upload-progress-label" id="upload-progress-label">Uploading…</span>
+      </div>
+      <span class="error-msg" id="upload-general-err"></span>
+      <div class="modal-footer">
+        <button class="btn-ghost" id="upload-reset-btn">Clear Form</button>
+        <button class="btn-primary" id="upload-notes-btn">Upload Notes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEW ASSIGNMENT MODAL -->
+  <div class="modal-overlay" id="assign-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span class="modal-title">New Assignment</span>
+        <button class="modal-close" id="assign-modal-close">✕</button>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="assign-title">Assignment Title</label>
+        <input class="field-input" type="text" id="assign-title" placeholder="e.g. Chapter 3 Exercises" />
+        <span class="error-msg" id="assign-title-err"></span>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="assign-subject">Subject</label>
+        <input class="field-input" type="text" id="assign-subject" placeholder="e.g. Physics" />
+        <span class="error-msg" id="assign-subject-err"></span>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="assign-course">Target Class</label>
+        <select class="field-input field-select" id="assign-course">
+          <option value="all">All</option>
+          <option value="8">Class 8</option>
+          <option value="9">Class 9</option>
+          <option value="10">Class 10</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="assign-description">Description</label>
+        <textarea class="field-input field-textarea" id="assign-description" placeholder="Assignment instructions…" rows="2"></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="assign-deadline">Deadline</label>
+        <input class="field-input" type="datetime-local" id="assign-deadline" />
+        <span class="error-msg" id="assign-deadline-err"></span>
+      </div>
+      <span class="error-msg" id="assign-general-err"></span>
+      <div class="modal-footer">
+        <button class="btn-ghost" id="assign-cancel-btn">Cancel</button>
+        <button class="btn-primary" id="create-assignment-btn">Create Assignment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEW ANNOUNCEMENT MODAL -->
+  <div class="modal-overlay" id="ann-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span class="modal-title">Post Announcement</span>
+        <button class="modal-close" id="ann-modal-close">✕</button>
+      </div>
+      <div class="form-row" style="grid-template-columns: 2fr 1fr; gap: 12px;">
+        <div class="field-group" style="margin-bottom:0;">
+          <label class="field-label" for="ann-title">Title</label>
+          <input class="field-input" type="text" id="ann-title" placeholder="e.g. Tomorrow's class shifted" />
+        </div>
+        <div class="field-group" style="margin-bottom:0;">
+          <label class="field-label" for="ann-course">Target Class</label>
+          <select class="field-input field-select" id="ann-course">
+            <option value="all">All</option>
+            <option value="8">Class 8</option>
+            <option value="9">Class 9</option>
+            <option value="10">Class 10</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-group" style="margin-top:12px;">
+        <label class="field-label" for="ann-message">Message</label>
+        <textarea class="field-input field-textarea" id="ann-message" placeholder="Details about this announcement..." rows="3"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" id="ann-cancel-btn">Cancel</button>
+        <button class="btn-primary" id="btn-post-ann">Post Announcement</button>
       </div>
     </div>
   </div>

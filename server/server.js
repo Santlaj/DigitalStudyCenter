@@ -19,6 +19,10 @@ app.use(helmet());
 // CORS — allow client origins
 const allowedOrigins = [
   process.env.CLIENT_URL,
+  "http://127.0.0.1:5500",
+  "http://localhost:5500",
+  "http://127.0.0.1:3000",
+  "http://localhost:3000",
   "https://digitalstudycenter.in",
 ].filter(Boolean);
 
@@ -70,7 +74,9 @@ const coursesRouter = require("./routes/courses");
 const announcementsRouter = require("./routes/announcements");
 const analyticsRouter = require("./routes/analytics");
 
-app.use("/api/auth", authRouter);
+
+//If request starts with this URL, send it to this router file.
+app.use("/api/auth", authRouter);  // request starting with /api/auth goes to routes/auth.js
 app.use("/api/dashboard", dashboardRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/notes", notesRouter);
@@ -81,10 +87,9 @@ app.use("/api/courses", coursesRouter);
 app.use("/api/announcements", announcementsRouter);
 app.use("/api/analytics", analyticsRouter);
 
-// HEALTH CHECK
+// DATABASE HEALTH CHECK
 app.get("/api/health", async (req, res) => {
   try {
-    // Quick DB check
     const { error } = await require("./lib/supabase").supabaseAdmin.from("profiles").select("id").limit(1);
     const dbStatus = error ? "unhealthy" : "healthy";
 

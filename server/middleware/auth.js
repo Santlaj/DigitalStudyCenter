@@ -28,8 +28,7 @@ async function authenticate(req, res, next) {
       return res.status(401).json({ error: "Invalid or expired token." });
     }
 
-    // 2. Attach basic user info from JWT metadata immediately
-    // This reduces the need to query the profile table if only role is needed downstream
+    // 2. Attach basic user info from JWT metadata
     req.user = {
       id: user.id,
       email: user.email,
@@ -37,21 +36,30 @@ async function authenticate(req, res, next) {
       fullName: user.user_metadata?.full_name || user.email,
     };
 
-    // 3. Optional: Fetch full profile ONLY if requested via a header or for specific routes
-    // For now, we fetch it once and attach it, but we use the role from the JWT to avoid DB calls for role checks
-    // This cache lasts for the duration of the Request object.
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("role, full_name, class, subject, is_active")
-      .eq("id", user.id)
-      .single();
+    // 3. Lazy profile loader — only queries DB when actually needed
+    // Teachers: skip profile query (JWT role is enough for most routes)
+    // Students: load eagerly (need course for filtering notes/assignments)
+    req.getProfile = async () => {
+      if (req._profile !== undefined) return req._profile;
+      const { data: profile } = await supabaseAdmin
+        .from("profiles")
+        .select("role, full_name, class, subject, is_active")
+        .eq("id", user.id)
+        .single();
+      req._profile = profile || null;
+      if (profile) {
+        req.user.role = profile.role || req.user.role;
+        req.user.fullName = profile.full_name || req.user.fullName;
+        req.user.course = profile.class || null;
+        req.user.subject = profile.subject || null;
+        req.user.is_active = profile.is_active !== false;
+      }
+      return req._profile;
+    };
 
-    if (profile) {
-      req.user.role = profile.role || req.user.role;
-      req.user.fullName = profile.full_name || req.user.fullName;
-      req.user.course = profile.class || null;
-      req.user.subject = profile.subject || null;
-      req.user.is_active = profile.is_active !== false;
+    // Students always need profile (for course-based filtering)
+    if (req.user.role === "student") {
+      await req.getProfile();
     }
 
     // Parse JWT to extract AAL level (Authentication Assurance Level)

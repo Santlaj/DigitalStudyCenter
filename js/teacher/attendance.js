@@ -211,14 +211,16 @@ function renderAttHistory(tbody, sessions) {
 
   tbody.innerHTML = sessions.map(row => {
     const subjectName = row.subject || "—";
+    const pct = row.total_count > 0 ? Math.round((row.present_count / row.total_count) * 100) : 0;
     return `
     <tr>
     <td>${escapeHtml(row.date || row.session_date || "—")}</td>
     <td>${escapeHtml(row.class_name || row.class_level || "—")}</td>
 
-      <td>${escapeHtml(subjectName)}</td><td><span class="pill pill-green">—</span></td>
-      <td><span class="pill pill-red">—</span></td>
-      <td><span class="pill pill-blue">—</span></td>
+      <td>${escapeHtml(subjectName)}</td>
+      <td><span class="pill pill-green">${row.present_count ?? "—"}</span></td>
+      <td><span class="pill pill-red">${row.absent_count ?? "—"}</span></td>
+      <td><span class="pill pill-blue">${pct}%</span></td>
       <td><button class="btn-view" data-sess-id="${row.id}" data-sess-date="${escapeHtml(row.date || row.session_date || '')}" data-sess-subject="${escapeHtml(subjectName)}">View</button></td></tr>`;
   }).join("");
 

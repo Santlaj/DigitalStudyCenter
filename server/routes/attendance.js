@@ -99,18 +99,53 @@ router.get("/student", authenticate, async (req, res) => {
 
 /**
  * GET /api/attendance/sessions
- * Teacher's attendance session history.
+ * Teacher's attendance session history with present/absent/total counts.
  */
 router.get("/sessions", authenticate, requireRole("teacher"), async (req, res) => {
   try {
-    const { data, error } = await supabaseAdmin
+    const { data: sessions, error } = await supabaseAdmin
       .from("attendance_sessions")
       .select("*")
       .order("date", { ascending: false })
       .limit(50);
 
     if (error) throw error;
-    res.json({ sessions: data || [] });
+    if (!sessions || !sessions.length) {
+      return res.json({ sessions: [] });
+    }
+
+    // Fetch all records for these sessions in ONE query
+    const sessionIds = sessions.map(s => s.id);
+    const { data: records, error: recErr } = await supabaseAdmin
+      .from("attendance_records")
+      .select("session_id, status")
+      .in("session_id", sessionIds);
+
+    if (recErr) throw recErr;
+
+    // Build counts per session
+    const countMap = {};
+    (records || []).forEach(r => {
+      if (!countMap[r.session_id]) {
+        countMap[r.session_id] = { present: 0, absent: 0, total: 0 };
+      }
+      countMap[r.session_id].total++;
+      if (r.status === "present") countMap[r.session_id].present++;
+      else if (r.status === "absent") countMap[r.session_id].absent++;
+    });
+
+    // Merge counts into sessions
+    const result = sessions.map(s => {
+      const c = countMap[s.id] || { present: 0, absent: 0, total: 0 };
+      return {
+        ...s,
+        present_count: c.present,
+        absent_count: c.absent,
+        total_count: c.total,
+      };
+    });
+
+    res.json({ sessions: result });
   } catch (err) {
     console.error("Attendance sessions error:", err.message);
     res.status(500).json({ error: "Failed to fetch attendance sessions." });
@@ -123,7 +158,9 @@ router.get("/sessions", authenticate, requireRole("teacher"), async (req, res) =
  */
 router.post("/sessions", authenticate, requireRole("teacher"), saveAttendanceRules, async (req, res) => {
   try {
-    const { date, class_name, subject, records } = req.body;
+    const { date, class_name, records } = req.body;
+    // Normalize subject to lowercase for consistency
+    const subject = (req.body.subject || "").trim().toLowerCase();
 
     // Create session
     const { data: session, error: sessErr } = await supabaseAdmin

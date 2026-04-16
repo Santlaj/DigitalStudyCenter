@@ -133,6 +133,8 @@ router.get("/students", authenticate, requireRole("teacher"), async (req, res) =
         students = students.map(s => ({ ...s, fees_status: "unpaid" }));
       }
     }
+    // last_activity is already stored in profiles (updated on login in auth.js)
+    // No need for per-user Supabase Auth API calls
 
     res.json({ students, count: count || 0 });
   } catch (err) {

@@ -96,7 +96,9 @@ router.get("/teacher", authenticate, requireRole("teacher"), async (req, res) =>
  */
 router.post("/", authenticate, requireRole("teacher"), createAssignmentRules, async (req, res) => {
   try {
-    const { title, subject, description, deadline, course } = req.body;
+    const { title, description, deadline, course } = req.body;
+    // Normalize subject to lowercase for consistency
+    const subject = (req.body.subject || "").trim().toLowerCase();
     const courseVal = course ? course.toLowerCase() : "all";
 
     const { data, error } = await supabaseAdmin.from("assignments").insert({
@@ -111,6 +113,7 @@ router.post("/", authenticate, requireRole("teacher"), createAssignmentRules, as
     if (error) throw error;
 
     invalidatePrefix("assignments:");
+    invalidatePrefix("dashboard:");
     res.status(201).json({ message: "Assignment created.", assignment: data });
   } catch (err) {
     console.error("Create assignment error:", err.message);
@@ -133,6 +136,7 @@ router.delete("/:id", authenticate, requireRole("teacher"), async (req, res) => 
     if (error) throw error;
 
     invalidatePrefix("assignments:");
+    invalidatePrefix("dashboard:");
     res.json({ message: "Assignment deleted." });
   } catch (err) {
     console.error("Delete assignment error:", err.message);

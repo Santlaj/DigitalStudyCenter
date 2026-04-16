@@ -59,7 +59,7 @@ function renderAnnouncements(feed, countLabel, data) {
 }
 
 
-export async function postAnnouncement() {
+export async function postAnnouncement(closeModalFn) {
   const titleInput = $("ann-title");
   const msgInput = $("ann-message");
   const courseInput = $("ann-course");
@@ -84,7 +84,8 @@ export async function postAnnouncement() {
     msgInput.value = "";
     courseInput.value = "all";
 
-    // Invalidate cache and re-fetch
+    // Close modal and refresh list
+    if (closeModalFn) closeModalFn();
     state.announcementsLoaded = false;
     await fetchTeacherAnnouncements();
   } catch (err) {

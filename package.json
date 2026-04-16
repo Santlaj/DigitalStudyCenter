@@ -2,7 +2,11 @@
   "name": "digitalstudycenter",
   "version": "1.0.0",
   "description": "DigitalStudyCenter — Academic Management Platform",
-  "scripts": {},
+  "scripts": {
+    "start:client": "npx serve . -p 5500",
+    "start:server": "cd server && npm run dev",
+    "dev": "npx concurrently \"npm run start:server\" \"npm run start:client\""
+  },
   "dependencies": {
     "cors": "^2.8.6",
     "qrcode": "^1.5.4"

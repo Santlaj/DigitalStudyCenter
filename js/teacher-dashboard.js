@@ -34,6 +34,15 @@ const $  = (id)  => document.getElementById(id);
 const $$ = (sel) => document.querySelectorAll(sel);
 
 /**
+ * Capitalizes the first letter of each word (title case).
+ * Used to display normalized lowercase subjects nicely.
+ */
+function titleCase(str) {
+  if (!str) return "";
+  return str.replace(/\b\w/g, c => c.toUpperCase());
+}
+
+/**
  * Shows a small popup message (toast) at the bottom of the screen.
  * Used to notify the teacher about success/error/info events (e.g. "Notes uploaded!").
  * The toast auto-hides after 3.5 seconds.
@@ -625,7 +634,7 @@ async function fetchStudents(query = "") {
     tbody.innerHTML = allStudents.map(s => {
       const name      = s.full_name || `${s.first_name || ""} ${s.last_name || ""}`.trim() || "—";
       const ini       = initials(name);
-      const lastAct   = s.last_activity ? formatDate(s.last_activity) : "Never";
+      const lastAct   = s.last_activity ? formatDeadline(s.last_activity) : "Never";
       const isActive  = s.is_active !== undefined
         ? s.is_active
         : (s.last_activity && (new Date() - new Date(s.last_activity)) < 7 * 86400000);
@@ -1043,10 +1052,23 @@ async function loadSubjectsForClass(attClass) {
     select.innerHTML = `<option value="">Select Subject</option>`;
     return;
   }
-  // Keep original behavior — subjects loaded from a subjects table
-  // This is a local operation that still needs the subjects data
-  // For now, we keep a simple approach
-  select.innerHTML = `<option value="">Select Subject</option>`;
+  // Fetch subjects from the same endpoint that loads students (no extra API call pattern)
+  // We call students-for-class with class param — server returns { students, subjects }
+  try {
+    const { subjects } = await attendance.getStudentsForClass(attClass);
+    select.innerHTML = `<option value="">Select Subject</option>`;
+    if (subjects && subjects.length > 0) {
+      subjects.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s;
+        opt.textContent = titleCase(s);
+        select.appendChild(opt);
+      });
+    }
+  } catch (err) {
+    console.warn("Could not load subjects:", err.message);
+    select.innerHTML = `<option value="">Select Subject</option>`;
+  }
 }
 
 /**
@@ -1084,7 +1106,7 @@ async function loadStudentsForAttendance() {
   setLoading(btn, true, "Load Students");
 
   try {
-    const { students } = await attendance.getStudentsForClass();
+    const { students } = await attendance.getStudentsForClass(attClass);
 
     attStudents = students || [];
     attStatusMap = {};
@@ -1478,14 +1500,15 @@ async function loadAttendanceHistory() {
 
     tbody.innerHTML = sessions.map(row => {
       const subjectName = row.subject || "—";
+      const pct = row.total_count > 0 ? Math.round((row.present_count / row.total_count) * 100) : 0;
       return `
         <tr>
           <td>${escHtml(row.date || row.session_date || "—")}</td>
           <td>${escHtml(row.class_name || row.class_level || "—")}</td>
-          <td>${escHtml(subjectName)}</td>
-          <td><span class="pill pill-green">—</span></td>
-          <td><span class="pill pill-red">—</span></td>
-          <td><span class="pill pill-blue">—</span></td>
+          <td>${escHtml(titleCase(subjectName))}</td>
+          <td><span class="pill pill-green">${row.present_count ?? "—"}</span></td>
+          <td><span class="pill pill-red">${row.absent_count ?? "—"}</span></td>
+          <td><span class="pill pill-blue">${pct}%</span></td>
           <td>
             <button class="btn-view" data-sess-id="${row.id}" data-sess-date="${escHtml(row.date || row.session_date || '')}" data-sess-subject="${escHtml(subjectName)}">
               View

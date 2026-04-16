@@ -9,7 +9,7 @@ import { state } from "./state.js";
 import { $, escapeHtml, formatDate, formatDeadline, deadlinePill, showToast, setLoading } from "../shared/helpers.js";
 import { fetchDashboardStats } from "./dashboard.js";
 
-export async function createAssignment() {
+export async function createAssignment(closeModalFn) {
   ["assign-title-err","assign-subject-err","assign-deadline-err","assign-general-err"]
     .forEach(id => { $(id).textContent = ""; });
 
@@ -33,6 +33,7 @@ export async function createAssignment() {
     $("assign-course").value = "all";
     state.assignmentsLoaded = false;
     state.dashboardLoaded = false;
+    if (closeModalFn) closeModalFn();
     await loadAssignmentsTable();
     await fetchDashboardStats();
   } catch (err) {
