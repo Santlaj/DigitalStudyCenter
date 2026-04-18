@@ -213,6 +213,19 @@ async function tryRefreshToken() {
 const auth = {
   async login(email, password, role) {
     const data = await apiRequest("POST", "/auth/login", { email, password, role });
+    
+    // If MFA is required, don't log them in yet, just return the data to the UI
+    if (data.requireMfa) {
+      return data;
+    }
+    
+    setTokens(data.token, data.refreshToken);
+    setUser(data.user);
+    return data;
+  },
+
+  async verifyMfa(tempToken, tempRefreshToken, factorId, code) {
+    const data = await apiRequest("POST", "/auth/verify-mfa", { tempToken, tempRefreshToken, factorId, code });
     setTokens(data.token, data.refreshToken);
     setUser(data.user);
     return data;

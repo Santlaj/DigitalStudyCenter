@@ -26,10 +26,10 @@ export async function fetchNotes(query = "", append = false) {
   try {
     const limit = 20;
     const { notes: data, count } = await notes.list(query, limit, state.notesOffset);
-    
+
     state.allNotes = append ? [...state.allNotes, ...data] : data;
     state.notesOffset += limit;
-    
+
     if (!query && !append) state.notesLoaded = true;
 
     renderNotesTable(tbody, state.allNotes);
@@ -42,7 +42,7 @@ export async function fetchNotes(query = "", append = false) {
         loadMoreBtn.classList.add("hidden");
       }
     }
-  } catch (err) { 
+  } catch (err) {
     if (!append) tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Error: ${escapeHtml(err.message)}</td></tr>`;
     else showToast("Failed to load more: " + err.message, "error");
   }
@@ -60,7 +60,7 @@ function renderNotesTable(tbody, data) {
       <tr>
         <td>
           <strong>${escapeHtml(n.title)}</strong>
-          ${n.description ? `<br><span style="font-size:0.78rem;color:var(--text-muted)">${escapeHtml(n.description.slice(0,60))}${n.description.length > 60 ? "…" : ""}</span>` : ""}
+          ${n.description ? `<br><span style="font-size:0.78rem;color:var(--text-muted)">${escapeHtml(n.description.slice(0, 60))}${n.description.length > 60 ? "…" : ""}</span>` : ""}
         </td>
         <td><span class="pill pill-blue">${escapeHtml(n.subject)}</span></td>
         <td>${escapeHtml(teacher)}</td>

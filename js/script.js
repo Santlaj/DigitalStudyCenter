@@ -1,14 +1,9 @@
-/**
- * script.js
- * DigitalStudyCenter — Login Page
- * Handles student/teacher login and forgot-password flow.
- */
-
 import { auth } from "./api.js";
+import { initPasswordToggles } from "./shared/password-toggle.js";
 
-// ── CONFIG ──────────────────────────────────────────────
+// Initialize password visibility toggles on load
+initPasswordToggles();
 
-/** Maps each role to its login form element IDs */
 const loginFieldIds = {
   student: {
     emailId: "student-login-email",
@@ -26,13 +21,12 @@ const loginFieldIds = {
   },
 };
 
-/** Where to redirect after successful login */
 const redirectMap = {
   student: "student-portal",
   teacher: "teacher-portal",
 };
 
-// ── HELPERS ─────────────────────────────────────────────
+// Helpers
 
 function clearErrors() {
   document.querySelectorAll(".error-msg").forEach((el) => (el.textContent = ""));
@@ -74,7 +68,7 @@ function validateLoginFields(emailId, passId, emailErrId, passErrId) {
   return { valid, email, pass };
 }
 
-// ── ROLE SWITCH (Student / Teacher tabs) ────────────────
+// Role Switch
 
 function switchRole(role) {
   document.querySelectorAll(".form-section").forEach((f) => f.classList.remove("active"));
@@ -88,7 +82,74 @@ document.querySelectorAll(".toggle-btn").forEach((btn) => {
   btn.addEventListener("click", () => switchRole(btn.dataset.role));
 });
 
-// ── LOGIN ───────────────────────────────────────────────
+// MFA Logic
+
+let mfaPendingState = {
+  tempToken: null,
+  tempRefreshToken: null,
+  factorId: null,
+  role: null
+};
+
+function openMfaModal(setup, secret) {
+  if (setup) {
+    document.getElementById("teacher-mfa-secret-text").textContent = secret;
+    document.getElementById("teacher-mfa-setup-code").value = "";
+    document.getElementById("teacher-mfa-setup-error").textContent = "";
+    document.getElementById("teacher-mfa-setup-modal").classList.add("open");
+  } else {
+    document.getElementById("teacher-mfa-verify-code").value = "";
+    document.getElementById("teacher-mfa-verify-error").textContent = "";
+    document.getElementById("teacher-mfa-verify-modal").classList.add("open");
+  }
+}
+
+function closeMfaModals() {
+  document.getElementById("teacher-mfa-setup-modal").classList.remove("open");
+  document.getElementById("teacher-mfa-verify-modal").classList.remove("open");
+}
+
+document.getElementById("close-teacher-mfa-setup")?.addEventListener("click", closeMfaModals);
+document.getElementById("close-teacher-mfa-verify")?.addEventListener("click", closeMfaModals);
+
+async function handleMfaSubmit(setupPhase) {
+  const codeId = setupPhase ? "teacher-mfa-setup-code" : "teacher-mfa-verify-code";
+  const errorId = setupPhase ? "teacher-mfa-setup-error" : "teacher-mfa-verify-error";
+  const submitBtnId = setupPhase ? "teacher-mfa-setup-submit" : "teacher-mfa-verify-submit";
+
+  const code = document.getElementById(codeId).value.trim();
+  const errorEl = document.getElementById(errorId);
+  const btn = document.getElementById(submitBtnId);
+
+  errorEl.textContent = "";
+
+  if (!code || code.length !== 6) {
+    errorEl.textContent = "Please enter a valid 6-digit code.";
+    return;
+  }
+
+  setLoading(btn, true, setupPhase ? "Complete Setup" : "Verify");
+
+  try {
+    await auth.verifyMfa(
+      mfaPendingState.tempToken,
+      mfaPendingState.tempRefreshToken,
+      mfaPendingState.factorId,
+      code
+    );
+    closeMfaModals();
+    window.location.href = redirectMap[mfaPendingState.role] || "index.html";
+  } catch (err) {
+    errorEl.textContent = err.message || "Invalid or expired code.";
+  } finally {
+    setLoading(btn, false, setupPhase ? "Complete Setup" : "Verify");
+  }
+}
+
+document.getElementById("teacher-mfa-setup-submit")?.addEventListener("click", () => handleMfaSubmit(true));
+document.getElementById("teacher-mfa-verify-submit")?.addEventListener("click", () => handleMfaSubmit(false));
+
+// Login
 
 async function handleLogin(role) {
   clearErrors();
@@ -102,8 +163,19 @@ async function handleLogin(role) {
   setLoading(btn, true, "Login");
 
   try {
-    await auth.login(email, pass, role);
-    window.location.href = redirectMap[role] || "index.html";
+    const res = await auth.login(email, pass, role);
+
+    if (res.requireMfa) {
+      mfaPendingState = {
+        tempToken: res.tempToken,
+        tempRefreshToken: res.tempRefreshToken,
+        factorId: res.factorId,
+        role: role
+      };
+      openMfaModal(res.mfaSetup, res.secret);
+    } else {
+      window.location.href = redirectMap[role] || "index.html";
+    }
   } catch (err) {
     document.getElementById(ids.genErr).textContent =
       err.message || "Login failed. Please try again.";
@@ -115,7 +187,7 @@ async function handleLogin(role) {
 document.getElementById("student-login-submit").addEventListener("click", () => handleLogin("student"));
 document.getElementById("teacher-login-submit").addEventListener("click", () => handleLogin("teacher"));
 
-// ── ENTER KEY SUPPORT ───────────────────────────────────
+// Enter Key Support
 
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Enter") return;
@@ -136,7 +208,7 @@ document.addEventListener("keydown", (e) => {
   if (active?.id === "form-teacher") handleLogin("teacher");
 });
 
-// ── FORGOT PASSWORD ─────────────────────────────────────
+// Forgot Password
 
 let forgotPasswordEmail = "";
 
@@ -357,8 +429,8 @@ async function updatePassword() {
 
 document.getElementById("forgot-password-update-button").addEventListener("click", updatePassword);
 
-// ── PASSWORD STRENGTH METER ─────────────────────────────
 
+// Password Strength Meter
 function measureStrength(pw) {
   let score = 0;
   if (pw.length >= 8) score++;
@@ -391,7 +463,7 @@ document.getElementById("forgot-password-new-password").addEventListener("input"
   label.style.color = lvl.color;
 });
 
-// ── AUTO-REDIRECT (from password reset email link) ──────
+// Auto-Redirect
 
 function handleResetRedirect() {
   const params = new URLSearchParams(window.location.search);

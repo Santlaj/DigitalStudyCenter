@@ -65,9 +65,15 @@ async function authenticate(req, res, next) {
     // Parse JWT to extract AAL level (Authentication Assurance Level)
     try {
       const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+      // Supabase natively places aal or amr in the token for MFA
       req.aal = payload.aal || 'aal1';
     } catch(e) {
       req.aal = 'aal1';
+    }
+
+    // MANDATORY MFA for teachers
+    if (req.user.role === "teacher" && req.aal !== "aal2") {
+      return res.status(403).json({ error: "Access denied. Multi-Factor Authentication is required." });
     }
 
     req.token = token;

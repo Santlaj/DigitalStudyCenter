@@ -8,6 +8,25 @@ import { $, escapeHtml, formatDate, showToast } from "../shared/helpers.js";
 import { announcements } from "../api.js";
 import { state } from "./state.js";
 
+let quillEditor = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+  const container = document.getElementById("ann-message-editor");
+  if (container && typeof Quill !== "undefined") {
+    quillEditor = new Quill("#ann-message-editor", {
+      theme: "snow",
+      placeholder: "Write your announcement...",
+      modules: {
+        toolbar: [
+          ["bold", "italic", "underline"],
+          [{ list: "ordered" }, { list: "bullet" }],
+          ["link"]
+        ]
+      }
+    });
+  }
+});
+
 export async function fetchTeacherAnnouncements() {
   const feed = $("teacher-ann-list");
   const countLabel = $("ann-count");
@@ -52,7 +71,7 @@ function renderAnnouncements(feed, countLabel, data) {
         <div class="announcement-teacher" style="font-size: 0.8rem; color: var(--accent); margin-bottom: 6px;">
           📢 ${escapeHtml(teacherName)} ${isMine ? "(You)" : ""}
         </div>
-        <div class="announcement-message" style="color: var(--text-sub); white-space: pre-wrap; font-size: 0.875rem;">${escapeHtml(a.message)}</div>
+        <div class="announcement-message ql-editor" style="color: var(--text-sub); font-size: 0.875rem; padding: 0; min-height: auto;">${a.message}</div>
       </div>
     `;
   }).join("");
@@ -61,13 +80,19 @@ function renderAnnouncements(feed, countLabel, data) {
 
 export async function postAnnouncement(closeModalFn) {
   const titleInput = $("ann-title");
-  const msgInput = $("ann-message");
   const courseInput = $("ann-course");
   const btn = $("btn-post-ann");
 
   const title = titleInput.value.trim();
-  const message = msgInput.value.trim();
   const course = courseInput.value;
+  
+  // Get Quill HTML content
+  let message = quillEditor ? quillEditor.root.innerHTML.trim() : "";
+  
+  // Quill adds empty paragraphs when empty
+  if (message === "<p><br></p>" || message === "") {
+    message = "";
+  }
 
   if (!title || !message) {
     return showToast("Please fill in both title and message.", "error");
@@ -81,7 +106,9 @@ export async function postAnnouncement(closeModalFn) {
 
     showToast("Announcement posted!", "success");
     titleInput.value = "";
-    msgInput.value = "";
+    if (quillEditor) {
+      quillEditor.setContents([]);
+    }
     courseInput.value = "all";
 
     // Close modal and refresh list

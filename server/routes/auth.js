@@ -77,6 +77,43 @@ router.post("/login", authLimiter, loginRules, async (req, res) => {
       || `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim()
       || "";
 
+    // MFA Enforcement for Teachers (AAL2 upgrade requirement)
+    if (actualRole === "teacher") {
+      // Initiate a temporary session client
+      await tempClient.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token });
+      const { data: mfaData } = await tempClient.auth.mfa.listFactors();
+      
+      const totpFactors = mfaData?.all?.filter(f => f.factor_type === 'totp' && f.status === 'verified') || [];
+
+      if (totpFactors.length > 0) {
+        // Already enrolled
+        return res.json({
+          requireMfa: true,
+          mfaSetup: false,
+          tempToken: session.access_token,
+          tempRefreshToken: session.refresh_token,
+          factorId: totpFactors[0].id
+        });
+      } else {
+        // First time setup - Enroll automatically
+        const { data: enrollData, error: enrollError } = await tempClient.auth.mfa.enroll({ factorType: 'totp' });
+        
+        if (enrollError) {
+          console.error("MFA Enroll Error:", enrollError.message);
+          return res.status(500).json({ error: "Failed to initialize secure authentication." });
+        }
+        
+        return res.json({
+          requireMfa: true,
+          mfaSetup: true,
+          secret: enrollData.totp.secret,
+          factorId: enrollData.id,
+          tempToken: session.access_token,
+          tempRefreshToken: session.refresh_token
+        });
+      }
+    }
+
     res.json({
       token: session.access_token,
       refreshToken: session.refresh_token,
@@ -96,6 +133,80 @@ router.post("/login", authLimiter, loginRules, async (req, res) => {
   } catch (err) {
     console.error("Login error:", err.message);
     res.status(500).json({ error: "Login failed. Please try again." });
+  }
+});
+
+/**
+ * POST /api/auth/verify-mfa
+ * Verify a TOTP code, upgrading the login session to AAL2.
+ */
+router.post("/verify-mfa", authLimiter, async (req, res) => {
+  try {
+    const { tempToken, tempRefreshToken, factorId, code } = req.body;
+    if (!tempToken || !factorId || !code) {
+      return res.status(400).json({ error: "Missing required MFA verification parameters." });
+    }
+
+    const { createClient } = require("@supabase/supabase-js");
+    const tempClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false }
+    });
+
+    const { error: sessionError } = await tempClient.auth.setSession({ access_token: tempToken, refresh_token: tempRefreshToken });
+    if (sessionError) {
+      return res.status(401).json({ error: "Session expired. Please log in again." });
+    }
+
+    // Verify OTP against the Supabase factor
+    const { error: verifyError } = await tempClient.auth.mfa.challengeAndVerify({ factorId, code });
+    if (verifyError) {
+      return res.status(401).json({ error: verifyError.message || "Invalid or expired verification code." });
+    }
+
+    // Extract the new, upgraded AAL2 session
+    const { data: sessionData, error: getSessionError } = await tempClient.auth.getSession();
+    if (getSessionError || !sessionData.session) {
+      return res.status(500).json({ error: "Failed to establish a secure session." });
+    }
+
+    const newSession = sessionData.session;
+    const user = newSession.user;
+
+    // Fetch user profile securely
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+    // Mark as active since they successfully bypassed maximum security
+    await supabaseAdmin.from("profiles")
+      .update({ last_activity: new Date().toISOString() })
+      .eq("id", user.id);
+
+    const fullName = profile?.full_name
+      || `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim()
+      || "";
+
+    res.json({
+      token: newSession.access_token,
+      refreshToken: newSession.refresh_token,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: profile?.role || "teacher",
+        full_name: fullName,
+        first_name: profile?.first_name || "",
+        last_name: profile?.last_name || "",
+        course: profile?.course || profile?.class || "",
+        bio: profile?.bio || "",
+        subject: profile?.subject || "",
+        is_active: profile?.is_active !== false,
+      },
+    });
+  } catch (err) {
+    console.error("MFA Verify Error:", err.message);
+    res.status(500).json({ error: "MFA Verification failed due to a server error." });
   }
 });
 

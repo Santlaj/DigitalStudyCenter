@@ -1,0 +1,26 @@
+/* Responsive */
+@media (max-width: 900px) {
+  .split-wrapper {
+    flex-direction: column;
+  }
+  .left-panel {
+    width: 100%;
+    padding: 32px 28px 24px;
+  }
+  .right-panel {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .left-panel {
+    padding: 24px 20px 20px;
+  }
+  .hero-title {
+    font-size: 1.6rem;
+  }
+  .modal-box {
+    margin: 0 16px;
+    padding: 28px 20px 22px;
+  }
+}
