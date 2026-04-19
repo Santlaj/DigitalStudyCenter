@@ -6,6 +6,7 @@
 import { attendance, users } from "../api.js";
 import { state } from "./state.js";
 import { $, escapeHtml, initials, showToast, setLoading } from "../shared/helpers.js";
+import { tableSkeleton } from "../shared/skeleton.js";
 
 export function setDefaultAttDate() {
   const el = $("att-date");
@@ -117,7 +118,7 @@ export async function openAttDetailModal(sessionId, sessionDate, subjectName) {
   $("att-detail-title").textContent = `Attendance — ${sessionDate}`;
   $("att-detail-sub").textContent = `Subject: ${subjectName}`;
   $("att-detail-modal").classList.add("open");
-  $("att-detail-tbody").innerHTML = `<tr><td colspan="4" class="table-empty">Loading…</td></tr>`;
+  $("att-detail-tbody").innerHTML = tableSkeleton(3, 4);
 
   try {
     const { records } = await attendance.getSessionRecords(sessionId);
@@ -180,11 +181,7 @@ export async function loadAttendanceHistory() {
     return;
   }
 
-  tbody.innerHTML =
-    `<tr>
-      <td colspan="7" class="table-empty">Loading…</td>
-    </tr>
-  `;
+  tbody.innerHTML = tableSkeleton(5, 7);
 
   try {
     const { sessions } = await attendance.sessions();

@@ -6,6 +6,7 @@
 
 import { state } from "./state.js";
 import { $, escapeHtml, formatDate, formatDeadline } from "../shared/helpers.js";
+import { listSkeleton } from "../shared/skeleton.js";
 
 export async function fetchDashboardStats() {
   if (state.cachedStats) renderStats(state.cachedStats);

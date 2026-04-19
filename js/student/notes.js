@@ -6,6 +6,7 @@
 import { notes } from "../api.js";
 import { state } from "./state.js";
 import { $, escapeHtml, formatDate, showToast } from "../shared/helpers.js";
+import { tableSkeleton } from "../shared/skeleton.js";
 
 export async function fetchNotes(query = "", append = false) {
   const tbody = $("notes-tbody");
@@ -14,7 +15,7 @@ export async function fetchNotes(query = "", append = false) {
   if (!append) {
     state.notesOffset = 0;
     state.allNotes = [];
-    tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Loading…</td></tr>`;
+    tbody.innerHTML = tableSkeleton(5, 5);
   }
 
   // Cache-first optimization

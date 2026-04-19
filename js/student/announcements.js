@@ -7,6 +7,7 @@
 import { announcements } from "../api.js";
 import { state } from "./state.js";
 import { $, escapeHtml, formatDate } from "../shared/helpers.js";
+import { listSkeleton } from "../shared/skeleton.js";
 
 export async function fetchAnnouncements() {
   const feed = $("announcements-feed");
@@ -17,7 +18,7 @@ export async function fetchAnnouncements() {
     return;
   }
 
-  feed.innerHTML = `<div class="empty-state-sm">Loading…</div>`;
+  feed.innerHTML = listSkeleton(4);
 
   try {
     const { announcements: data } = await announcements.list();

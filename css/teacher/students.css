@@ -5,5 +5,117 @@
    ═══════════════════════════════════════════════════════ */
 
 /* Students listing uses shared table-card, data-table,
-   search-input, and table-toolbar styles from common.css.
-   No additional teacher-specific student styles required. */
+   search-input, and table-toolbar styles from common.css. */
+
+
+/* Modal Styles for Student Analytics */
+#student-analytics-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.student-analytics-header {
+  padding: 15px;
+  background: var(--bg-layer-2, #f9fafb);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+}
+
+.student-analytics-header h2 {
+  margin: 0 0 10px 0;
+  font-size: 1.2rem;
+}
+
+.student-analytics-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+.student-analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.student-analytics-card {
+  padding: 15px;
+  background: var(--bg-layer-2, #f9fafb);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+}
+
+.student-analytics-card h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.05rem;
+}
+
+.student-analytics-stat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.9rem;
+}
+
+.student-analytics-stat-highlight {
+  margin-top: 5px;
+  font-weight: 600;
+  color: var(--text-primary, #111827);
+}
+
+.student-analytics-ul {
+  margin: 5px 0 0 20px;
+  padding: 0;
+}
+
+.student-analytics-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.student-analytics-table th {
+  padding: 4px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+}
+
+.student-analytics-table td {
+  padding: 4px;
+}
+
+/* Impressive View Button */
+.btn-view-impressive {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+}
+
+.btn-view-impressive:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
+  background: linear-gradient(135deg, #4338ca, #4f46e5);
+}
+
+.btn-view-impressive svg {
+  width: 14px;
+  height: 14px;
+}
+
+.modal-top-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}

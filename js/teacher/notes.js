@@ -8,6 +8,7 @@ import { notes } from "../api.js";
 import { state } from "./state.js";
 import { $, escapeHtml, formatDate, showToast, setLoading } from "../shared/helpers.js";
 import { fetchDashboardStats } from "./dashboard.js";
+import { tableSkeleton } from "../shared/skeleton.js";
 
 export async function uploadNotes(navigateToFn) {
   ["note-title-err","note-subject-err","note-file-err","upload-general-err"]
@@ -78,7 +79,7 @@ export async function loadNotesTable(query = "", append = false) {
   if (!append) {
     state.notesOffset = 0;
     state.allNotes = [];
-    tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Loading…</td></tr>`;
+    tbody.innerHTML = tableSkeleton(5, 5);
   }
 
   // Cache-first optimization

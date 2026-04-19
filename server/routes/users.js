@@ -338,4 +338,143 @@ router.get("/dashboard-stats", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * GET /api/users/students/:id/analytics
+ * Student analytics and details for teacher view.
+ */
+router.get("/students/:id/analytics", authenticate, requireRole("teacher"), async (req, res) => {
+  try {
+    const studentId = req.params.id;
+
+    // 1. Student detail
+    const { data: profile, error: profileErr } = await supabaseAdmin
+      .from("profiles")
+      .select("*")
+      .eq("id", studentId)
+      .single();
+
+    if (profileErr || !profile) {
+      console.error("Profile fetch error:", profileErr);
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    const name = profile.full_name || `${profile.first_name || ""} ${profile.last_name || ""}`.trim() || "—";
+
+    // Recheck current month's fee to be accurate
+    const today = new Date();
+    const month = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+    const { data: currentFee } = await supabaseAdmin
+      .from("fee_payments")
+      .select("status")
+      .eq("student_id", studentId)
+      .eq("month", month)
+      .single();
+    
+    let feesStatus = currentFee ? currentFee.status : (profile.fees_status || "unpaid");
+
+    const studentObj = {
+      id: profile.id,
+      name,
+      email: profile.email,
+      course: profile.class || profile.course || "",
+      is_active: profile.is_active,
+      fees_status: feesStatus,
+      last_activity: profile.last_activity
+    };
+
+    // 2. Attendance
+    const { data: attendanceData } = await supabaseAdmin
+      .from("attendance_records")
+      .select("status")
+      .eq("student_id", studentId);
+
+    let attTotal = 0, present = 0, absent = 0, late = 0;
+    const records = attendanceData || [];
+    records.forEach(r => {
+      attTotal++;
+      if (r.status === "present") present++;
+      else if (r.status === "absent") absent++;
+      else if (r.status === "late") late++;
+    });
+    const attPercent = attTotal ? Math.round((present / attTotal) * 100) : 0;
+
+    // 3. Assignments (approx total depending on course)
+    // we'll just count total overall if course filtering is complex
+    const { data: assignmentsData } = await supabaseAdmin
+      .from("assignments")
+      .select("id");
+      
+    const { data: submissionsData } = await supabaseAdmin
+      .from("submissions")
+      .select("assignment_id, submitted_at, grade")
+      .eq("student_id", studentId);
+
+    const assignTotal = (assignmentsData || []).length;
+    const submitted = (submissionsData || []).length;
+    const pending = Math.max(0, assignTotal - submitted);
+    const subRate = assignTotal ? Math.round((submitted / assignTotal) * 100) : 0;
+
+    // 4. Notes
+    const { data: downData } = await supabaseAdmin
+      .from("downloads")
+      .select("downloaded_at, notes(title)")
+      .eq("student_id", studentId)
+      .order("downloaded_at", { ascending: false })
+      .limit(5);
+    
+    const { count: downCount } = await supabaseAdmin
+      .from("downloads")
+      .select("id", { count: "exact", head: true })
+      .eq("student_id", studentId);
+
+    const recentDown = (downData || []).map(d => ({
+      title: d.notes ? d.notes.title : "Unknown",
+      date: d.downloaded_at
+    }));
+
+    // 5. Fees history
+    const { data: feeHistory } = await supabaseAdmin
+      .from("fee_payments")
+      .select("month, status, amount, paid_at")
+      .eq("student_id", studentId)
+      .order("month", { ascending: false })
+      .limit(6);
+
+    res.json({
+      student: studentObj,
+      attendance: {
+        total: attTotal,
+        present, absent, late,
+        percentage: attPercent,
+        recent: []
+      },
+      assignments: {
+        total: assignTotal,
+        submitted, pending,
+        submissionRate: subRate,
+        items: submissionsData || []
+      },
+      notes: {
+        totalDownloads: downCount || 0,
+        recentDownloads: recentDown
+      },
+      fees: {
+        current: feesStatus,
+        history: feeHistory || []
+      }
+    });
+
+  } catch (err) {
+    console.error("Student analytics error:", err.message);
+    // don't break UI on missing table columns etc
+    res.json({
+      student: { name: "Unknown", email: "", course: "", is_active: false },
+      attendance: { total: 0, present: 0, absent: 0, late: 0, percentage: 0 },
+      assignments: { total: 0, submitted: 0, pending: 0, submissionRate: 0, items: [] },
+      notes: { totalDownloads: 0, recentDownloads: [] },
+      fees: { current: "Unknown", history: [] }
+    });
+  }
+});
+
 module.exports = router;

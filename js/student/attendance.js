@@ -6,6 +6,7 @@
 import { attendance } from "../api.js";
 import { state } from "./state.js";
 import { $, escapeHtml, formatDate, animateCounter } from "../shared/helpers.js";
+import { cardSkeleton, listSkeleton } from "../shared/skeleton.js";
 
 const ATT_CIRC_LG = 527.79;
 const ATT_CIRC_SM = 201.06;
@@ -35,8 +36,8 @@ export async function fetchAttendance() {
   if (arc) arc.setAttribute("stroke-dashoffset", ATT_CIRC_LG);
   $("att-ring-pct").textContent    = "—";
   $("att-ring-footer").innerHTML   = `<span>Loading…</span>`;
-  $("att-subject-cards").innerHTML = `<div class="empty-state-sm">Loading subjects…</div>`;
-  $("att-timeline").innerHTML      = `<div class="empty-state-sm">Loading…</div>`;
+  $("att-subject-cards").innerHTML = cardSkeleton(3);
+  $("att-timeline").innerHTML      = listSkeleton(5);
 
   ["att-tile-present-num","att-tile-absent-num","att-tile-total-num"].forEach(id => {
     const el = $(id); if (el) el.textContent = "—";

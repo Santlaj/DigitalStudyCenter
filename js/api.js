@@ -436,6 +436,10 @@ const users = {
   async getDashboardStats() {
     return apiRequest("GET", "/users/dashboard-stats");
   },
+
+  async getStudentAnalytics(studentId) {
+    return apiRequest("GET", `/users/students/${studentId}/analytics`);
+  },
 };
 
 
@@ -483,13 +487,6 @@ const fees = {
   },
 };
 
-
-// COURSES MODULE
-const courses = {
-  async list() {
-    return apiRequest("GET", "/courses");
-  },
-};
 
 
 // ANNOUNCEMENTS MODULE
@@ -542,7 +539,6 @@ export {
   users,
   attendance,
   fees,
-  courses,
   announcements,
   analytics
 };

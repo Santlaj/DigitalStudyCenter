@@ -8,6 +8,7 @@ import { assignments } from "../api.js";
 import { state } from "./state.js";
 import { $, escapeHtml, formatDate, formatDeadline, deadlinePill, showToast, setLoading } from "../shared/helpers.js";
 import { fetchDashboardStats } from "./dashboard.js";
+import { tableSkeleton } from "../shared/skeleton.js";
 
 export async function createAssignment(closeModalFn) {
   ["assign-title-err","assign-subject-err","assign-deadline-err","assign-general-err"]
@@ -48,7 +49,7 @@ export async function loadAssignmentsTable(append = false) {
   if (!append) {
     state.assignmentsOffset = 0;
     state.allAssignments = [];
-    tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Loading…</td></tr>`;
+    tbody.innerHTML = tableSkeleton(5, 5);
   }
 
   // Cache-first optimization
@@ -137,7 +138,7 @@ async function loadSubmissionsForAssignment(assignmentId) {
   }
   
   wrap.classList.remove("hidden");
-  tbody.innerHTML = `<tr><td colspan="4" class="table-empty">Loading submissions...</td></tr>`;
+  tbody.innerHTML = tableSkeleton(3, 4);
   
   try {
     const { submissions: data } = await assignments.getSubmissionsForAssignment(assignmentId);

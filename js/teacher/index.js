@@ -10,7 +10,6 @@ import { fetchDashboardStats }               from "./dashboard.js";
 import { uploadNotes, resetUploadForm, loadNotesTable, initFileDrop } from "./notes.js";
 import { createAssignment, loadAssignmentsTable }                    from "./assignments.js";
 import { fetchStudents, openAddStudentModal, closeAddStudentModal, addStudent, autoMarkInactiveUnpaid } from "./students.js";
-import { loadAnalytics }                     from "./analytics.js";
 import { saveProfile }                       from "./profile.js";
 import {
   setDefaultAttDate, loadStudentsForAttendance,
@@ -38,7 +37,7 @@ function closeDeleteModal() {
 // NAVIGATION MAP
 const SECTION_TITLES = {
   "dashboard": "Dashboard", "my-notes": "My Notes",
-  "assignments": "Assignments", "students": "Students", "analytics": "Analytics",
+  "assignments": "Assignments", "students": "Students & Analytics",
   "attendance": "Attendance", "profile": "Profile", "announcements": "Announcements",
 };
 
@@ -55,7 +54,6 @@ function navigateTo(section) {
   if (section === "my-notes")    loadNotesTable();
   if (section === "assignments") loadAssignmentsTable();
   if (section === "students")    fetchStudents();
-  if (section === "analytics")   loadAnalytics();
   if (section === "attendance")  { loadAttendanceHistory(); setDefaultAttDate(); }
   if (section === "announcements") fetchTeacherAnnouncements();
 

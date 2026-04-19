@@ -6,6 +6,7 @@
 import { fees } from "../api.js";
 import { state } from "./state.js";
 import { $, escapeHtml, formatDate } from "../shared/helpers.js";
+import { tableSkeleton } from "../shared/skeleton.js";
 
 export async function updateFeeStatCard() {
   try {
@@ -112,7 +113,7 @@ function renderCurrentFeeCard(feeRow, monthLabel, today) {
 
 async function loadFeeHistory() {
   const tbody = $("fee-history-tbody");
-  tbody.innerHTML = `<tr><td colspan="6" class="table-empty">Loading…</td></tr>`;
+  tbody.innerHTML = tableSkeleton(4, 6);
   try {
     const { history } = await fees.history();
     state.allFeeRecords = history || [];

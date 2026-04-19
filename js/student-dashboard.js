@@ -6,7 +6,7 @@
 
 import {
   auth, notes, assignments, users, attendance,
-  fees, courses, announcements, analytics, getUser, setUser,
+  fees, announcements, analytics, getUser, setUser,
 } from "./api.js";
 
 // MODULE STATE
@@ -144,20 +144,7 @@ function escHtml(str) {
     .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-/**
- * Array of gradient color strings used to give each course card a unique color.
- * Cycles through the list so every card looks distinct.
- * Without this: All course cards would have the same color, making them hard to distinguish.
- */
-const COURSE_COLORS = [
-  "linear-gradient(90deg,#4f46e5,#6366f1)",
-  "linear-gradient(90deg,#0ea5e9,#38bdf8)",
-  "linear-gradient(90deg,#10b981,#34d399)",
-  "linear-gradient(90deg,#f59e0b,#fbbf24)",
-  "linear-gradient(90deg,#ef4444,#f87171)",
-  "linear-gradient(90deg,#8b5cf6,#a78bfa)",
-  "linear-gradient(90deg,#ec4899,#f472b6)",
-];
+
 
 /**
  * Returns the current month and year as a label, e.g. "April 2026".
@@ -359,64 +346,7 @@ async function loadDashRecentAssignments() {
   }
 }
 
-// ──────────────────────────────────────────────────
-// COURSES
-// ──────────────────────────────────────────────────
 
-/**
- * Fetches and displays all available courses as visually-styled cards.
- * Each card shows: course title, teacher name, description, notes count, and assignments count.
- * Cards are color-coded using the COURSE_COLORS palette.
- * Without this: The "Courses" section would be empty. Students couldn't browse
- * what courses are available or who teaches them.
- */
-async function fetchCourses() {
-  const grid = $("courses-grid");
-  grid.innerHTML = `<div class="empty-state">Loading courses…</div>`;
-
-  try {
-    const { courses: data } = await courses.list();
-
-    if (!data?.length) {
-      grid.innerHTML = `<div class="empty-state">No courses available yet.</div>`;
-      return;
-    }
-
-    grid.innerHTML = data.map((c, idx) => {
-      const teacher = c.users?.full_name
-        || `${c.users?.first_name || ""} ${c.users?.last_name || ""}`.trim()
-        || "Teacher";
-      const gradient = COURSE_COLORS[idx % COURSE_COLORS.length];
-      const notesCnt = c.notes_count || 0;
-      const assnCnt = c.assignments_count || 0;
-      return `
-        <div class="course-card">
-          <div class="course-card-header">
-            <div class="course-card-bar" style="background:${gradient}"></div>
-            <div class="course-card-title">${escHtml(c.title)}</div>
-            <div class="course-card-teacher">
-              <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
-              ${escHtml(teacher)}
-            </div>
-            ${c.description ? `<div class="course-card-desc">${escHtml(c.description)}</div>` : ""}
-          </div>
-          <div class="course-card-footer">
-            <div class="course-stat">
-              <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/></svg>
-              ${notesCnt} notes
-            </div>
-            <div class="course-stat">
-              <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg>
-              ${assnCnt} assignments
-            </div>
-          </div>
-        </div>
-      `;
-    }).join("");
-  } catch (err) {
-    grid.innerHTML = `<div class="empty-state">Error: ${escHtml(err.message)}</div>`;
-  }
-}
 
 // ──────────────────────────────────────────────────
 // NOTES LIST
@@ -1241,7 +1171,7 @@ async function fetchAnnouncements() {
       return;
     }
 
-    const accentColors = ["#4f46e5","#0ea5e9","#10b981","#f59e0b","#ef4444","#8b5cf6","#ec4899"];
+    const accentColors = ["#4f46e5", "#0ea5e9", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
 
     feed.innerHTML = data.map((a, idx) => {
       const teacher = a.users?.full_name
@@ -1399,7 +1329,6 @@ function navigateTo(section) {
   $$(".nav-item").forEach(n => n.classList.remove("active"));
   $$(`[data-section="${section}"]`).forEach(n => n.classList.add("active"));
 
-  if (section === "courses") fetchCourses();
   if (section === "notes") fetchNotes();
   if (section === "assignments") fetchAssignments();
   if (section === "attendance") fetchAttendance();

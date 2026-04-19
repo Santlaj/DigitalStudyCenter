@@ -7,6 +7,7 @@ import { assignments } from "../api.js";
 import { state } from "./state.js";
 import { $, escapeHtml, formatDeadline, deadlineCountdown, deadlineClass, showToast, setLoading } from "../shared/helpers.js";
 import { fetchDashboardStats } from "./dashboard.js";
+import { cardSkeleton } from "../shared/skeleton.js";
 
 export async function fetchAssignments(query = "", append = false) {
   const list = $("assignments-list");
@@ -15,7 +16,7 @@ export async function fetchAssignments(query = "", append = false) {
   if (!append) {
     state.assignmentsOffset = 0;
     state.allAssignments = [];
-    list.innerHTML = `<div class="empty-state-sm">Loading…</div>`;
+    list.innerHTML = cardSkeleton(4);
   }
 
   // Cache-first optimization

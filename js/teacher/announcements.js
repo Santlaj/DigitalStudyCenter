@@ -7,6 +7,7 @@
 import { $, escapeHtml, formatDate, showToast } from "../shared/helpers.js";
 import { announcements } from "../api.js";
 import { state } from "./state.js";
+import { listSkeleton } from "../shared/skeleton.js";
 
 let quillEditor = null;
 
@@ -39,7 +40,7 @@ export async function fetchTeacherAnnouncements() {
   }
 
   try {
-    feed.innerHTML = `<div class="empty-state-sm">Loading announcements...</div>`;
+    feed.innerHTML = listSkeleton(4);
     const { announcements: data } = await announcements.list();
     state.allAnnouncements = data || [];
     state.announcementsLoaded = true;

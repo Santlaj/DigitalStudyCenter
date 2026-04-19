@@ -70,7 +70,6 @@ const assignmentsRouter = require("./routes/assignments");
 const usersRouter = require("./routes/users");
 const attendanceRouter = require("./routes/attendance");
 const feesRouter = require("./routes/fees");
-const coursesRouter = require("./routes/courses");
 const announcementsRouter = require("./routes/announcements");
 const analyticsRouter = require("./routes/analytics");
 
@@ -83,7 +82,6 @@ app.use("/api/notes", notesRouter);
 app.use("/api/assignments", assignmentsRouter);
 app.use("/api/attendance", attendanceRouter);
 app.use("/api/fees", feesRouter);
-app.use("/api/courses", coursesRouter);
 app.use("/api/announcements", announcementsRouter);
 app.use("/api/analytics", analyticsRouter);
 
