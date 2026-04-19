@@ -7,7 +7,7 @@ import { $, $$ } from "../shared/helpers.js";
 import { boot, logoutStudent }               from "./boot.js";
 import { fetchDashboardStats }               from "./dashboard.js";
 import { fetchNotes }                        from "./notes.js";
-import { fetchAssignments, submitAssignment, closeSubmitModal, initSubmitFileDrop } from "./assignments.js";
+import { fetchAssignments, submitAssignment, closeSubmitModal, initSubmitFileDrop, initAssignmentFilters } from "./assignments.js";
 import { fetchAttendance }                   from "./attendance.js";
 import { fetchFeePayment, updateFeeStatCard } from "./fees.js";
 import { fetchAnnouncements }                from "./announcements.js";
@@ -105,6 +105,7 @@ function wireEvents() {
   });
 
   initSubmitFileDrop();
+  initAssignmentFilters();
   setupGlobalSearch();
 }
 

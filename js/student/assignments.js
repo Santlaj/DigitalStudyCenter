@@ -5,9 +5,17 @@
 
 import { assignments } from "../api.js";
 import { state } from "./state.js";
-import { $, escapeHtml, formatDeadline, deadlineCountdown, deadlineClass, showToast, setLoading } from "../shared/helpers.js";
+import { $, escapeHtml, formatDate, formatDeadline, deadlineCountdown, deadlineClass, showToast, setLoading } from "../shared/helpers.js";
 import { fetchDashboardStats } from "./dashboard.js";
 import { cardSkeleton } from "../shared/skeleton.js";
+
+// SVG Icons
+const ICON_SUBJECT  = `<svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`;
+const ICON_TEACHER  = `<svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
+const ICON_CALENDAR = `<svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+const ICON_SUBMIT   = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><path d="M22 2L11 13"/><polyline points="22 2 15 22 11 13 2 9 22 2"/></svg>`;
+
+let currentFilter = "all";
 
 export async function fetchAssignments(query = "", append = false) {
   const list = $("assignments-list");
@@ -21,7 +29,7 @@ export async function fetchAssignments(query = "", append = false) {
 
   // Cache-first optimization
   if (!query && !append && state.assignmentsLoaded && state.allAssignments.length > 0) {
-    renderAssignmentsList(list, state.allAssignments);
+    applyFilters();
     return;
   }
 
@@ -41,7 +49,7 @@ export async function fetchAssignments(query = "", append = false) {
     
     if (!query && !append) state.assignmentsLoaded = true;
 
-    renderAssignmentsList(list, state.allAssignments);
+    applyFilters();
 
     if (loadMoreBtn) {
       if (state.allAssignments.length < count) {
@@ -57,12 +65,31 @@ export async function fetchAssignments(query = "", append = false) {
   }
 }
 
+function applyFilters() {
+  const list = $("assignments-list");
+  let data = state.allAssignments;
+
+  if (currentFilter !== "all") {
+    data = data.filter(a => {
+      const submitted = state.submittedIds.has(a.id);
+      const isOverdue = new Date(a.deadline) < new Date() && !submitted;
+      
+      if (currentFilter === "submitted") return submitted;
+      if (currentFilter === "overdue")   return isOverdue;
+      if (currentFilter === "pending")   return !submitted && !isOverdue;
+      return true;
+    });
+  }
+
+  renderAssignmentsList(list, data);
+}
+
 function renderAssignmentsList(list, data) {
   $("assignments-count").textContent =
-    `${data.length} assignment${data.length !== 1 ? "s" : ""}`;
+    `${data.length} total`;
 
   if (!data.length) {
-    list.innerHTML = `<div class="empty-state-sm">No assignments yet.</div>`;
+    list.innerHTML = `<div class="empty-state-sm">No assignments found for this filter.</div>`;
     return;
   }
 
@@ -74,26 +101,45 @@ function renderAssignmentsList(list, data) {
     const countdown  = deadlineCountdown(a.deadline);
     const submitted  = state.submittedIds.has(a.id);
 
-    let statusPill = "";
-    if (submitted)                   statusPill = `<span class="pill pill-teal">✓ Submitted</span>`;
-    else if (dClass === "overdue")   statusPill = `<span class="pill pill-red">Overdue</span>`;
-    else if (dClass === "due-soon")  statusPill = `<span class="pill pill-amber">Due today</span>`;
-    else                             statusPill = `<span class="pill pill-green">Upcoming</span>`;
+    let statusLabel = "";
+    let statusClass = "upcoming";
+
+    if (submitted) {
+      statusLabel = "Submitted";
+      statusClass = "submitted";
+    } else if (dClass === "overdue") {
+      statusLabel = "Overdue";
+      statusClass = "overdue";
+    } else if (dClass === "due-soon") {
+      statusLabel = "Due Today";
+      statusClass = "due-soon";
+    } else {
+      statusLabel = "Upcoming";
+      statusClass = "upcoming";
+    }
 
     return `
-      <div class="assignment-card ${submitted ? "submitted" : dClass}">
+      <div class="assignment-card ${statusClass}">
         <div class="assign-left">
-          <div class="assign-title">${escapeHtml(a.title)} ${statusPill}</div>
-          <div class="assign-meta">
-            ${escapeHtml(a.subject)} · Uploaded by ${escapeHtml(teacher)} · Due ${formatDeadline(a.deadline)}
+          <div class="assign-header">
+            <div class="assign-title" title="${escapeHtml(a.title)}">${escapeHtml(a.title)}</div>
+            <span class="pill pill-${statusClass === 'upcoming' ? 'blue' : statusClass === 'submitted' ? 'teal' : statusClass === 'due-soon' ? 'amber' : 'red'}">${statusLabel}</span>
           </div>
-          ${a.description ? `<div style="font-size:0.8rem;color:var(--text-muted);margin-top:6px">${escapeHtml(a.description.slice(0, 100))}</div>` : ""}
+          <div class="assign-meta">
+            <div class="meta-item">${ICON_SUBJECT} ${escapeHtml(a.subject)}</div>
+            <div class="meta-item">${ICON_TEACHER} ${escapeHtml(teacher)}</div>
+            <div class="meta-item">${ICON_CALENDAR} Due ${formatDeadline(a.deadline)}</div>
+          </div>
+          ${a.description ? `<div class="assign-desc">${escapeHtml(a.description)}</div>` : ""}
         </div>
         <div class="assign-right">
-          ${countdown ? `<div class="deadline-countdown" style="margin-bottom:8px">${escapeHtml(countdown)}</div>` : ""}
+          <div class="deadline-info">
+            <div class="deadline-countdown ${dClass}">${escapeHtml(countdown)}</div>
+            <div class="deadline-date">${formatDate(a.deadline)}</div>
+          </div>
           ${!submitted
-            ? `<button class="btn-primary btn-sm btn-submit-trigger" data-id="${escapeHtml(a.id)}" data-title="${escapeHtml(a.title)}">Submit Now</button>`
-            : `<button class="btn-ghost btn-sm" disabled>Submitted</button>`}
+            ? `<button class="btn-primary btn-sm btn-submit-trigger" data-id="${escapeHtml(a.id)}" data-title="${escapeHtml(a.title)}">${ICON_SUBMIT} Submit Now</button>`
+            : `<button class="btn-ghost btn-sm" disabled>✓ Submitted</button>`}
         </div>
       </div>
     `;
@@ -101,6 +147,18 @@ function renderAssignmentsList(list, data) {
 
   list.querySelectorAll(".btn-submit-trigger").forEach(btn => {
     btn.addEventListener("click", () => openSubmitModal(btn.dataset.id, btn.dataset.title));
+  });
+}
+
+export function initAssignmentFilters() {
+  const chips = document.querySelectorAll("#assignment-status-filters .filter-chip");
+  chips.forEach(chip => {
+    chip.addEventListener("click", () => {
+      chips.forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      currentFilter = chip.dataset.status;
+      applyFilters();
+    });
   });
 }
 

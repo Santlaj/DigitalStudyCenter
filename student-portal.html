@@ -325,7 +325,15 @@
             <p class="section-sub">View all assignments and submit your work.</p>
           </div>
           <div class="table-toolbar">
-            <input class="search-input" type="text" id="assignments-search" placeholder="Search assignments…" />
+            <div class="search-wrapper">
+              <input class="search-input" type="text" id="assignments-search" placeholder="Search assignments…" />
+            </div>
+            <div class="assignment-filters" id="assignment-status-filters">
+              <button class="filter-chip active" data-status="all">All</button>
+              <button class="filter-chip" data-status="pending">Pending</button>
+              <button class="filter-chip" data-status="submitted">Submitted</button>
+              <button class="filter-chip" data-status="overdue">Overdue</button>
+            </div>
             <span class="count-label" id="assignments-count"></span>
           </div>
           <div class="assignments-list" id="assignments-list">
