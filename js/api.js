@@ -1,8 +1,4 @@
-/**
- * js/api.js
- * DigitalStudyCenter — Client API Module
- * Replaces direct Supabase calls with backend API requests.
- */
+/* js/api.js — Client API Module: Handles backend requests and auth state. */
 
 import { getCleanLink } from "./shared/helpers.js";
 
@@ -42,9 +38,7 @@ function getUser() {
   }
 }
 
-/**
- * Decode JWT to check expiry
- */// DECODE JWT
+// Decode JWT to check expiry
 function parseJwt(token) {
   try {
     const base64Url = token.split(".")[1];
@@ -516,7 +510,7 @@ const analytics = {
   },
 };
 
-/*   DASHBOARD API  */
+// DASHBOARD API
 // DASHBOARD MODULE
 const dashboard = {
   async getSummary() {
@@ -524,7 +518,7 @@ const dashboard = {
   }
 };
 
-/*   EXPORTS   */
+// EXPORTS
 // EXPORTS
 export {
   API_BASE,

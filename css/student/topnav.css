@@ -1,9 +1,6 @@
-/* ═══════════════════════════════════════════════════════
-   STUDENT PORTAL — topnav.css
-   Top navigation bar, main wrap, profile popup.
-   ═══════════════════════════════════════════════════════ */
+/* student/topnav.css — Top navigation bar and profile popup styles. */
 
-/* ── MAIN WRAP ── */
+/* Main Wrap */
 .main-wrap {
   margin-left: var(--sidebar-w);
   flex: 1;
@@ -13,7 +10,7 @@
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ── TOP NAV ── */
+/* Top Nav */
 .topnav {
   height: var(--topnav-h);
   background: var(--topnav-bg);
@@ -52,7 +49,7 @@
   color: var(--text-main);
 }
 
-/* ── Search in topnav ── */
+/* Search in Topnav */
 .topnav-search-wrap {
   position: relative;
   display: flex;
@@ -89,7 +86,7 @@
   width: 320px;
 }
 
-/* ── Right side ── */
+/* Right Side */
 .topnav-right {
   display: flex;
   align-items: center;
@@ -137,7 +134,7 @@
   display: none;
 }
 
-/* ── Student info in topnav ── */
+/* Student info in Topnav */
 .topnav-student {
   display: flex;
   align-items: center;
@@ -182,7 +179,7 @@
   color: #fff;
 }
 
-/* ── HEADER PROFILE POPUP ── */
+/* Header Profile Popup */
 .header-profile-popup {
   position: absolute;
   top: calc(100% + 12px);

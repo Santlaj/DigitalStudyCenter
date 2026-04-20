@@ -1,11 +1,6 @@
-/* ═══════════════════════════════════════════════════════
-   TEACHER PORTAL — attendance.css
-   Attendance controls, summary bar, toggle switch,
-   note input, checkbox, row highlights, footer, history,
-   detail pills, student cell, field-select.
-   ═══════════════════════════════════════════════════════ */
+/* teacher/attendance.css — Attendance controls, summary, toggles, and history styles. */
 
-/* ── Controls ── */
+/* Controls */
 .att-controls {
   display: flex;
   align-items: flex-end;
@@ -36,7 +31,7 @@
   padding: 8px 14px;
 }
 
-/* ── Summary bar ── */
+/* Summary bar */
 .att-summary {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
@@ -107,7 +102,7 @@
 .att-bar-late   { background: var(--amber); }
 .att-bar-absent { background: var(--red); }
 
-/* ── Toggle switch ── */
+/* Toggle switch */
 .att-toggle {
   position: relative;
   display: inline-block;
@@ -152,7 +147,7 @@
   filter: brightness(1.1);
 }
 
-/* ── Note input inside table cell ── */
+/* Note input inside table cell */
 .att-note-input {
   width: 100%;
   max-width: 200px;
@@ -171,7 +166,7 @@
   box-shadow: 0 0 0 2px rgba(99,102,241,0.1);
 }
 
-/* ── Checkbox ── */
+/* Checkbox */
 .att-checkbox {
   width: 16px;
   height: 16px;
@@ -179,7 +174,7 @@
   cursor: pointer;
 }
 
-/* ── Row highlight ── */
+/* Row highlight */
 .att-row-present { background: rgba(17, 221, 153, 0.14) !important; }
 .att-row-absent  { background: rgba(239,68,68,0.14)  !important; }
 .att-row-late    { background: rgba(245,158,11,0.14)  !important; }
@@ -196,7 +191,7 @@
   background: rgba(245,158,11,0.04) !important;
 }
 
-/* ── Footer ── */
+/* Footer */
 .att-footer {
   display: flex;
   align-items: center;
@@ -210,15 +205,15 @@
 .att-footer .success-msg { flex: 1; margin: 0; }
 .att-footer .success-msg.hidden { display: none; }
 
-/* ── History ── */
+/* History */
 .att-history-wrap { margin-top: 8px; }
 
-/* ── Detail status pills in modal ── */
+/* Detail status pills in modal */
 .att-pill-present { background: #dcfce7; color: #15803d; }
 .att-pill-absent  { background: var(--red-soft); color: var(--red); }
 .att-pill-late    { background: #fef9c3; color: #92400e; }
 
-/* ── Student avatar mini ── */
+/* Student avatar mini */
 .att-student-cell {
   display: flex;
   align-items: center;
@@ -240,7 +235,7 @@
   flex-shrink: 0;
 }
 
-/* ── History action buttons ── */
+/* History action buttons */
 .btn-view {
   padding: 5px 12px;
   background: var(--accent-soft);
@@ -255,7 +250,7 @@
 }
 .btn-view:hover { background: var(--accent); color: #fff; }
 
-/* ── Select / Dropdown ── */
+/* Select / Dropdown */
 .field-select {
   appearance: none;
   -webkit-appearance: none;

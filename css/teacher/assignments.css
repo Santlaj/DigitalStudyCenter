@@ -1,7 +1,4 @@
-/* ═══════════════════════════════════════════════════════
-   TEACHER PORTAL — assignments.css
-   Assignments layout (sidebar + main grid).
-   ═══════════════════════════════════════════════════════ */
+/* teacher/assignments.css — Assignments layout styles. */
 
 .assignments-layout {
   display: grid;

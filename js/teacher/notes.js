@@ -1,8 +1,4 @@
-/**
- * teacher/notes.js
- * Upload form, notes table, and delete for teacher portal.
- * Uses cache-first: re-renders from state.allNotes if already loaded.
- */
+/* teacher/notes.js — Note upload, listing, and management logic for teacher portal. */
 
 import { notes } from "../api.js";
 import { state } from "./state.js";

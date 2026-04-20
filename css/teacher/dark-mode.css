@@ -1,9 +1,6 @@
-/* ═══════════════════════════════════════════════════════
-   TEACHER PORTAL — dark-mode.css
-   All dark mode variable overrides and component styles.
-   ═══════════════════════════════════════════════════════ */
+/* teacher/dark-mode.css — Dark mode variable overrides and component styles. */
 
-/* ── Dark Mode Variables ── */
+/* Dark Mode Variables */
 body.dark-mode {
   --bg-page:        #0f172a;
   --bg-card:        #1e293b;
@@ -31,7 +28,7 @@ body.dark-mode .topnav-search {
   color: var(--accent);
 }
 
-/* ── Dark Mode Hover Overrides ── */
+/* Dark Mode Hover Overrides */
 body.dark-mode .topnav-icon-btn:hover,
 body.dark-mode .sidebar-toggle:hover,
 body.dark-mode .sidebar-collapse-btn:hover,
@@ -76,7 +73,7 @@ body.dark-mode .file-drop-zone.dragover {
   border-color: var(--accent-light) !important;
 }
 
-/* ── Cards & Panels ── */
+/* Cards & Panels */
 body.dark-mode .modal-content,
 body.dark-mode .card,
 body.dark-mode .stat-card,
@@ -92,7 +89,7 @@ body.dark-mode .modal-footer {
   background: #1e293b !important;
 }
 
-/* ── Table ── */
+/* Table */
 body.dark-mode .data-table thead {
   background: #0f172a !important;
   border-color: #334155 !important;
@@ -103,7 +100,7 @@ body.dark-mode .data-table td {
   border-color: #334155 !important;
 }
 
-/* ── Tabs & Filters ── */
+/* Tabs & Filters */
 body.dark-mode .active-tab,
 body.dark-mode .filter-btn.active {
   background: var(--accent) !important;
@@ -114,7 +111,7 @@ body.dark-mode .detail-row {
   border-color: #334155 !important;
 }
 
-/* ── Modal & HTML Overrides ── */
+/* Modal & HTML Overrides */
 html.dark-mode {
   background: #0f172a !important;
   color: #f8fafc !important;

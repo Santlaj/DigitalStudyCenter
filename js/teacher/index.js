@@ -1,7 +1,4 @@
-/**
- * teacher/index.js
- * Entry point — imports all teacher modules, handles navigation & event wiring.
- */
+/* teacher/index.js — Entry point for teacher portal: imports modules and wires events. */
 
 import { $, $$ } from "../shared/helpers.js";
 import { state }                             from "./state.js";

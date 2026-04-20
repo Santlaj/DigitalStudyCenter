@@ -1,7 +1,4 @@
-/**
- * student/state.js
- * Shared mutable state for the student dashboard modules.
- */
+/* student/state.js — Shared mutable state for the student dashboard. */
 
 export const state = {
   currentStudent:   null,
@@ -24,11 +21,11 @@ export const state = {
   cachedAnnouncements:[],
   cachedCourses:      [],
 
-  // ═══ Paging ═══
+  // Paging
   notesOffset:         0,
   assignmentsOffset:   0,
 
-  // ═══ Loaded flags ═══
+  // Loaded flags
   dashboardLoaded:     false,
   notesLoaded:         false,
   assignmentsLoaded:   false,

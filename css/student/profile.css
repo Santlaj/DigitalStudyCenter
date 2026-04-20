@@ -1,9 +1,6 @@
-/* ═══════════════════════════════════════════════════════
-   STUDENT PORTAL — profile.css
-   Profile layout, avatar card, role pill.
-   ═══════════════════════════════════════════════════════ */
+/* student/profile.css — Profile layout, avatar cards, and role labels. */
 
-/* ── PROFILE LAYOUT ── */
+/* Profile Layout */
 .profile-layout {
   display: grid;
   grid-template-columns: 240px 1fr;

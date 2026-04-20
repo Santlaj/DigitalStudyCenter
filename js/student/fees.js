@@ -1,7 +1,4 @@
-/**
- * student/fees.js
- * Fee payment section: current card, history table, reminder banner.
- */
+/* student/fees.js — Fee payment logic: current status, history, and reminders. */
 
 import { fees } from "../api.js";
 import { state } from "./state.js";

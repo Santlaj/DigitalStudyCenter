@@ -1,7 +1,4 @@
-/**
- * teacher/students.js
- * Student list, add modal, fees toggle, activate/deactivate, auto-mark inactive.
- */
+/* teacher/students.js — Student list management, add modal, and analytics. */
 
 import { users, fees } from "../api.js";
 import { state } from "./state.js";
@@ -92,7 +89,7 @@ async function updateFeesStatus(studentId, studentName, newStatus) {
   } catch (err) { showToast("Failed to update fees: " + err.message, "error"); }
 }
 
-// ── Add Student Modal ──
+// Add Student Modal
 export function openAddStudentModal() {
   ["add-student-name-err", "add-student-email-err", "add-student-pass-err", "add-student-general-err"].forEach(id => { const el = $(id); if (el) el.textContent = ""; });
   ["add-student-firstname", "add-student-lastname", "add-student-email", "add-student-course", "add-student-password"].forEach(id => { const el = $(id); if (el) el.value = ""; });
@@ -139,7 +136,7 @@ export async function autoMarkInactiveUnpaid() {
   finally { setLoading(btn, false, "⚡ Auto-Mark Inactive"); }
 }
 
-/* ── Student Analytics Modal ── */
+// Student Analytics Modal
 export async function openStudentAnalytics(studentId) {
   const modal = $("student-analytics-modal");
   const content = $("student-analytics-content");

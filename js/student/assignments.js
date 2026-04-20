@@ -1,7 +1,4 @@
-/**
- * student/assignments.js
- * Assignments listing, submit modal, and file-drop for student portal.
- */
+/* student/assignments.js — Assignments, submit modal, and file-drop logic. */
 
 import { assignments } from "../api.js";
 import { state } from "./state.js";

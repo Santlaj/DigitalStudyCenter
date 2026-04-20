@@ -1,7 +1,4 @@
-/* ═══════════════════════════════════════════════════════
-   TEACHER PORTAL — analytics.css
-   Analytics grid, chart cards.
-   ═══════════════════════════════════════════════════════ */
+/* teacher/analytics.css — Analytics grid and chart card styles. */
 
 .analytics-grid {
   display: grid;

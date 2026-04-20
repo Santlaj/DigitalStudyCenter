@@ -1,8 +1,4 @@
-/**
- * teacher-dashboard.js
- * DigitalStudyCenter — Teacher Dashboard
- * Uses backend API via api.js instead of direct Supabase calls.
- */
+/* teacher-dashboard.js — Teacher portal logic. */
 
 import {
   auth, notes, assignments, users, attendance,
@@ -20,34 +16,19 @@ let chartsInitialised = false;
 
 // DOM HELPERS
 
-/**
- * Shortcut to get any HTML element by its ID.
- * Without this: You'd have to write document.getElementById("...") everywhere,
- * making the code much longer and harder to read.
- */
+// Get element by ID
 const $  = (id)  => document.getElementById(id);
 
-/**
- * Shortcut to select multiple HTML elements matching a CSS selector.
- * Without this: You'd have to write document.querySelectorAll("...") everywhere.
- */
+// Select multiple elements
 const $$ = (sel) => document.querySelectorAll(sel);
 
-/**
- * Capitalizes the first letter of each word (title case).
- * Used to display normalized lowercase subjects nicely.
- */
+// Capitalize first letter of each word
 function titleCase(str) {
   if (!str) return "";
   return str.replace(/\b\w/g, c => c.toUpperCase());
 }
 
-/**
- * Shows a small popup message (toast) at the bottom of the screen.
- * Used to notify the teacher about success/error/info events (e.g. "Notes uploaded!").
- * The toast auto-hides after 3.5 seconds.
- * Without this: The teacher would get no visual feedback after actions like uploading or deleting.
- */
+// Show toast notification
 function showToast(message, type = "info") {
   const toast = $("toast");
   toast.textContent = message;
@@ -56,34 +37,20 @@ function showToast(message, type = "info") {
   toast._timer = setTimeout(() => { toast.className = "toast"; }, 3500);
 }
 
-/**
- * Toggles a button between "loading" and "idle" states.
- * When loading: disables the button and shows a spinner + "Please wait…".
- * When idle: re-enables the button and restores its original text.
- * Without this: Buttons could be clicked multiple times during API calls,
- * causing duplicate submissions, and users wouldn't know an action is in progress.
- */
+// Set button loading state
 function setLoading(btnEl, loading, idleHtml = "Submit") {
   if (!btnEl) return;
   btnEl.disabled  = loading;
   btnEl.innerHTML = loading ? `<span class="spinner"></span>Please wait…` : idleHtml;
 }
 
-/**
- * Converts an ISO date string (e.g. "2026-04-10T12:00:00Z") into a readable format like "10 Apr 2026".
- * Returns "—" if no date is provided.
- * Without this: Raw ISO dates would appear in the UI, which are hard to read.
- */
+// Format date to DD MMM YYYY
 function formatDate(iso) {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
-/**
- * Converts an ISO date string into a readable format WITH time, like "10 Apr 2026, 14:30".
- * Used specifically for assignment deadlines where the exact time matters.
- * Without this: Teachers wouldn't see the exact time an assignment is due.
- */
+// Format date with time
 function formatDeadline(iso) {
   if (!iso) return "—";
   return new Date(iso).toLocaleString("en-GB", {
@@ -91,15 +58,7 @@ function formatDeadline(iso) {
   });
 }
 
-/**
- * Returns a colored status pill (badge) for an assignment deadline:
- *   - Red "Overdue" if past the deadline
- *   - Amber "Due today" if within 24 hours
- *   - Green "Upcoming" if more than 24 hours away
- *   - Gray "No deadline" if no deadline is set
- * Without this: The assignments table would show no visual urgency indicators;
- * teachers wouldn't quickly see which assignments are overdue at a glance.
- */
+// Get status pill for deadlines
 function deadlinePill(iso) {
   if (!iso) return `<span class="pill pill-gray">No deadline</span>`;
   const diff = new Date(iso) - new Date();
@@ -108,22 +67,13 @@ function deadlinePill(iso) {
   return `<span class="pill pill-green">Upcoming</span>`;
 }
 
-/**
- * Extracts the initials from a name (e.g. "Ravi Singh" → "RS").
- * Used for avatar circles in the sidebar and topnav when no profile photo exists.
- * Without this: Avatars would show nothing or a default "T" for all teachers.
- */
+// Get name initials
 function initials(name) {
   if (!name) return "T";
   return name.split(" ").map(p => p[0]?.toUpperCase() || "").filter(Boolean).slice(0, 2).join("");
 }
 
-/**
- * Escapes special HTML characters to prevent XSS (cross-site scripting) attacks.
- * Converts characters like <, >, &, " into their safe HTML entity equivalents.
- * Without this: If a note title contains HTML like "<script>alert('hacked')</script>",
- * it would execute as real code in the browser — a critical security vulnerability.
- */
+// Escape HTML characters
 function escHtml(str) {
   if (str == null) return "";
   return String(str)
@@ -131,19 +81,9 @@ function escHtml(str) {
     .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-// ──────────────────────────────────────────────────
-// BOOT — AUTH GUARD
-// ──────────────────────────────────────────────────
+/* Boot Setup */
 
-/**
- * The main startup function — runs when the page loads.
- * 1. Checks if the user is logged in (via API session check)
- * 2. Verifies the user is actually a "teacher" (redirects students away)
- * 3. Shows the teacher's name/avatar in the UI
- * 4. Reveals the app and loads dashboard stats
- * Without this: The dashboard would never load. No auth check means anyone
- * could access teacher pages, and no data would be fetched.
- */
+// Main startup function
 async function boot() {
   try {
     const data = await auth.checkSession();
@@ -165,12 +105,7 @@ async function boot() {
   }
 }
 
-/**
- * Fills in the teacher's name, initials, email, and other profile info
- * across all UI elements — sidebar, topnav, welcome message, and profile form.
- * Without this: The UI would show blank names, empty avatars, and the profile
- * form would have no pre-filled data to edit.
- */
+// Apply profile data to UI elements
 function applyProfileToUI() {
   const name = teacherProfile?.full_name
     || `${teacherProfile?.first_name || ""} ${teacherProfile?.last_name || ""}`.trim()
@@ -194,27 +129,15 @@ function applyProfileToUI() {
   $("profile-bio").value                 = teacherProfile?.bio        || "";
 }
 
-/**
- * Hides the "loading/authenticating" screen and reveals the actual app.
- * Without this: The user would be stuck on a loading screen forever,
- * even after successful authentication.
- */
+// Show app shell after auth
 function showApp() {
   $("auth-guard").classList.add("hidden");
   $("app-shell").classList.add("visible");
 }
 
-// ──────────────────────────────────────────────────
-// FETCH DASHBOARD STATS
-// ──────────────────────────────────────────────────
+/* Dashboard Stats */
 
-/**
- * Fetches and displays the top-level dashboard numbers:
- * total students, notes, assignments, and courses.
- * Also triggers loading of recent notes and recent assignments lists.
- * Without this: The dashboard stat cards would show "—" forever and
- * the recent activity lists would remain empty.
- */
+// Fetch and display dashboard stats
 async function fetchDashboardStats() {
   try {
     const { stats } = await users.getDashboardStats();
@@ -231,12 +154,7 @@ async function fetchDashboardStats() {
   await Promise.all([loadRecentNotes(), loadRecentAssignments()]);
 }
 
-/**
- * Loads and renders the 5 most recent notes on the dashboard "Recent Notes" card.
- * Shows each note's title, subject, and upload date.
- * Without this: The "Recent Notes" section on the dashboard would be empty
- * or show a permanent "Loading…" state.
- */
+// Load and render recent notes on dashboard
 async function loadRecentNotes() {
   try {
     const { notes: data } = await notes.teacherNotes();
@@ -261,12 +179,7 @@ async function loadRecentNotes() {
   }
 }
 
-/**
- * Loads and renders the 5 most recent assignments on the dashboard.
- * Each assignment shows its title, subject, deadline, and a colored status badge
- * (Overdue / Due today / Upcoming / No deadline).
- * Without this: The "Recent Assignments" section on the dashboard would be blank.
- */
+// Load and render recent assignments on dashboard
 async function loadRecentAssignments() {
   try {
     const { assignments: data } = await assignments.teacherAssignments();
@@ -298,18 +211,9 @@ async function loadRecentAssignments() {
   }
 }
 
-// ──────────────────────────────────────────────────
 // UPLOAD NOTES
-// ──────────────────────────────────────────────────
 
-/**
- * Handles the entire "Upload Notes" flow:
- * 1. Validates form fields (title, subject, file type & size)
- * 2. Shows a progress bar during upload
- * 3. Sends the PDF file to the server via API
- * 4. On success: shows a toast, resets the form, refreshes stats, and navigates to "My Notes"
- * Without this: Teachers would have no way to upload study notes/PDFs to the platform.
- */
+// Handle notes upload flow
 async function uploadNotes() {
   ["note-title-err","note-subject-err","note-file-err","upload-general-err"]
     .forEach(id => { $(id).textContent = ""; });
@@ -366,25 +270,14 @@ async function uploadNotes() {
   }
 }
 
-/**
- * Clears all fields in the upload notes form (title, subject, course, description, file).
- * Called after a successful upload to prepare for the next one.
- * Without this: Old data would remain in the form after uploading, which could
- * confuse the teacher or cause accidental duplicate uploads.
- */
+// Clear upload notes form
 function resetUploadForm() {
   ["note-title","note-subject","note-course","note-description"].forEach(id => { $(id).value = ""; });
   $("note-file").value           = "";
   $("file-selected").textContent = "";
 }
 
-/**
- * Enables drag-and-drop file uploading on the file drop zone.
- * When a file is dragged over the zone, it highlights; when dropped, it sets the file input.
- * Also handles the normal "click to browse" file selection.
- * Without this: Teachers would only be able to click "Browse" to select files.
- * Drag-and-drop would not work, making the upload experience less convenient.
- */
+// Initialize file drop zone for notes upload
 function initFileDrop() {
   const zone  = $("file-drop-zone");
   const input = $("note-file");
@@ -409,29 +302,15 @@ function initFileDrop() {
   });
 }
 
-/**
- * Updates the file label text below the drop zone to show the selected filename and size.
- * Example output: "📎 physics-notes.pdf (0.45 MB)"
- * Without this: After selecting a file, the teacher wouldn't see which file was selected
- * or how big it is, leading to confusion.
- */
+// Update file label UI
 function updateFileLabel(file) {
   $("file-selected").textContent =
     `📎 ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
 }
 
-// ──────────────────────────────────────────────────
-// LOAD NOTES TABLE
-// ──────────────────────────────────────────────────
+/* Load Notes Table */
 
-/**
- * Fetches all notes uploaded by this teacher and renders them in the "My Notes" table.
- * Supports optional search query filtering.
- * Each row shows: title, subject, date, download count, and view/delete buttons.
- * Also wires up the delete button on each row to open a confirmation modal.
- * Without this: The "My Notes" section would be empty. Teachers couldn't view,
- * search, or manage any of their uploaded notes.
- */
+// Fetch and display teacher's notes table
 async function loadNotesTable(query = "") {
   const tbody = $("notes-tbody");
   tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Loading…</td></tr>`;
@@ -540,13 +419,7 @@ async function createAssignment() {
 // LOAD ASSIGNMENTS TABLE
 // ──────────────────────────────────────────────────
 
-/**
- * Fetches all assignments created by this teacher and renders them in a table.
- * Each row shows: title, subject, deadline (formatted), status pill, and a delete button.
- * Wires up delete buttons to open the confirmation modal.
- * Without this: The "Assignments" section would be empty. Teachers couldn't see
- * or manage any of their posted assignments.
- */
+// Fetch and display teacher's assignments table
 async function loadAssignmentsTable() {
   const tbody = $("assignments-tbody");
   tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Loading…</td></tr>`;
@@ -585,12 +458,7 @@ async function loadAssignmentsTable() {
   }
 }
 
-/**
- * Deletes a specific assignment by its ID via API call.
- * After deletion: shows a success toast, refreshes the table and dashboard stats.
- * Without this: Delete buttons on assignments would do nothing. Teachers couldn't
- * remove assignments they've posted.
- */
+// Delete assignment by ID via API
 async function deleteAssignment(id) {
   try {
     await assignments.remove(id);
@@ -602,20 +470,9 @@ async function deleteAssignment(id) {
   }
 }
 
-// ──────────────────────────────────────────────────
-// FETCH STUDENTS
-// ──────────────────────────────────────────────────
+/* Student List */
 
-/**
- * Fetches and displays the full list of students in a table.
- * Supports optional search query. Each row shows:
- *   name (with avatar initials), email, course, last activity date,
- *   fee status (Paid/Unpaid), active status, and action buttons
- *   (Mark Paid/Unpaid, Activate/Deactivate).
- * Also wires up all the action buttons for fees and student status toggling.
- * Without this: The "Students" section would be empty. Teachers couldn't view,
- * search, or manage any students on the platform.
- */
+// Fetch and display full list of students
 async function fetchStudents(query = "") {
   const tbody = $("students-tbody");
   tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Loading…</td></tr>`;
@@ -703,17 +560,9 @@ async function fetchStudents(query = "") {
   }
 }
 
-// ──────────────────────────────────────────────────
-// ANALYTICS
-// ──────────────────────────────────────────────────
+/* Analytics Charts */
 
-/**
- * Loads and renders the analytics charts (Downloads line chart, Student Activity bar chart,
- * and Submissions doughnut chart) using Chart.js.
- * Only initialises once (skips if charts already exist) to avoid duplicating canvases.
- * Without this: The "Analytics" section would show empty chart canvases with no data.
- * Teachers wouldn't have any visual insights into platform usage.
- */
+// Load and render analytics charts using Chart.js
 async function loadAnalytics() {
   if (chartsInitialised) return;
   chartsInitialised = true;
@@ -790,17 +639,9 @@ async function loadAnalytics() {
   }
 }
 
-// ──────────────────────────────────────────────────
-// SAVE PROFILE
-// ──────────────────────────────────────────────────
+/* Save Profile */
 
-/**
- * Saves updated profile information (first name, last name, subject, bio) to the server.
- * On success: updates the local profile object, refreshes all UI elements showing the name,
- * and displays a success message.
- * Without this: The "Save Changes" button on the profile page would do nothing.
- * Teachers couldn't update their name, subject, or bio.
- */
+// Update teacher profile via API
 async function saveProfile() {
   $("profile-err").textContent = "";
   $("profile-success").classList.add("hidden");
@@ -833,49 +674,29 @@ async function saveProfile() {
   }
 }
 
-// ──────────────────────────────────────────────────
-// LOGOUT
-// ──────────────────────────────────────────────────
+/* Logout */
 
-/**
- * Logs the teacher out by calling the auth API logout endpoint.
- * This clears the session and redirects to the login page.
- * Without this: The logout button would do nothing. Teachers would be stuck
- * logged in with no way to sign out.
- */
+// Handle teacher logout
 function logoutTeacher() {
   auth.logout();
 }
 
-// ──────────────────────────────────────────────────
-// DELETE MODAL
-// ──────────────────────────────────────────────────
+/* Delete Modal */
 
-/**
- * Opens the confirmation modal before deleting a note or assignment.
- * Shows the item name and stores the delete callback to execute if the user confirms.
- * Without this: Items would be deleted instantly without any confirmation,
- * leading to accidental data loss.
- */
+// Open delete confirmation modal
 function openDeleteModal(name, callback) {
   $("delete-item-name").textContent = name;
   deleteCallback = callback;
   $("delete-modal").classList.add("open");
 }
 
-/**
- * Closes the delete confirmation modal and clears the stored callback.
- * Without this: The modal would stay open forever after clicking cancel/close,
- * blocking the entire UI.
- */
+// Close delete confirmation modal
 function closeDeleteModal() {
   $("delete-modal").classList.remove("open");
   deleteCallback = null;
 }
 
-// ──────────────────────────────────────────────────
-// NAVIGATION
-// ──────────────────────────────────────────────────
+/* Navigation */
 
 /** Maps section IDs to their display-friendly titles shown in the breadcrumb. */
 const SECTION_TITLES = {
@@ -889,17 +710,7 @@ const SECTION_TITLES = {
   "profile":       "Profile",
 };
 
-/**
- * Navigates to a specific section of the dashboard (e.g. "my-notes", "students").
- * 1. Shows the target section and hides all others
- * 2. Highlights the active sidebar nav item
- * 3. Updates the breadcrumb text in the top bar
- * 4. Triggers data loading for the target section (e.g. fetches students list)
- * 5. On mobile: closes the sidebar after navigation
- * 6. Scrolls to the top of the content area
- * Without this: The entire single-page navigation would break. Clicking sidebar links
- * would do nothing — no section switching, no data loading, no visual feedback.
- */
+// Handle section navigation and data loading
 function navigateTo(section) {
   $$(".section").forEach(s => s.classList.remove("active"));
   const el = $(`section-${section}`);
@@ -920,19 +731,9 @@ function navigateTo(section) {
   document.querySelector(".main-content").scrollTop = 0;
 }
 
-// ──────────────────────────────────────────────────
-// EVENT WIRING
-// ──────────────────────────────────────────────────
+/* Event Wiring */
 
-/**
- * Connects ALL interactive UI elements to their respective handler functions.
- * This includes: sidebar navigation clicks, logout button, sidebar toggle,
- * upload/reset buttons, create assignment button, search inputs (with debounce),
- * delete modal buttons, profile save, attendance controls, add student modal,
- * and the auto-mark-inactive button.
- * Without this: The ENTIRE dashboard would be non-interactive. No button clicks,
- * no form submissions, no navigation — nothing would respond to user input.
- */
+// Connect UI elements to handlers
 function wireEvents() {
   $$(".nav-item[data-section]").forEach(item =>
     item.addEventListener("click", () => navigateTo(item.dataset.section))
@@ -1032,20 +833,14 @@ function wireEvents() {
 }
 
 
-// ──────────────────────────────────────────────────
-// ATTENDANCE MODULE
-// ──────────────────────────────────────────────────
+/* Attendance Module */
 let attStudents = [];
 let attStatusMap = {};
 let attNoteMap = {};
 let attSessionId = null;
 let viewingSessionId = null;
 
-/**
- * Loads the list of available subjects for a given class in the attendance dropdown.
- * Currently resets to a placeholder; intended to populate from a subjects database table.
- * Without this: The subject dropdown in attendance would never update when the class changes.
- */
+// Load subjects for a class in attendance dropdown
 async function loadSubjectsForClass(attClass) {
   const select = $("att-subject");
   if (!attClass) {
@@ -1071,12 +866,7 @@ async function loadSubjectsForClass(attClass) {
   }
 }
 
-/**
- * Sets today's date as the default value in the attendance date picker.
- * Only sets it if the field is currently empty (doesn't override a manually selected date).
- * Without this: The date picker would start blank, forcing teachers to manually pick
- * today's date every time they open the attendance section.
- */
+// Set today's date as default in attendance picker
 function setDefaultAttDate() {
   const el = $("att-date");
   if (el && !el.value) {
@@ -1084,13 +874,7 @@ function setDefaultAttDate() {
   }
 }
 
-/**
- * Loads the list of students for attendance marking based on the selected date, class, and subject.
- * Validates that all three fields are filled, then fetches students from the API.
- * Initialises all students as "present" by default and renders the attendance table.
- * Without this: The "Load Students" button in attendance would do nothing.
- * Teachers couldn't load any students to mark their attendance.
- */
+// Load list of students for attendance marking
 async function loadStudentsForAttendance() {
   const date = $("att-date").value;
   const attClass = $("att-class").value;
@@ -1125,14 +909,7 @@ async function loadStudentsForAttendance() {
   }
 }
 
-/**
- * Renders the attendance marking table with all loaded students.
- * Each row has: checkbox, student name/avatar, email, course,
- * Present/Absent toggle buttons, and a notes input field.
- * Wires up the status buttons and note inputs to update the local state maps.
- * Without this: After loading students, the attendance table would remain empty.
- * Teachers couldn't see or mark any student's attendance.
- */
+// Render attendance marking table
 function renderAttTable() {
   const tbody = $("att-tbody");
 
@@ -1185,24 +962,14 @@ function renderAttTable() {
   });
 }
 
-/**
- * Updates a single student's attendance status (present/absent) in the local state,
- * then re-renders the table and updates the summary counts.
- * Without this: Clicking Present/Absent buttons would have no effect.
- * The student's status wouldn't change visually or in the data.
- */
+// Update student's attendance status in local state
 function setStudentStatus(sid, status) {
   attStatusMap[sid] = status;
   renderAttTable();
   updateAttSummary();
 }
 
-/**
- * Marks ALL students as either "present" or "absent" at once.
- * Triggered by the "Mark All Present" / "Mark All Absent" buttons.
- * Without this: Teachers would have to click each student's button individually,
- * which is extremely tedious for large classes.
- */
+// Mark all students as present or absent
 function markAll(status) {
   attStudents.forEach(s => {
     attStatusMap[s.id] = status;
@@ -1211,24 +978,14 @@ function markAll(status) {
   updateAttSummary();
 }
 
-/**
- * Checks or unchecks all row checkboxes in the attendance table.
- * Triggered by the "Select All" checkbox in the table header.
- * Without this: The "Select All" checkbox would do nothing. Teachers couldn't
- * quickly select all students at once.
- */
+// Toggle all row checkboxes in attendance table
 function toggleSelectAll(checked) {
   document.querySelectorAll(".att-row-check").forEach(cb => {
     cb.checked = checked;
   });
 }
 
-/**
- * Updates the attendance summary bar showing present/absent counts and percentages.
- * Recalculates totals from the current attStatusMap and updates the visual progress bar.
- * Without this: The summary numbers (present/absent/total) would never update
- * as the teacher marks attendance, giving no real-time feedback.
- */
+// Update attendance summary counts and progress bar
 function updateAttSummary() {
   const total = attStudents.length;
   const present = Object.values(attStatusMap).filter(v => v === "present").length;
@@ -1243,12 +1000,7 @@ function updateAttSummary() {
   $("att-bar-absent").style.width = (100 - pct) + "%";
 }
 
-/**
- * Saves the current attendance session (date, class, subject, and all student records)
- * to the server via API. Shows a success/error toast and refreshes the history table.
- * Without this: The "Save Attendance" button would do nothing. All attendance
- * marking would be lost when the page is closed — nothing would be stored.
- */
+// Save attendance session records via API
 async function saveAttendance() {
   const date = $("att-date").value;
   const attClass = $("att-class").value;
@@ -1282,22 +1034,13 @@ async function saveAttendance() {
   }
 }
 
-/**
- * Closes the attendance detail modal (the popup showing individual student records for a session).
- * Without this: The modal would stay open permanently after viewing a session's details.
- */
+// Close attendance detail modal
 function closeAttDetailModal() {
   $("att-detail-modal").classList.remove("open");
   viewingSessionId = null;
 }
 
-/**
- * Opens a modal showing detailed attendance records for a specific past session.
- * Fetches the student-level records from the API and displays them in a table
- * (name, email, status, notes). Also wires up the "Delete Session" button.
- * Without this: Clicking "View" on an attendance history row would do nothing.
- * Teachers couldn't drill down into individual session details or delete sessions.
- */
+// Open modal with detailed records for a session
 async function openAttDetailModal(sessionId, sessionDate, subjectName) {
   viewingSessionId = sessionId;
   $("att-detail-title").textContent = `Attendance — ${sessionDate}`;

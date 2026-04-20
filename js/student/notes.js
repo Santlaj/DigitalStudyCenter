@@ -1,7 +1,4 @@
-/**
- * student/notes.js
- * Notes table and download tracking for student portal.
- */
+/* student/notes.js — Notes listing and download logic for student portal. */
 
 import { notes } from "../api.js";
 import { state } from "./state.js";

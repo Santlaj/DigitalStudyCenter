@@ -1,8 +1,4 @@
-/**
- * student/dashboard.js
- * Dashboard stats and recent items for student portal.
- * Cache-first: data is fetched once and re-rendered from state.
- */
+/* student/dashboard.js — Dashboard stats and recent items for student portal. */
 
 import { state } from "./state.js";
 import { $, escapeHtml, formatDate, formatDeadline } from "../shared/helpers.js";

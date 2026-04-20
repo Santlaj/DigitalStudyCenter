@@ -1,7 +1,4 @@
-/**
- * teacher/boot.js
- * Auth guard, profile UI, logout for teacher portal.
- */
+/* teacher/boot.js — Teacher portal initialization, auth guard, and visibility polling. */
 
 import { auth, dashboard, setUser } from "../api.js";
 import { state, resetAllCache } from "./state.js";

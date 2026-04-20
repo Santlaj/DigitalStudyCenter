@@ -1,7 +1,4 @@
-/* ═══════════════════════════════════════════════════════
-   TEACHER PORTAL — profile.css
-   Profile layout, avatar card, role pill.
-   ═══════════════════════════════════════════════════════ */
+/* teacher/profile.css — Profile layout, avatar card, and role pill styles. */
 
 .profile-layout {
   display: grid;

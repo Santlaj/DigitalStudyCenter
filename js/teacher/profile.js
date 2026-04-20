@@ -1,7 +1,4 @@
-/**
- * teacher/profile.js
- * Profile save for teacher portal.
- */
+/* teacher/profile.js — Teacher profile update logic. */
 
 import { users } from "../api.js";
 import { state } from "./state.js";

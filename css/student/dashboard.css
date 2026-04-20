@@ -1,10 +1,6 @@
-/* ═══════════════════════════════════════════════════════
-   STUDENT PORTAL — dashboard.css
-   Stats grid, stat cards, dashboard panels, recent items,
-   badges, chart cards, courses grid.
-   ═══════════════════════════════════════════════════════ */
+/* STUDENT PORTAL — dashboard.css */
 
-/* ── STATS CARDS ── */
+/* Stats Cards */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -98,7 +94,7 @@
   color: var(--red);
 }
 
-/* ── DASHBOARD PANELS ── */
+/* Dashboard Panels */
 .dashboard-panels {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -140,7 +136,7 @@
   text-decoration: underline;
 }
 
-/* ── Recent Items ── */
+/* Recent Items */
 .recent-item {
   display: flex;
   align-items: center;
@@ -189,7 +185,7 @@
   white-space: nowrap;
 }
 
-/* ── Badge Colors ── */
+/* Badge Colors */
 .badge-green {
   background: #dcfce7;
   color: #15803d;
@@ -220,7 +216,7 @@
   color: #64748b;
 }
 
-/* ── CHART CARD ── */
+/* Chart Card */
 .chart-card {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
@@ -250,7 +246,7 @@
   max-height: 220px;
 }
 
-/* ── COURSES GRID ── */
+/* Courses Grid */
 .courses-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

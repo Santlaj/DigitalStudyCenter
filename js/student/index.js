@@ -1,7 +1,4 @@
-/**
- * student/index.js
- * Entry point — imports all student modules, handles navigation & event wiring.
- */
+/* student/index.js — Entry point for navigation and event wiring. */
 
 import { $, $$ } from "../shared/helpers.js";
 import { boot, logoutStudent }               from "./boot.js";
@@ -15,7 +12,7 @@ import { saveProfile }                       from "./profile.js";
 import { loadDashAttendancePreview }         from "./attendance.js";
 
 
-// NAVIGATION
+/* Navigation */
 function navigateTo(section) {
   $$(".section").forEach(s => s.classList.remove("active"));
   const el = $(`section-${section}`);
@@ -45,7 +42,7 @@ function setupGlobalSearch() {
 }
 
 
-// EVENT WIRING
+/* Event Wiring */
 function wireEvents() {
   $$(".nav-item[data-section]").forEach(item =>
     item.addEventListener("click", () => navigateTo(item.dataset.section))
@@ -110,7 +107,7 @@ function wireEvents() {
 }
 
 
-// INIT
+/* Init */
 document.addEventListener("DOMContentLoaded", () => {
   wireEvents();
   boot(async () => {

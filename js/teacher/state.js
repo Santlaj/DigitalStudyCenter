@@ -1,7 +1,4 @@
-/**
- * teacher/state.js
- * Shared mutable state for the teacher dashboard modules.
- */
+/* teacher/state.js — Shared mutable state for the teacher dashboard. */
 
 export const state = {
   currentTeacher:    null,
@@ -26,12 +23,12 @@ export const state = {
   // Dashboard cached stats
   cachedStats:       null,
 
-  // ═══ Paging ═══
+  // Paging
   studentsOffset:      0,
   notesOffset:         0,
   assignmentsOffset:   0,
 
-  // ═══ Loaded flags ═══
+  // Loaded flags
   // When true, the section re-renders from cached state instead of calling API
   dashboardLoaded:     false,
   notesLoaded:         false,

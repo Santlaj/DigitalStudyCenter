@@ -1,14 +1,11 @@
-/* ═══════════════════════════════════════════════════════
-   TEACHER PORTAL — responsive.css
-   All @media queries for the teacher dashboard.
-   ═══════════════════════════════════════════════════════ */
+/* teacher/responsive.css — Media queries for the teacher dashboard. */
 
-/* ── 1280px: 4-col stats → 2-col ── */
+/* 1280px: 4-col stats → 2-col */
 @media (max-width: 1280px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* ── 1024px: multi-col layouts collapse ── */
+/* 1024px: multi-col layouts collapse */
 @media (max-width: 1024px) {
   .assignments-layout { grid-template-columns: 1fr; }
   .profile-layout     { grid-template-columns: 1fr; }
@@ -17,7 +14,7 @@
   .main-content { padding: 24px 20px; }
 }
 
-/* ── 768px: sidebar slides off-screen, topnav adjusts ── */
+/* 768px: sidebar slides off-screen, topnav adjusts */
 @media (max-width: 768px) {
   :root { --sidebar-w: 260px; }
 
@@ -210,7 +207,7 @@
   .sidebar-collapse-btn { padding: 7px 10px; }
 }
 
-/* ── 480px: single column everything ── */
+/* 480px: single column everything */
 @media (max-width: 480px) {
   .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
   .stat-card { padding: 14px 12px 10px; }
@@ -247,7 +244,7 @@
   .data-table td { padding: 11px 12px; }
 }
 
-/* ── 360px: ultra-narrow phones ── */
+/* 360px: ultra-narrow phones */
 @media (max-width: 360px) {
   .stats-grid { grid-template-columns: 1fr; }
   .topnav-logout-btn { padding: 4px 8px; font-size: 0.70rem; }
@@ -255,7 +252,7 @@
   .att-controls-right { grid-template-columns: 1fr; }
 }
 
-/* ── Mobile: icon-only sidebar responsive ── */
+/* Mobile: icon-only sidebar responsive */
 @media (max-width: 768px) {
   .sidebar-icon-only {
     width: var(--sidebar-w);

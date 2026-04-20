@@ -1,8 +1,4 @@
-/**
- * student-dashboard.js
- * DigitalStudyCenter — Student Dashboard
- * Uses backend API via api.js instead of direct Supabase calls.
- */
+/* student-dashboard.js — Student Dashboard logic. */
 
 import {
   auth, notes, assignments, users, attendance,
@@ -21,25 +17,13 @@ let chartInitialised = false;
 
 // DOM HELPERS
 
-/**
- * Shortcut to get any HTML element by its ID.
- * Without this: You'd have to write document.getElementById("...") everywhere,
- * making the code much longer and harder to read.
- */
+// Get element by ID
 const $ = (id) => document.getElementById(id);
 
-/**
- * Shortcut to select multiple HTML elements matching a CSS selector.
- * Without this: You'd have to write document.querySelectorAll("...") everywhere.
- */
+// Select multiple elements
 const $$ = (sel) => document.querySelectorAll(sel);
 
-/**
- * Shows a small popup message (toast) at the bottom of the screen.
- * Used to notify the student about success/error/info events (e.g. "Assignment submitted!").
- * The toast auto-hides after 3.5 seconds.
- * Without this: The student would get no visual feedback after actions like submitting or downloading.
- */
+// Show toast notification
 function showToast(message, type = "info") {
   const t = $("toast");
   t.textContent = message;
@@ -48,13 +32,7 @@ function showToast(message, type = "info") {
   t._t = setTimeout(() => { t.className = "toast"; }, 3500);
 }
 
-/**
- * Toggles a button between "loading" and "idle" states.
- * When loading: disables the button and shows a spinner + "Please wait…".
- * When idle: re-enables the button and restores its original text.
- * Without this: Buttons could be clicked multiple times during API calls,
- * causing duplicate submissions, and users wouldn't know an action is in progress.
- */
+// Set button loading state
 function setLoading(btnEl, loading, idleHtml = "Submit") {
   if (!btnEl) return;
   btnEl.disabled = loading;
@@ -62,11 +40,7 @@ function setLoading(btnEl, loading, idleHtml = "Submit") {
     ? `<span class="spinner"></span>Please wait…` : idleHtml;
 }
 
-/**
- * Converts an ISO date string (e.g. "2026-04-10T12:00:00Z") into a readable format like "10 Apr 2026".
- * Returns "—" if no date is provided.
- * Without this: Raw ISO dates would appear in the UI, which are hard to read.
- */
+// Format date to DD MMM YYYY
 function formatDate(iso) {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("en-GB", {
@@ -74,11 +48,7 @@ function formatDate(iso) {
   });
 }
 
-/**
- * Converts an ISO date string into a readable format WITH time, like "10 Apr 2026, 14:30".
- * Used specifically for assignment deadlines where the exact time matters.
- * Without this: Students wouldn't see the exact time an assignment is due.
- */
+// Format deadline to DD MMM YYYY, HH:mm
 function formatDeadline(iso) {
   if (!iso) return "—";
   return new Date(iso).toLocaleString("en-GB", {
@@ -87,12 +57,7 @@ function formatDeadline(iso) {
   });
 }
 
-/**
- * Returns a human-readable countdown string like "3d 5h remaining" or "Overdue".
- * Shows how much time is left until an assignment deadline.
- * Without this: Students wouldn't have an at-a-glance countdown telling them
- * how much time they have left before a deadline.
- */
+// Deadline countdown string
 function deadlineCountdown(iso) {
   if (!iso) return "";
   const diff = new Date(iso) - new Date();
@@ -104,15 +69,7 @@ function deadlineCountdown(iso) {
   return "Due very soon";
 }
 
-/**
- * Returns a CSS class name based on the deadline urgency:
- *   - "overdue" if past deadline
- *   - "due-soon" if within 24 hours
- *   - "" (empty) if more than 24 hours away
- * Used to visually style assignment cards with urgency colors.
- * Without this: All assignment cards would look the same regardless of urgency.
- * Students couldn't visually distinguish overdue vs upcoming assignments.
- */
+// Deadline urgency class
 function deadlineClass(iso) {
   if (!iso) return "";
   const diff = new Date(iso) - new Date();
@@ -121,22 +78,13 @@ function deadlineClass(iso) {
   return "";
 }
 
-/**
- * Extracts the initials from a name (e.g. "Ravi Singh" → "RS").
- * Used for avatar circles in the sidebar and topnav when no profile photo exists.
- * Without this: Avatars would show nothing or a default "S" for all students.
- */
+// Get name initials
 function initials(name) {
   if (!name) return "S";
   return name.split(" ").map(p => p[0]?.toUpperCase() || "").filter(Boolean).slice(0, 2).join("");
 }
 
-/**
- * Escapes special HTML characters to prevent XSS (cross-site scripting) attacks.
- * Converts characters like <, >, &, " into their safe HTML entity equivalents.
- * Without this: If any data contains HTML like "<script>alert('hacked')</script>",
- * it would execute as real code in the browser — a critical security vulnerability.
- */
+// Escape HTML characters
 function escHtml(str) {
   if (str == null) return "";
   return String(str)
@@ -146,28 +94,16 @@ function escHtml(str) {
 
 
 
-/**
- * Returns the current month and year as a label, e.g. "April 2026".
- * Used for fee-related displays to show which month's fee is being referenced.
- * Without this: Fee cards wouldn't show which month they refer to.
- */
+// Current month/year label
 function currentMonthLabel() {
   return new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" });
 }
 
-// ──────────────────────────────────────────────────
-// BOOT SETUP
-// ──────────────────────────────────────────────────
+/* Boot Setup */
 
-/**
- * The main startup function — runs when the page loads.
- * 1. Checks if the user is logged in (via API session check)
- * 2. Verifies the user is actually a "student" (redirects teachers away)
- * 3. Shows the student's name/avatar in the UI
- * 4. Reveals the app and loads dashboard stats
- * Without this: The dashboard would never load. No auth check means anyone
- * could access student pages, and no data would be fetched.
- */
+
+
+// Main startup function
 async function boot() {
   try {
     const data = await auth.checkSession();
@@ -190,15 +126,10 @@ async function boot() {
 }
 
 // ──────────────────────────────────────────────────
-// PROFILE UI
+
 // ──────────────────────────────────────────────────
 
-/**
- * Fills in the student's name, initials, email, and other profile info
- * across all UI elements — sidebar, topnav, welcome message, and profile form.
- * Without this: The UI would show blank names, empty avatars, and the profile
- * form would have no pre-filled data to edit.
- */
+// Apply profile data to UI elements
 function applyProfileToUI() {
   const name = studentProfile?.full_name
     || `${studentProfile?.first_name || ""} ${studentProfile?.last_name || ""}`.trim()
@@ -222,28 +153,15 @@ function applyProfileToUI() {
   $("profile-bio").value = studentProfile?.bio || "";
 }
 
-/**
- * Hides the "loading/authenticating" screen and reveals the actual app.
- * Without this: The user would be stuck on a loading screen forever,
- * even after successful authentication.
- */
+// Show app shell after auth
 function showApp() {
   $("auth-guard").classList.add("hidden");
   $("app-shell").classList.add("visible");
 }
 
-// ──────────────────────────────────────────────────
-// DASHBOARD STATS
-// ──────────────────────────────────────────────────
+/* Dashboard Stats */
 
-/**
- * Fetches and displays the top-level dashboard numbers:
- * courses count, notes available, pending assignments, notifications badge.
- * Also triggers: fee status card update, attendance mini preview, recent notes/assignments.
- * Additionally refreshes the set of already-submitted assignment IDs.
- * Without this: The dashboard stat cards would show "—" forever and
- * all dynamic sections would remain empty.
- */
+// Fetch and display dashboard stats
 async function fetchDashboardStats() {
   try {
     const { stats } = await users.getDashboardStats();
@@ -278,12 +196,7 @@ async function fetchDashboardStats() {
   await Promise.all([loadDashRecentNotes(), loadDashRecentAssignments()]);
 }
 
-/**
- * Loads and renders the most recent notes on the dashboard "Recent Notes" card.
- * Shows each note's title, subject, and upload date.
- * Without this: The "Recent Notes" section on the dashboard would be empty
- * or show a permanent "Loading…" state.
- */
+// Load and render recent notes on dashboard
 async function loadDashRecentNotes() {
   try {
     const { notes: data } = await notes.recent();
@@ -307,12 +220,7 @@ async function loadDashRecentNotes() {
   }
 }
 
-/**
- * Loads and renders the 5 most recent assignments on the dashboard.
- * Each assignment shows its title, subject, deadline, and a colored status badge
- * (Overdue / Due today / Upcoming / Submitted).
- * Without this: The "Recent Assignments" section on the dashboard would be blank.
- */
+// Load and render recent assignments on dashboard
 async function loadDashRecentAssignments() {
   try {
     const { assignments: data } = await assignments.list();
@@ -348,17 +256,9 @@ async function loadDashRecentAssignments() {
 
 
 
-// ──────────────────────────────────────────────────
-// NOTES LIST
-// ──────────────────────────────────────────────────
+/* Notes List */
 
-/**
- * Fetches and displays all available notes in a searchable table.
- * Each row shows: title (with description preview), subject, teacher name, date, and a download button.
- * Supports optional search query parameter for filtering.
- * Without this: The "Notes" section would be empty. Students couldn't browse
- * or search for any study notes uploaded by teachers.
- */
+// Fetch and display notes table
 async function fetchNotes(query = "") {
   const tbody = $("notes-tbody");
   tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Loading…</td></tr>`;
@@ -408,17 +308,9 @@ async function fetchNotes(query = "") {
   }
 }
 
-// ──────────────────────────────────────────────────
-// DOWNLOAD NOTES
-// ──────────────────────────────────────────────────
+/* Download Notes */
 
-/**
- * Handles downloading a note PDF. Logs the download via API (to track download count),
- * then opens the file URL in a new browser tab.
- * Even if the logging API fails, the file still opens (download shouldn't be blocked by logging errors).
- * Without this: The download buttons on notes would do nothing. Students couldn't
- * access any of the uploaded PDF study materials.
- */
+// Handle note download and logging
 async function downloadNote(noteId, noteTitle, fileUrl) {
   if (!fileUrl) { showToast("File URL not available.", "error"); return; }
 
@@ -432,18 +324,9 @@ async function downloadNote(noteId, noteTitle, fileUrl) {
   }
 }
 
-// ──────────────────────────────────────────────────
-// ASSIGNMENTS LIST
-// ──────────────────────────────────────────────────
+/* Assignments List */
 
-/**
- * Fetches and displays all assignments as styled cards with status indicators.
- * Each card shows: title, subject, teacher, deadline (with countdown), description,
- * and a status pill (Overdue / Due today / Upcoming / Submitted).
- * Cards that aren't yet submitted show a "Submit" button; submitted ones show a disabled "Submitted" button.
- * Without this: The "Assignments" section would be empty. Students couldn't see
- * or submit any assignments posted by teachers.
- */
+// Fetch and display assignments as styled cards
 async function fetchAssignments(query = "") {
   const list = $("assignments-list");
   list.innerHTML = `<div class="empty-state-sm">Loading…</div>`;
@@ -513,17 +396,9 @@ async function fetchAssignments(query = "") {
   }
 }
 
-// ──────────────────────────────────────────────────
-// SUBMIT ASSIGNMENTS
-// ──────────────────────────────────────────────────
+/* Submit Assignments */
 
-/**
- * Opens the assignment submission modal for a specific assignment.
- * Resets all form fields (file input, error messages, progress bar) and
- * stores the assignment ID/title so the submit handler knows which assignment to submit to.
- * Without this: Clicking "Submit" on an assignment card would do nothing.
- * The submission modal would never appear.
- */
+// Open assignment submission modal
 function openSubmitModal(assignmentId, assignmentTitle) {
   pendingSubmit = { id: assignmentId, title: assignmentTitle };
   $("submit-assignment-title").textContent = assignmentTitle;
@@ -536,26 +411,13 @@ function openSubmitModal(assignmentId, assignmentTitle) {
   $("submit-modal").classList.add("open");
 }
 
-/**
- * Closes the assignment submission modal and clears the pending submission reference.
- * Without this: The modal would stay open forever after submitting or clicking cancel,
- * blocking the entire UI.
- */
+// Close assignment submission modal
 function closeSubmitModal() {
   $("submit-modal").classList.remove("open");
   pendingSubmit = null;
 }
 
-/**
- * Handles the actual assignment submission:
- * 1. Validates that a file is selected and under 1 MB
- * 2. Shows a progress bar during upload
- * 3. Sends the file to the server via API
- * 4. On success: marks assignment as submitted, shows toast, closes modal,
- *    and refreshes the assignments list + stats
- * Without this: The "Submit Assignment" confirm button would do nothing.
- * Students would have no way to submit their work for any assignment.
- */
+// Handle assignment submission flow
 async function submitAssignment() {
   $("submit-file-err").textContent = "";
   $("submit-general-err").textContent = "";
@@ -612,28 +474,15 @@ async function submitAssignment() {
   }
 }
 
-// ──────────────────────────────────────────────────
-// FEE REMINDER
-// ──────────────────────────────────────────────────
+/* Fee Reminder */
 
-/**
- * Determines whether to show a fee payment reminder banner.
- * Returns true if the fee is unpaid AND it's past the 5th of the month (grace period).
- * Without this: The logic to conditionally display fee reminders would be missing.
- * Students might never be reminded about unpaid fees, or be reminded too early.
- */
+// Check if fee reminder should be shown
 function shouldShowReminder(feeRecord) {
   if (!feeRecord || feeRecord.status === "paid") return false;
   return new Date().getDate() >= 5;
 }
 
-/**
- * Updates the fee status stat card on the dashboard.
- * Applies color styling based on payment status (green=paid, amber=pending, red=unpaid).
- * Also shows a global reminder banner if the fee is overdue.
- * Without this: The fee stat card on the dashboard would stay blank.
- * Students wouldn't see their fee payment status at a glance.
- */
+// Update fee status stat card and banner
 async function updateFeeStatCard() {
   try {
     const { fee, showReminder, currentMonth } = await fees.current();
@@ -743,17 +592,7 @@ function animateCounter(el, target, duration = 900) {
 // ATTENDANCE DETAILS
 // ──────────────────────────────────────────────────
 
-/**
- * The main attendance section loader. Fetches the student's attendance overview from the API
- * and delegates rendering to specialized functions:
- *   - Hero ring (overall percentage)
- *   - Dashboard mini-ring
- *   - Per-subject cards
- *   - Recent sessions timeline
- * On error: shows error states in all attendance UI sections.
- * Without this: The entire "Attendance" section would remain in a loading state
- * with no data. Students couldn't see any of their attendance information.
- */
+// Fetch and display attendance data
 async function fetchAttendance() {
   // Reset UI
   const arc = $("att-ring-arc");
@@ -793,13 +632,7 @@ async function fetchAttendance() {
   }
 }
 
-/**
- * Renders the large animated attendance ring on the attendance page.
- * Shows: percentage arc (animated), present/absent/total counts, stat tiles with bars,
- * and a warning alert if attendance is below 75% or 60%.
- * Without this: The big circular attendance indicator would be blank.
- * Students wouldn't see their overall attendance percentage or get low-attendance warnings.
- */
+// Render large animated attendance ring
 function renderAttHeroRing(pct, present, absent, total, subjectCount) {
   const arc = $("att-ring-arc");
   const pctEl = $("att-ring-pct");
@@ -856,12 +689,7 @@ function renderAttHeroRing(pct, present, absent, total, subjectCount) {
   }
 }
 
-/**
- * Renders the small attendance mini-ring on the dashboard page.
- * Shows a compact version of the attendance percentage as an animated SVG arc.
- * Without this: The small attendance preview ring on the main dashboard would be blank.
- * Students wouldn't have a quick attendance glance without navigating to the full section.
- */
+// Render dashboard attendance mini-ring
 function renderDashMiniRing(pct) {
   const arc = $("dash-att-arc");
   const pctEl = $("dash-att-pct");
@@ -884,13 +712,7 @@ function renderDashMiniRing(pct) {
   }, 18);
 }
 
-/**
- * Renders per-subject attendance cards showing breakdown for each subject.
- * Each card has: subject name, status pill (Good/Low/Critical), percentage with animation,
- * present/total fraction, an animated progress bar, and present/absent counts.
- * Without this: The per-subject attendance breakdown section would be empty.
- * Students couldn't see which specific subjects need attendance improvement.
- */
+// Render per-subject attendance cards
 function renderAttSubjectCardsFromAPI(subjects) {
   const container = $("att-subject-cards");
   if (!subjects.length) {
@@ -939,12 +761,7 @@ function renderAttSubjectCardsFromAPI(subjects) {
   }, 60);
 }
 
-/**
- * Renders the recent attendance sessions as a timeline.
- * Each entry shows: subject name, date, and a colored status badge (present/absent).
- * Without this: The "Recent Classes" timeline in the attendance section would be empty.
- * Students couldn't see their recent class-by-class attendance history.
- */
+// Render recent attendance sessions timeline
 function renderAttTimelineFromAPI(recent) {
   const container = $("att-timeline");
   const countEl = $("att-recent-count");
@@ -971,12 +788,7 @@ function renderAttTimelineFromAPI(recent) {
   }).join("");
 }
 
-/**
- * Renders the "empty" state when no attendance data exists at all.
- * Shows "0%" in the ring, zeroes in stat tiles, and "no data" messages in cards/timeline.
- * Without this: When there's no attendance data, the UI would show "—" or "Loading…"
- * instead of a clear "no data yet" message.
- */
+// Render attendance empty state
 function renderEmptyAttendance() {
   $("att-ring-pct").textContent = "0%";
   $("att-ring-footer").innerHTML = `<span>No attendance data recorded yet.</span>`;
@@ -988,11 +800,7 @@ function renderEmptyAttendance() {
   });
 }
 
-/**
- * Loads a compact attendance preview for the main dashboard page.
- * Fetches the overall attendance data and renders just the mini-ring if data exists.
- * Without this: The small attendance ring on the main dashboard would never be populated.
- */
+// Load attendance preview for dashboard
 async function loadDashAttendancePreview() {
   try {
     const data = await attendance.studentOverview();
@@ -1004,19 +812,9 @@ async function loadDashAttendancePreview() {
   }
 }
 
-// ──────────────────────────────────────────────────
-// FEE PAYMENT API
-// ──────────────────────────────────────────────────
+/* Fee Payment */
 
-/**
- * Main function for the "Fee Payment" section.
- * 1. Fetches the current month's fee status from the API
- * 2. Renders the fee status card (paid/pending/unpaid with visual styling)
- * 3. Shows a reminder banner if fees are overdue (past the 5th)
- * 4. Loads the full historical fee records table
- * Without this: The entire "Fee Payment" section would be empty.
- * Students couldn't see their current fee status or payment history.
- */
+// Fetch and display fee payment section
 async function fetchFeePayment() {
   try {
     const { fee, showReminder, currentMonth } = await fees.current();
@@ -1041,15 +839,7 @@ async function fetchFeePayment() {
   }
 }
 
-/**
- * Renders the current month's fee status card with:
- *   - Month label, amount, due date
- *   - Color-coded status badge (✓ PAID / ⏳ PENDING / ✗ UNPAID)
- *   - "Paid on" date if already paid
- *   - "OVERDUE" indicator if past due date and still unpaid
- * Without this: The fee card showing this month's status would be blank.
- * Students wouldn't know their current payment status or the due date.
- */
+// Render current month's fee card
 function renderCurrentFeeCard(feeRow, monthLabel, today) {
   const card = $("fee-current-card");
   const statusBadge = $("fee-status-badge");
@@ -1096,12 +886,7 @@ function renderCurrentFeeCard(feeRow, monthLabel, today) {
   }
 }
 
-/**
- * Fetches and renders the historical fee payment table showing all past months.
- * Each row shows: month, amount, status (with colored pill), due date, paid date, and receipt link.
- * Without this: The fee history table would be empty. Students couldn't review
- * their past payment records or download receipts.
- */
+// Load fee history table
 async function loadFeeHistory() {
   const tbody = $("fee-history-tbody");
   tbody.innerHTML = `<tr><td colspan="6" class="table-empty">Loading…</td></tr>`;
@@ -1149,16 +934,9 @@ async function loadFeeHistory() {
   }
 }
 
-// ──────────────────────────────────────────────────
-// ANNOUNCEMENTS
-// ──────────────────────────────────────────────────
+/* Announcements */
 
-/**
- * Fetches and displays all announcements from teachers as styled cards.
- * Each card shows: title, date, teacher name, and the full message.
- * Without this: The "Announcements" section would be empty. Students couldn't
- * see any messages or updates posted by their teachers.
- */
+// Fetch and display announcement feed
 async function fetchAnnouncements() {
   const feed = $("announcements-feed");
   feed.innerHTML = `<div class="empty-state-sm">Loading…</div>`;
@@ -1194,16 +972,9 @@ async function fetchAnnouncements() {
   }
 }
 
-// ──────────────────────────────────────────────────
-// ACTIVITY CHART
-// ──────────────────────────────────────────────────
+/* Activity Chart */
 
-/**
- * Loads and renders the student activity bar chart (Downloads + Submissions) using Chart.js.
- * Only runs once (skips if already initialised) to avoid duplicate charts.
- * Without this: The activity chart on the dashboard would be a blank canvas.
- * Students wouldn't see any visual breakdown of their download and submission history.
- */
+// Load and render activity chart using Chart.js
 async function loadActivityChart() {
   if (chartInitialised) return;
   chartInitialised = true;
@@ -1253,17 +1024,7 @@ async function loadActivityChart() {
   }
 }
 
-// ──────────────────────────────────────────────────
-// PROFILE SAVE
-// ──────────────────────────────────────────────────
-
-/**
- * Saves updated profile information (first name, last name, course, bio) to the server.
- * On success: updates the local profile object, refreshes all UI elements showing the name,
- * and displays a success message.
- * Without this: The "Save Changes" button on the profile page would do nothing.
- * Students couldn't update their name, course, or bio.
- */
+// Update student profile via API
 async function saveProfile() {
   $("profile-err").textContent = "";
   $("profile-success").classList.add("hidden");
@@ -1293,34 +1054,16 @@ async function saveProfile() {
   }
 }
 
-// ──────────────────────────────────────────────────
-// LOGOUT
-// ──────────────────────────────────────────────────
+/* Logout */
 
-/**
- * Logs the student out by calling the auth API logout endpoint.
- * This clears the session and redirects to the login page.
- * Without this: The logout button would do nothing. Students would be stuck
- * logged in with no way to sign out.
- */
+// Handle student logout
 function logoutStudent() {
   auth.logout();
 }
 
-// ──────────────────────────────────────────────────
-// NAVIGATION
-// ──────────────────────────────────────────────────
+/* Navigation */
 
-/**
- * Navigates to a specific section of the dashboard (e.g. "notes", "assignments").
- * 1. Shows the target section and hides all others
- * 2. Highlights the active sidebar nav item
- * 3. Triggers data loading for the target section
- * 4. On mobile: closes the sidebar after navigation
- * 5. Scrolls to the top of the content area
- * Without this: The entire single-page navigation would break. Clicking sidebar links
- * would do nothing — no section switching, no data loading, no visual feedback.
- */
+// Handle section navigation
 function navigateTo(section) {
   $$(".section").forEach(s => s.classList.remove("active"));
   const el = $(`section-${section}`);
@@ -1340,18 +1083,9 @@ function navigateTo(section) {
   document.querySelector(".main-content").scrollTop = 0;
 }
 
-// ──────────────────────────────────────────────────
-// FILE DROP INIT
-// ──────────────────────────────────────────────────
+/* File Drop Init */
 
-/**
- * Enables drag-and-drop file uploading on the assignment submission drop zone.
- * When a file is dragged over the zone, it highlights; when dropped, it sets the file input
- * and shows the filename + size label.
- * Also handles the normal "click to browse" file selection.
- * Without this: Students could only click "Browse" to select files for submission.
- * Drag-and-drop would not work, making the submission experience less convenient.
- */
+// Initialize assignment submission file drop zone
 function initSubmitFileDrop() {
   const zone = $("submit-drop-zone");
   const input = $("submit-file");
@@ -1379,17 +1113,9 @@ function initSubmitFileDrop() {
   });
 }
 
-// ──────────────────────────────────────────────────
-// GLOBAL SEARCH
-// ──────────────────────────────────────────────────
+/* Global Search */
 
-/**
- * Sets up the global search bar with debounced input.
- * When the student types a search query, it waits 400ms after the last keystroke
- * (to avoid spamming the API), then navigates to the notes section filtered by that query.
- * Without this: The global search bar (if present) would do nothing.
- * Students couldn't search for notes from the top navigation.
- */
+// Initialize global search debouncing
 function setupGlobalSearch() {
   const input = $("global-search");
   if (!input) return; // Search bar removed from UI
@@ -1405,18 +1131,9 @@ function setupGlobalSearch() {
   });
 }
 
-// ──────────────────────────────────────────────────
-// EVENT WIRING
-// ──────────────────────────────────────────────────
+/* Event Wiring */
 
-/**
- * Connects ALL interactive UI elements to their respective handler functions.
- * This includes: sidebar navigation clicks, attendance refresh button, logout,
- * sidebar toggle, notification bell, search inputs (with debounce),
- * submit modal buttons, profile save, file drag-and-drop, and global search.
- * Without this: The ENTIRE dashboard would be non-interactive. No button clicks,
- * no form submissions, no navigation — nothing would respond to user input.
- */
+// Wire all interactive elements to handlers
 function wireEvents() {
   $$(".nav-item[data-section]").forEach(item =>
     item.addEventListener("click", () => navigateTo(item.dataset.section))
@@ -1480,29 +1197,16 @@ function wireEvents() {
   setupGlobalSearch();
 }
 
-// ──────────────────────────────────────────────────
-// INIT EVENT
-// ──────────────────────────────────────────────────
+/* Init Event */
 
-/**
- * Entry point: when the page DOM is fully loaded, wire up all event listeners,
- * start the authentication/boot process, and load the activity chart after a short delay.
- * Without this: Nothing would ever run. The page would load as static HTML
- * with zero interactivity and no data.
- */
+// On DOM load, wire events and boot app
 document.addEventListener("DOMContentLoaded", () => {
   wireEvents();
   boot();
   setTimeout(loadActivityChart, 600);
 });
 
-/**
- * Global click handler using event delegation for:
- * 1. Dark mode toggle — switches between light/dark theme and saves preference to localStorage.
- * 2. Sidebar inner collapse — closes the sidebar on mobile when the collapse button is clicked.
- * Without this: The dark mode toggle button would do nothing. The sidebar collapse
- * button inside the sidebar would also stop working.
- */
+// Delegation for dark mode and mobile sidebar toggle
 document.addEventListener("click", (e) => {
   const dmToggle = e.target.closest("#dark-mode-toggle");
   if (dmToggle) {
@@ -1517,12 +1221,7 @@ document.addEventListener("click", (e) => {
   }
 });
 
-/**
- * Checks localStorage on page load for a saved dark mode preference.
- * If the user previously enabled dark mode, it re-applies the "dark-mode" class immediately.
- * Without this: Dark mode preference wouldn't persist. Every page reload would reset to light mode,
- * even if the user had previously switched to dark.
- */
+// Persist dark mode across page reloads
 if (localStorage.getItem("theme") === "dark") {
   document.body.classList.add("dark-mode"); document.documentElement.classList.add("dark-mode");
 }

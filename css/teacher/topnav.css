@@ -1,10 +1,6 @@
-/* ═══════════════════════════════════════════════════════
-   TEACHER PORTAL — topnav.css
-   Main wrap, top navigation bar, collapse button,
-   breadcrumb, icon buttons, teacher info, logout.
-   ═══════════════════════════════════════════════════════ */
+/* teacher/topnav.css — Top navigation bar, breadcrumb, and logout button styles. */
 
-/* ── MAIN WRAP ── */
+/* MAIN WRAP */
 .main-wrap {
   margin-left: var(--sidebar-w);
   flex: 1;
@@ -14,7 +10,7 @@
   transition: margin-left 0.28s cubic-bezier(0.4,0,0.2,1);
 }
 
-/* ── TOP NAV ── */
+/* TOP NAV */
 .topnav {
   height: var(--topnav-h);
   background: var(--topnav-bg);
@@ -36,7 +32,7 @@
   gap: 16px;
 }
 
-/* ── Sidebar collapse button in topnav ── */
+/* Sidebar collapse button in topnav */
 .sidebar-collapse-btn {
   display: flex;
   align-items: center;
@@ -85,7 +81,7 @@
   color: var(--text-main);
 }
 
-/* ── Right side ── */
+/* Right side */
 .topnav-right {
   display: flex;
   align-items: center;
@@ -126,7 +122,7 @@
   border: 2px solid var(--topnav-bg);
 }
 
-/* ── Teacher info ── */
+/* Teacher info */
 .topnav-teacher {
   display: flex;
   align-items: center;

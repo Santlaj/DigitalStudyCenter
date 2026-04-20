@@ -1,10 +1,6 @@
-/* ═══════════════════════════════════════════════════════
-   STUDENT PORTAL — attendance.css
-   Dashboard mini-card, attendance page hero, ring card,
-   stat tiles, subject cards, timeline.
-   ═══════════════════════════════════════════════════════ */
+/* student/attendance.css — Attendance dashboard cards, hero stats, and timeline. */
 
-/* ── Dashboard mini-card ── */
+/* Dashboard mini-card */
 .dash-attendance-card {
   background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
   border-radius: var(--radius-lg);
@@ -130,7 +126,7 @@
   margin-top: 3px;
 }
 
-/* ── ATTENDANCE PAGE — HERO & RING ── */
+/* Attendance Page Header & Ring */
 .att-page-header {
   display: flex;
   align-items: flex-start;
@@ -175,7 +171,7 @@
   transform: rotate(180deg);
 }
 
-/* ── Hero row layout ── */
+/* Hero row layout */
 .att-hero-row {
   display: grid;
   grid-template-columns: 280px 1fr;
@@ -184,7 +180,7 @@
   align-items: start;
 }
 
-/* ── Ring card ── */
+/* Ring card */
 .att-ring-card {
   background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 100%);
   border-radius: var(--radius-xl);
@@ -305,7 +301,7 @@
   line-height: 1.5;
 }
 
-/* ── Stat tiles ── */
+/* Stat tiles */
 .att-stat-tiles {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -434,7 +430,7 @@
   background: var(--red);
 }
 
-/* ── Alert tile ── */
+/* Alert tile */
 .att-tile-alert {
   grid-column: span 2;
   border-top: 3px solid var(--red);
@@ -461,7 +457,7 @@
   line-height: 1.55;
 }
 
-/* ── SUBJECT CARDS ── */
+/* SUBJECT CARDS */
 .att-subject-header {
   display: flex;
   align-items: center;
@@ -660,7 +656,7 @@
   font-weight: 500;
 }
 
-/* ── TIMELINE ── */
+/* TIMELINE */
 .att-timeline {
   display: flex;
   flex-direction: column;

@@ -1,8 +1,4 @@
-/* ═══════════════════════════════════════════════════════
-   STUDENT PORTAL — notes.css
-   Notes section styles.
-   All table/toolbar styles are in common.css.
-   ═══════════════════════════════════════════════════════ */
+/* student/notes.css — Notes section styles (mostly shared from common.css). */
 
 /* Notes section uses shared table-card, data-table, search-input,
    and table-toolbar styles from common.css.

@@ -1,8 +1,4 @@
-/**
- * teacher/dashboard.js
- * Dashboard stats and recent items for teacher portal.
- * Uses cache-first strategy: data is fetched once and re-rendered from state.
- */
+/* teacher/dashboard.js — Dashboard stats and recent items for teacher portal. */
 
 import { state } from "./state.js";
 import { $, escapeHtml, formatDate, formatDeadline } from "../shared/helpers.js";

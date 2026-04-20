@@ -1,9 +1,6 @@
-/* ═══════════════════════════════════════════════════════
-   STUDENT PORTAL — assignments.css (Redesigned)
-   Modern, compact, and responsive assignment UI.
-   ═══════════════════════════════════════════════════════ */
+/* STUDENT PORTAL — assignments.css */
 
-/* ── TOOLBAR ENHANCEMENTS ── */
+/* Toolbar Enhancements */
 .table-toolbar {
   display: flex;
   align-items: center;
@@ -59,7 +56,7 @@
   box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
 }
 
-/* ── ASSIGNMENTS LIST ── */
+/* Assignments List */
 .assignments-list {
   display: flex;
   flex-direction: column;
@@ -190,7 +187,7 @@
   justify-content: center;
 }
 
-/* ── RESPONSIVE ── */
+/* Responsive */
 @media (max-width: 768px) {
   .assignment-card {
     flex-direction: column;

@@ -1,16 +1,13 @@
-/* ═══════════════════════════════════════════════════════
-   STUDENT PORTAL — responsive.css
-   All @media queries for the student dashboard.
-   ═══════════════════════════════════════════════════════ */
+/* student/responsive.css — Responsiveness rules for student portal. */
 
-/* ── 1280px: Stats grid 2-col ── */
+/* 1280px: Stats grid 2-col */
 @media (max-width: 1280px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* ── 1024px: Profile + attendance adjustments ── */
+/* 1024px: Profile + attendance adjustments */
 @media (max-width: 1024px) {
   .profile-layout {
     grid-template-columns: 1fr;
@@ -40,7 +37,7 @@
   }
 }
 
-/* ── 768px: Sidebar off-screen, layout collapses ── */
+/* 768px: Sidebar off-screen, layout collapses */
 @media (max-width: 768px) {
   :root {
     --sidebar-w: 240px;
@@ -127,7 +124,7 @@
   }
 }
 
-/* ── 640px: Fee payment responsive ── */
+/* 640px: Fee payment responsive */
 @media (max-width: 640px) {
   .fee-current-card {
     flex-direction: column;
@@ -145,7 +142,7 @@
   }
 }
 
-/* ── 480px: Single column, smallest layout ── */
+/* 480px: Single column, smallest layout */
 @media (max-width: 480px) {
   .stats-grid {
     grid-template-columns: 1fr;

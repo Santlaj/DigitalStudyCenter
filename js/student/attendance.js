@@ -1,7 +1,4 @@
-/**
- * student/attendance.js
- * Full attendance section: hero ring, subject cards, timeline, preview.
- */
+/* student/attendance.js — Attendance logic: ring chart, subject cards, and timeline. */
 
 import { attendance } from "../api.js";
 import { state } from "./state.js";

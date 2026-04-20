@@ -1,10 +1,6 @@
-/* ═══════════════════════════════════════════════════════
-   STUDENT PORTAL — fee-payment.css
-   Fee stat card, reminder banner, current month card,
-   status badge, payment history pills.
-   ═══════════════════════════════════════════════════════ */
+/* student/fee-payment.css — Fee status cards, reminders, and payment history. */
 
-/* ── Stat card dynamic states ── */
+/* Stat card dynamic states */
 .fee-stat-card.fee-paid {
   --accent: #10b981;
 }
@@ -48,7 +44,7 @@
   color: var(--amber);
 }
 
-/* ── Reminder Banner ── */
+/* Reminder Banner */
 .fee-reminder-banner {
   display: flex;
   align-items: center;
@@ -121,7 +117,7 @@
   transform: translateY(-1px);
 }
 
-/* ── Current Month Card ── */
+/* Current Month Card */
 .fee-current-card {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
@@ -231,7 +227,7 @@
   gap: 10px;
 }
 
-/* ── Status badge ── */
+/* Status badge */
 .fee-status-badge {
   display: flex;
   align-items: center;
@@ -316,7 +312,7 @@
   display: none;
 }
 
-/* ── Fee History Table Pills ── */
+/* Fee History Table Pills */
 .fee-pill-paid {
   background: #dcfce7;
   color: #15803d;

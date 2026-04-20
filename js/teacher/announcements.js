@@ -1,8 +1,4 @@
-/**
- * teacher/announcements.js
- * Teacher announcement logic
- * Uses cache-first: re-renders from state.allAnnouncements if already loaded.
- */
+/* teacher/announcements.js — Teacher announcement feed and posting logic. */
 
 import { $, escapeHtml, formatDate, showToast } from "../shared/helpers.js";
 import { announcements } from "../api.js";

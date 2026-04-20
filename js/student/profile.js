@@ -1,7 +1,4 @@
-/**
- * student/profile.js
- * Profile save for student portal.
- */
+/* student/profile.js — Student profile update logic. */
 
 import { users } from "../api.js";
 import { state } from "./state.js";

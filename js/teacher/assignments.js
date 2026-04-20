@@ -1,8 +1,4 @@
-/**
- * teacher/assignments.js
- * Create form, assignments table, and delete for teacher portal.
- * Uses cache-first: re-renders from state.allAssignments if already loaded.
- */
+/* teacher/assignments.js — Teacher assignment creation, listing, and submissions. */
 
 import { assignments } from "../api.js";
 import { state } from "./state.js";

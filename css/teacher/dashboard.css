@@ -1,10 +1,6 @@
-/* ═══════════════════════════════════════════════════════
-   TEACHER PORTAL — dashboard.css
-   Stats grid, stat cards, dashboard panels, recent items,
-   badges.
-   ═══════════════════════════════════════════════════════ */
+/* teacher/dashboard.css — Stats grid, stat cards, dashboard panels, recent items, and badges. */
 
-/* ── STATS CARDS ── */
+/* STATS CARDS */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -84,7 +80,7 @@
 .stat-trend.neutral  { background: #f1f5f9; color: var(--text-muted); }
 .stat-trend.negative { background: var(--red-soft); color: var(--red); }
 
-/* ── DASHBOARD PANELS ── */
+/* DASHBOARD PANELS */
 .dashboard-panels {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -123,7 +119,7 @@
 
 .panel-link:hover { text-decoration: underline; }
 
-/* ── Recent Items ── */
+/* Recent Items */
 .recent-item {
   display: flex;
   align-items: center;

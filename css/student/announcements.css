@@ -1,15 +1,13 @@
-/*  STUDENT PORTAL — announcements.css
-   Announcements feed and announcement cards.
-*/
+/* student/announcements.css — Announcements feed and cards for student portal. */
 
-/* ── ANNOUNCEMENTS FEED ── */
+/* Announcements Feed */
 .announcements-feed {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-/* ── ANNOUNCEMENT CARD ── */
+/* Announcement Card */
 .announcement-card {
   --card-accent: #4f46e5;
   position: relative;
@@ -28,7 +26,7 @@
   transform: translateY(-2px);
 }
 
-/* ── HEADER ROW ── */
+/* Header Row */
 .announcement-header {
   display: flex;
   align-items: flex-start;
@@ -37,7 +35,7 @@
   margin-bottom: 8px;
 }
 
-/* ── TITLE ── */
+/* Title */
 .announcement-title {
   font-family: 'Sora', sans-serif;
   font-size: 1.05rem;
@@ -46,7 +44,7 @@
   line-height: 1.4;
 }
 
-/* ── DATE BADGE ── */
+/* Date Badge */
 .announcement-date {
   font-size: 0.75rem;
   color: var(--text-muted);
@@ -58,7 +56,7 @@
   font-weight: 500;
 }
 
-/* ── TEACHER LINE ── */
+/* Teacher Line */
 .announcement-teacher {
   font-size: 0.8rem;
   color: var(--card-accent, var(--accent));
@@ -66,7 +64,7 @@
   margin-bottom: 12px;
 }
 
-/* ── MESSAGE BODY ── */
+/* Message Body */
 .announcement-message {
   font-size: 0.875rem;
   color: var(--text-sub);
@@ -80,7 +78,7 @@
   border: 1px solid rgba(99, 102, 241, 0.06);
 }
 
-/* ── DARK MODE ── */
+/* Dark Mode */
 .dark-mode .announcement-card {
   border-color: rgba(255, 255, 255, 0.06);
   border-left-color: var(--card-accent);
@@ -96,7 +94,7 @@
   border-color: rgba(255, 255, 255, 0.05);
 }
 
-/* ── RESPONSIVE ── */
+/* Responsive */
 @media (max-width: 600px) {
   .announcement-card {
     padding: 16px 18px 16px 22px;

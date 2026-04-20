@@ -1,7 +1,4 @@
-/**
- * student/boot.js
- * Auth guard, profile UI, logout.
- */
+/* student/boot.js — Student portal initialization, auth guard, and background sync. */
 
 import { auth, dashboard } from "../api.js";
 import { state, resetAllCache } from "./state.js";

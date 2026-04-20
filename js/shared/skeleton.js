@@ -1,7 +1,4 @@
-/**
- * js/shared/skeleton.js
- * Centralized structural skeleton loader components.
- */
+/* shared/skeleton.js — Modular skeleton loading components. */
 
 export function tableSkeleton(rows = 5, cols = 5) {
   let trs = "";

@@ -1,7 +1,4 @@
-/**
- * teacher/attendance.js
- * Attendance: load students, mark, save, history, detail modal.
- */
+/* teacher/attendance.js — Attendance marking, history, and session management. */
 
 import { attendance, users } from "../api.js";
 import { state } from "./state.js";

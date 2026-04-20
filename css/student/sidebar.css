@@ -1,9 +1,6 @@
-/* ═══════════════════════════════════════════════════════
-   STUDENT PORTAL — sidebar.css
-   Sidebar layout, logo, student card, navigation, collapse.
-   ═══════════════════════════════════════════════════════ */
+/* student/sidebar.css — Sidebar layout, logo, navigation, and collapse logic. */
 
-/* ── SIDEBAR ── */
+/* Sidebar */
 .sidebar {
   width: var(--sidebar-w);
   background: var(--sidebar-bg);
@@ -30,7 +27,7 @@
   background: linear-gradient(90deg, var(--accent) 0%, var(--green) 100%);
 }
 
-/* ── Logo ── */
+/* Logo */
 .sidebar-logo {
   display: flex;
   align-items: center;
@@ -61,7 +58,7 @@
   color: var(--accent-light);
 }
 
-/* ── Student Card ── */
+/* Student Card */
 .sidebar-student-card {
   display: flex;
   align-items: center;
@@ -102,7 +99,7 @@
   margin-top: 1px;
 }
 
-/* ── Navigation ── */
+/* Navigation */
 .sidebar-nav {
   flex: 1;
   padding: 14px 14px 0;
@@ -152,7 +149,7 @@
   opacity: 1;
 }
 
-/* ── Sidebar Logout ── */
+/* Sidebar Logout */
 .sidebar-logout {
   display: flex;
   align-items: center;
@@ -176,7 +173,7 @@
   color: var(--red);
 }
 
-/* ── Sidebar Inner Collapse Button ── */
+/* Sidebar Inner Collapse Button */
 .sidebar-inner-collapse {
   display: flex;
   align-items: center;

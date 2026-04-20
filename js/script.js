@@ -26,7 +26,7 @@ const redirectMap = {
   teacher: "teacher-portal",
 };
 
-// Helpers
+/* Helpers */
 
 function clearErrors() {
   document.querySelectorAll(".error-msg").forEach((el) => (el.textContent = ""));
@@ -68,7 +68,7 @@ function validateLoginFields(emailId, passId, emailErrId, passErrId) {
   return { valid, email, pass };
 }
 
-// Role Switch
+/* Role Switch */
 
 function switchRole(role) {
   document.querySelectorAll(".form-section").forEach((f) => f.classList.remove("active"));
@@ -82,7 +82,7 @@ document.querySelectorAll(".toggle-btn").forEach((btn) => {
   btn.addEventListener("click", () => switchRole(btn.dataset.role));
 });
 
-// MFA Logic
+/* MFA Logic */
 
 let mfaPendingState = {
   tempToken: null,
@@ -149,7 +149,7 @@ async function handleMfaSubmit(setupPhase) {
 document.getElementById("teacher-mfa-setup-submit")?.addEventListener("click", () => handleMfaSubmit(true));
 document.getElementById("teacher-mfa-verify-submit")?.addEventListener("click", () => handleMfaSubmit(false));
 
-// Login
+/* Login */
 
 async function handleLogin(role) {
   clearErrors();
@@ -187,7 +187,7 @@ async function handleLogin(role) {
 document.getElementById("student-login-submit").addEventListener("click", () => handleLogin("student"));
 document.getElementById("teacher-login-submit").addEventListener("click", () => handleLogin("teacher"));
 
-// Enter Key Support
+/* Enter Key Support */
 
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Enter") return;
@@ -208,7 +208,7 @@ document.addEventListener("keydown", (e) => {
   if (active?.id === "form-teacher") handleLogin("teacher");
 });
 
-// Forgot Password
+/* Forgot Password */
 
 let forgotPasswordEmail = "";
 
@@ -286,7 +286,7 @@ document.querySelectorAll("[data-open-forgot]").forEach((btn) => btn.addEventLis
 document.getElementById("close-forgot-modal").addEventListener("click", closeForgotModal);
 modal.addEventListener("click", (e) => { if (e.target === e.currentTarget) closeForgotModal(); });
 
-// Step navigation
+/* Step Navigation */
 document.getElementById("forgot-password-back-to-step-1").addEventListener("click", () => goToFpStep(1));
 document.getElementById("forgot-password-back-to-step-2").addEventListener("click", () => goToFpStep(2));
 document.getElementById("forgot-password-done-button").addEventListener("click", closeForgotModal);
@@ -430,7 +430,7 @@ async function updatePassword() {
 document.getElementById("forgot-password-update-button").addEventListener("click", updatePassword);
 
 
-// Password Strength Meter
+/* Password Strength Meter */
 function measureStrength(pw) {
   let score = 0;
   if (pw.length >= 8) score++;
@@ -463,7 +463,7 @@ document.getElementById("forgot-password-new-password").addEventListener("input"
   label.style.color = lvl.color;
 });
 
-// Auto-Redirect
+/* Auto-Redirect */
 
 function handleResetRedirect() {
   const params = new URLSearchParams(window.location.search);

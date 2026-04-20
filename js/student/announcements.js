@@ -1,8 +1,4 @@
-/**
- * student/announcements.js
- * Announcements feed for student portal.
- * Cache-first: re-renders from state on re-navigation.
- */
+/* student/announcements.js — Announcements feed logic for student portal. */
 
 import { announcements } from "../api.js";
 import { state } from "./state.js";
