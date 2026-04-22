@@ -164,7 +164,7 @@ DigitalStudyCenter/
 |---|---|
 | **HTML5** | Semantic page structure |
 | **CSS3** | Custom responsive styling, dark mode, animations |
-| **Vanilla JavaScript** | ES Modules, no framework dependency |
+| **JavaScript** | ES Modules, no framework dependency |
 | **Chart.js** | Interactive analytics charts |
 
 </td>
