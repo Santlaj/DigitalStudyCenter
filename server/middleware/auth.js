@@ -4,7 +4,9 @@
  * Validates the Supabase access token and attaches user info to req.
  */
 
+const crypto = require("crypto");
 const { supabaseAdmin } = require("../lib/supabase");
+const redis = require("../lib/redis");
 
 /**
  * Authenticate request using Bearer token.
@@ -20,31 +22,62 @@ async function authenticate(req, res, next) {
   const token = authHeader.split(" ")[1];
 
   try {
-    // 1. Validate JWT and get user from Supabase Auth
-    // Use auth.getUser(token) to check if token is still valid
-    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    const cacheKey = `auth:session:${tokenHash}`;
     
-    if (error || !user) {
-      return res.status(401).json({ error: "Invalid or expired token." });
+    let authData = null;
+
+    // 1. Try Redis Cache
+    try {
+      const cached = await redis.get(cacheKey);
+      if (cached) {
+        authData = JSON.parse(cached);
+        console.log(`[Auth Cache] ⚡ HIT: Supabase Auth Bypassed for ${authData.email}`);
+      }
+    } catch (e) { /* ignore redis err */ }
+
+    // 2. Cache Miss: Fetch from Supabase
+    if (!authData) {
+      console.log(`[Auth Cache] 🐌 MISS: Fetching from Supabase...`);
+      const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+      if (error || !user) return res.status(401).json({ error: "Invalid or expired token." });
+
+      let aal = 'aal1';
+      try {
+        const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        aal = payload.aal || 'aal1';
+      } catch (e) {}
+
+      authData = {
+        id: user.id,
+        email: user.email,
+        role: user.user_metadata?.role || "student",
+        fullName: user.user_metadata?.full_name || user.email,
+        aal: aal
+      };
+
+      try {
+        // Cache for 300 seconds (5 minutes)
+        await redis.setex(cacheKey, 300, JSON.stringify(authData));
+      } catch (e) { /* ignore redis err */ }
     }
 
-    // 2. Attach basic user info from JWT metadata
+    // 3. Attach cached auth info
     req.user = {
-      id: user.id,
-      email: user.email,
-      role: user.user_metadata?.role || "student",
-      fullName: user.user_metadata?.full_name || user.email,
+      id: authData.id,
+      email: authData.email,
+      role: authData.role,
+      fullName: authData.fullName
     };
+    req.aal = authData.aal;
 
-    // 3. Lazy profile loader — only queries DB when actually needed
-    // Teachers: skip profile query (JWT role is enough for most routes)
-    // Students: load eagerly (need course for filtering notes/assignments)
+    // 4. Lazy profile loader
     req.getProfile = async () => {
       if (req._profile !== undefined) return req._profile;
       const { data: profile } = await supabaseAdmin
         .from("profiles")
         .select("role, full_name, class, subject, is_active")
-        .eq("id", user.id)
+        .eq("id", req.user.id)
         .single();
       req._profile = profile || null;
       if (profile) {
@@ -57,18 +90,8 @@ async function authenticate(req, res, next) {
       return req._profile;
     };
 
-    // Students always need profile (for course-based filtering)
     if (req.user.role === "student") {
       await req.getProfile();
-    }
-
-    // Parse JWT to extract AAL level (Authentication Assurance Level)
-    try {
-      const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-      // Supabase natively places aal or amr in the token for MFA
-      req.aal = payload.aal || 'aal1';
-    } catch(e) {
-      req.aal = 'aal1';
     }
 
     // MANDATORY MFA for teachers

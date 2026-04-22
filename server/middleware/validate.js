@@ -1,13 +1,11 @@
-/**
- * middleware/validate.js
- * Input validation schemas using express-validator.
- */
+ // middleware/validate.js
+ // Input validation schemas using express-validator.
 
 const { body, param, validationResult } = require("express-validator");
 
-/**
- * Run validation and return errors if any.
- */
+
+// Run validation and return errors if any.
+
 function handleValidation(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -17,8 +15,7 @@ function handleValidation(req, res, next) {
   next();
 }
 
-/* Auth validators */
-
+// Auth validation
 const loginRules = [
   body("email").isEmail().withMessage("Enter a valid email address.").normalizeEmail(),
   body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters."),
@@ -42,7 +39,7 @@ const resetPasswordRules = [
   handleValidation,
 ];
 
-/* Notes validators */
+//Notes validators 
 
 const noteUploadRules = [
   body("title").trim().notEmpty().withMessage("Title is required.").isLength({ max: 200 }),
@@ -96,7 +93,6 @@ const saveAttendanceRules = [
 ];
 
 /* ID param validator */
-
 const idParamRule = [
   param("id").notEmpty().withMessage("ID is required."),
   handleValidation,

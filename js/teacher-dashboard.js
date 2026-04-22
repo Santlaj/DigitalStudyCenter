@@ -472,91 +472,93 @@ async function deleteAssignment(id) {
 
 /* Student List */
 
-// Fetch and display full list of students
+let studentDetailsCache = new Map();
+
+// Fetch and display full list of students (minimal data)
 async function fetchStudents(query = "") {
   const tbody = $("students-tbody");
-  tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Loading…</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="3" class="table-empty">Loading…</td></tr>`;
 
   try {
-    const { students: data } = await users.listStudents(query);
+    const { students: data } = await users.listStudents(query, 50, 0, true);
     allStudents = data || [];
     $("students-count").textContent =
       `${allStudents.length} student${allStudents.length !== 1 ? "s" : ""}`;
 
     if (!allStudents.length) {
-      tbody.innerHTML = `<tr><td colspan="7" class="table-empty">No students found. Add your first student!</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="3" class="table-empty">No students found. Add your first student!</td></tr>`;
       return;
     }
 
     tbody.innerHTML = allStudents.map(s => {
-      const name      = s.full_name || `${s.first_name || ""} ${s.last_name || ""}`.trim() || "—";
-      const ini       = initials(name);
-      const lastAct   = s.last_activity ? formatDeadline(s.last_activity) : "Never";
-      const isActive  = s.is_active !== undefined
-        ? s.is_active
-        : (s.last_activity && (new Date() - new Date(s.last_activity)) < 7 * 86400000);
-
-      const feesPaid  = s.fees_status === "paid";
-      const feesLabel = feesPaid ? "Paid" : (s.fees_status || "Unpaid");
-      const feesCls   = feesPaid ? "pill-green" : "pill-amber";
-      const feesBtnLabel = feesPaid ? "Mark Unpaid" : "Mark Paid";
-      const feesAction   = feesPaid ? "unpaid" : "paid";
+      const name = s.full_name || `${s.first_name || ""} ${s.last_name || ""}`.trim() || "—";
+      const ini  = initials(name);
 
       return `
-        <tr class="${!isActive ? 'student-row-inactive' : ''}">
+        <tr>
           <td>
             <div style="display:flex;align-items:center;gap:10px">
               <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;font-weight:700;font-size:0.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">${escHtml(ini)}</div>
               <span>${escHtml(name)}</span>
             </div>
           </td>
-          <td>${escHtml(s.email)}</td>
           <td>${escHtml(s.course || "—")}</td>
-          <td>${lastAct}</td>
-          <td><span class="pill ${feesCls}">${escHtml(feesLabel)}</span></td>
-          <td><span class="pill ${isActive ? "pill-green" : "pill-red"}">${isActive ? "Active" : "Inactive"}</span></td>
           <td style="white-space:nowrap">
-            <button class="btn-icon fees-toggle-btn"
+            <button class="btn-primary btn-sm view-student-btn"
               data-student-id="${escHtml(s.id)}"
-              data-student-name="${escHtml(name)}"
-              data-fees-action="${feesAction}"
-              title="${feesBtnLabel}">
-              ${feesPaid ? "💸 Mark Unpaid" : "✅ Mark Paid"}
-            </button>
-            <button class="btn-icon ${isActive ? "deactivate-btn" : "activate-btn"}"
-              data-student-id="${escHtml(s.id)}"
-              data-student-name="${escHtml(name)}"
-              data-is-active="${isActive ? "true" : "false"}"
-              title="${isActive ? "Deactivate" : "Activate"}">
-              ${isActive ? "🚫 Deactivate" : "✅ Activate"}
+              title="View Details">
+              View
             </button>
           </td>
         </tr>
       `;
     }).join("");
 
-    // Wire fees toggle buttons
-    tbody.querySelectorAll(".fees-toggle-btn").forEach(btn => {
-      btn.addEventListener("click", () =>
-        updateFeesStatus(btn.dataset.studentId, btn.dataset.studentName, btn.dataset.feesAction)
-      );
+    // Wire view buttons
+    tbody.querySelectorAll(".view-student-btn").forEach(btn => {
+      btn.addEventListener("click", () => openStudentDetails(btn.dataset.studentId));
     });
 
-    // Wire activate/deactivate buttons
-    tbody.querySelectorAll(".deactivate-btn, .activate-btn").forEach(btn => {
-      btn.addEventListener("click", async () => {
-        const newActive = btn.dataset.isActive === "false";
-        try {
-          await users.updateStudentStatus(btn.dataset.studentId, newActive);
-          showToast(`${btn.dataset.studentName} ${newActive ? "activated" : "deactivated"}.`, "success");
-          await fetchStudents($("students-search").value);
-        } catch (err) {
-          showToast("Update failed: " + err.message, "error");
-        }
-      });
-    });
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Error: ${escHtml(err.message)}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="3" class="table-empty">Error: ${escHtml(err.message)}</td></tr>`;
+  }
+}
+
+async function openStudentDetails(studentId) {
+  const modal = $("student-analytics-modal");
+  const content = $("student-analytics-content");
+  modal.classList.add("open");
+  content.innerHTML = `<div class="empty-state-sm">Loading analytics...</div>`;
+
+  try {
+    let data;
+    if (studentDetailsCache.has(studentId)) {
+      data = studentDetailsCache.get(studentId);
+    } else {
+      data = await users.getStudentAnalytics(studentId);
+      studentDetailsCache.set(studentId, data);
+    }
+
+    const s = data.student;
+    content.innerHTML = `
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div class="form-card">
+          <h3 style="margin-bottom: 10px;">Details</h3>
+          <p><strong>Email:</strong> ${escHtml(s.email)}</p>
+          <p><strong>Fees Status:</strong> <span class="pill ${s.fees_status === 'paid' ? 'pill-green' : 'pill-amber'}">${escHtml(s.fees_status || 'unpaid')}</span></p>
+          <p><strong>Status:</strong> <span class="pill ${s.is_active ? 'pill-green' : 'pill-red'}">${s.is_active ? 'Active' : 'Inactive'}</span></p>
+          <p><strong>Last Activity:</strong> ${escHtml(formatDeadline(s.last_activity))}</p>
+        </div>
+        <div class="form-card">
+          <h3 style="margin-bottom: 10px;">Performance</h3>
+          <p><strong>Attendance:</strong> ${data.attendance.percentage}%</p>
+          <p><strong>Assignments:</strong> ${data.assignments.submitted} / ${data.assignments.total}</p>
+          <p><strong>Note Downloads:</strong> ${data.notes.totalDownloads}</p>
+        </div>
+      </div>
+    `;
+  } catch(err) {
+    content.innerHTML = `<div class="empty-state-sm">Error loading details: ${escHtml(err.message)}</div>`;
   }
 }
 
@@ -828,6 +830,16 @@ function wireEvents() {
 
   // Fees auto-mark
   $("btn-auto-mark-inactive").addEventListener("click", autoMarkInactiveUnpaid);
+
+  // Student Analytics Modal
+  const closeStudentAnalytics = () => {
+    $("student-analytics-modal").classList.remove("open");
+  };
+  $("student-analytics-close").addEventListener("click", closeStudentAnalytics);
+  $("student-analytics-close-btn").addEventListener("click", closeStudentAnalytics);
+  $("student-analytics-modal").addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) closeStudentAnalytics();
+  });
 
   initFileDrop();
 }

@@ -125,9 +125,6 @@ async function boot() {
   }
 }
 
-// ──────────────────────────────────────────────────
-
-// ──────────────────────────────────────────────────
 
 // Apply profile data to UI elements
 function applyProfileToUI() {
@@ -178,8 +175,10 @@ async function fetchDashboardStats() {
       $("notif-badge").classList.add("hidden");
     }
 
+
     // Fee stat card
     await updateFeeStatCard();
+
     // Attendance mini preview
     await loadDashAttendancePreview();
 
