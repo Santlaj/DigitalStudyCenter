@@ -6,13 +6,37 @@ export function tableSkeleton(rows = 5, cols = 5) {
     let tds = "";
     for (let j = 0; j < cols; j++) {
       if (j === 0) {
-        tds += `<td><div style="display:flex;align-items:center;gap:10px"><div class="skeleton skeleton-avatar"></div><div class="skeleton skeleton-line" style="width:80%; margin:0"></div></div></td>`;
+        tds +=
+          `
+        <td>
+          <div 
+            style="display:flex;
+            align-items:center;
+            gap:10px">
+            <div class="skeleton skeleton-avatar"></div>
+            <div class="skeleton skeleton-line" style="width:80%; margin:0"></div>
+          </div>
+        </td>
+        `;
       } else if (j === cols - 2) {
-        tds += `<td><div class="skeleton skeleton-pill"></div></td>`;
+        tds += `
+        <td>
+          <div class="skeleton skeleton-pill"></div>
+        </td>
+        `;
       } else if (j === cols - 1) {
-        tds += `<td><div class="skeleton skeleton-action"></div></td>`;
+        tds +=
+          `<td>
+            <div class="skeleton skeleton-action"></div>
+          </td>
+        `;
       } else {
-        tds += `<td><div class="skeleton skeleton-line" style="margin:0"></div></td>`;
+        tds +=
+          `
+        <td>
+        <div class="skeleton skeleton-line" style="margin:0"></div>
+        </td>
+        `;
       }
     }
     trs += `<tr class="skeleton-tr">${tds}</tr>`;

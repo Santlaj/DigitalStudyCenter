@@ -29,3 +29,7 @@ body {
   color: var(--text-main);
   background: var(--bg-panel);
 }
+
+.hidden {
+  display: none !important;
+}
