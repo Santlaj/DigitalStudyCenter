@@ -1,8 +1,3 @@
-/**
- * routes/dashboard.js
- * Production-grade dashboard summary endpoint.
- * Limited recent items and aggregated counts only.
- */
 
 const express = require("express");
 const router = express.Router();

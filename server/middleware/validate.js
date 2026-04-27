@@ -23,6 +23,7 @@ const loginRules = [
   handleValidation,
 ];
 
+
 const forgotPasswordRules = [
   body("email").isEmail().withMessage("Enter a valid email address.").normalizeEmail(),
   handleValidation,

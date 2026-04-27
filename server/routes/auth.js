@@ -33,7 +33,12 @@ router.post("/login", authLimiter, loginRules, async (req, res) => {
     const { data, error } = await tempClient.auth.signInWithPassword({ email, password });
 
     if (error) {
-      return res.status(401).json({ error: error.message || "Invalid credentials." });
+      // Supabase returns "User is banned" when ban_duration is set (i.e. student is deactivated).
+      // Replace with a friendlier message so students understand the situation.
+      const msg = error.message?.toLowerCase().includes("banned")
+        ? "Your account has been deactivated.\n Please contact your teacher to reactivate it."
+        : (error.message || "Invalid credentials.");
+      return res.status(401).json({ error: msg });
     }
 
     const { user, session } = data;

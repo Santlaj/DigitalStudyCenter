@@ -163,3 +163,36 @@ body.dark-mode .modal-close:hover {
   color: #fff !important;
   background: rgba(255,255,255,0.1) !important;
 }
+
+/* ── Student Analytics Modal ── */
+body.dark-mode .student-analytics-header,
+body.dark-mode .student-analytics-card {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+body.dark-mode .student-analytics-header h2,
+body.dark-mode .student-analytics-card h3 {
+  color: #f8fafc !important;
+}
+
+body.dark-mode .student-analytics-details-grid div,
+body.dark-mode .student-analytics-stat-list div,
+body.dark-mode .student-analytics-stat-list li {
+  color: #cbd5e1 !important;
+}
+
+body.dark-mode .student-analytics-stat-highlight {
+  color: #e2e8f0 !important;
+}
+
+body.dark-mode .student-analytics-table th,
+body.dark-mode .student-analytics-table td {
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+body.dark-mode #student-analytics-content {
+  color: #f8fafc !important;
+}

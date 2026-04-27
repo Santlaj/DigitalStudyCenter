@@ -132,9 +132,31 @@ router.get("/students", authenticate, requireRole("teacher"), async (req, res) =
       } else {
         students = students.map(s => ({ ...s, fees_status: "unpaid" }));
       }
+
+      // Override is_active from Supabase Auth ban state (source of truth).
+      // profiles.is_active may be stale because a DB trigger blocks direct updates.
+      // The banned-IDs Set is cached for 30 s so listUsers() fires at most once per
+      // 30-second window regardless of how many times the teacher views/searches students.
+      // The cache is busted automatically after every activate/deactivate (invalidatePrefix).
+      try {
+        const bannedIds = await getOrSet("users:banned-ids", async () => {
+          const { data: authData } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+          const now = new Date();
+          return (authData?.users || [])
+            .filter(u => u.banned_until && new Date(u.banned_until) > now)
+            .map(u => u.id);
+        }, 30); // 30-second TTL
+
+        const bannedSet = new Set(bannedIds);
+        students = students.map(s => ({
+          ...s,
+          is_active: !bannedSet.has(s.id),
+        }));
+      } catch (authErr) {
+        // Non-fatal: fall back to profiles.is_active if Auth lookup fails
+        console.warn("Auth ban-state lookup warning (non-fatal):", authErr.message);
+      }
     }
-    // last_activity is already stored in profiles (updated on login in auth.js)
-    // No need for per-user Supabase Auth API calls
 
     res.json({ students, count: count || 0 });
   } catch (err) {
@@ -181,24 +203,39 @@ router.post("/students", authenticate, requireRole("teacher"), addStudentRules, 
 /**
  * PATCH /api/users/students/:id/status
  * Activate or deactivate a student (teacher only).
+ * Uses Supabase Auth Admin API to ban/unban the user (bypasses DB triggers)
+ * and also syncs is_active to the profiles table for UI display.
  */
 router.patch("/students/:id/status", authenticate, requireRole("teacher"), async (req, res) => {
   try {
-    const { is_active } = req.body;
+    const isActive = req.body.is_active === true || req.body.is_active === "true";
+    const studentId = req.params.id;
 
-    const { error } = await supabaseAdmin
-      .from("profiles")
-      .update({ is_active: !!is_active, updated_at: new Date().toISOString() })
-      .eq("id", req.params.id);
+    // Step 1: Update Supabase Auth — ban_duration controls login access.
+    // 'none' = active/unbanned, '876000h' (~100 years) = effectively banned/inactive.
+    const { error: authErr } = await supabaseAdmin.auth.admin.updateUserById(studentId, {
+      ban_duration: isActive ? "none" : "876000h",
+    });
+    if (authErr) throw authErr;
 
-    if (error) throw error;
+    // Step 2: Sync is_active to profiles table for UI display.
+    // This may be blocked by a DB trigger — we catch and log but don't fail the
+    // whole request, since the Auth step above is the source of truth.
+    try {
+      await supabaseAdmin
+        .from("profiles")
+        .update({ is_active: isActive, updated_at: new Date().toISOString() })
+        .eq("id", studentId);
+    } catch (profileErr) {
+      console.warn("profiles.is_active sync warning (non-fatal):", profileErr.message);
+    }
 
     invalidatePrefix("users:");
     invalidatePrefix("dashboard:");
-    res.json({ message: `Student ${is_active ? "activated" : "deactivated"}.` });
+    res.json({ message: `Student ${isActive ? "activated" : "deactivated"}.` });
   } catch (err) {
     console.error("Update student status error:", err.message);
-    res.status(500).json({ error: "Failed to update student status." });
+    res.status(500).json({ error: err.message || "Failed to update student status." });
   }
 });
 
@@ -245,6 +282,8 @@ router.patch("/students/:id/fees", authenticate, requireRole("teacher"), async (
 /**
  * POST /api/users/students/auto-mark-inactive
  * Auto-mark students inactive if fees unpaid after 5th of month (teacher only).
+ * Uses Supabase Auth ban_duration (same as individual deactivate) so the change
+ * is reflected in the student list immediately — not blocked by DB triggers.
  */
 router.post("/students/auto-mark-inactive", authenticate, requireRole("teacher"), async (req, res) => {
   try {
@@ -253,22 +292,59 @@ router.post("/students/auto-mark-inactive", authenticate, requireRole("teacher")
       return res.json({ message: "No action needed before 5th of the month.", updated: 0 });
     }
 
-    const { data, error } = await supabaseAdmin
-      .from("profiles")
-      .update({ is_active: false, updated_at: new Date().toISOString() })
-      .eq("role", "student")
-      .neq("fees_status", "paid")
-      .eq("is_active", true)
-      .select("id");
+    const month = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
 
-    if (error) throw error;
+    // Step 1: Get all active students from profiles
+    const { data: activeStudents, error: studentsErr } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("role", "student")
+      .eq("is_active", true);
+
+    if (studentsErr) throw studentsErr;
+    if (!activeStudents || activeStudents.length === 0) {
+      return res.json({ message: "No active students found.", updated: 0 });
+    }
+
+    const activeIds = activeStudents.map(s => s.id);
+
+    // Step 2: Find which of those have paid this month
+    const { data: paidFees } = await supabaseAdmin
+      .from("fee_payments")
+      .select("student_id")
+      .in("student_id", activeIds)
+      .eq("month", month)
+      .eq("status", "paid");
+
+    const paidIds = new Set((paidFees || []).map(f => f.student_id));
+
+    // Step 3: Students who are active but NOT paid this month
+    const toBan = activeIds.filter(id => !paidIds.has(id));
+
+    if (toBan.length === 0) {
+      return res.json({ message: "All active students have paid fees this month.", updated: 0 });
+    }
+
+    // Step 4: Ban each unpaid student in Supabase Auth (same as individual deactivate)
+    const results = await Promise.allSettled(
+      toBan.map(id =>
+        supabaseAdmin.auth.admin.updateUserById(id, { ban_duration: "876000h" })
+      )
+    );
+
+    const succeeded = results.filter(r => r.status === "fulfilled").length;
+    const failed    = results.filter(r => r.status === "rejected").length;
+    if (failed > 0) console.warn(`Auto-mark: ${failed} student(s) failed to ban in Auth.`);
 
     invalidatePrefix("users:");
     invalidatePrefix("dashboard:");
-    res.json({ message: `${(data || []).length} students marked inactive.`, updated: (data || []).length });
+    res.json({
+      message: `${succeeded} student(s) marked inactive${failed > 0 ? ` (${failed} failed)` : ""}.`,
+      updated: succeeded,
+    });
   } catch (err) {
     console.error("Auto-mark inactive error:", err.message);
-    res.status(500).json({ error: "Failed to auto-mark inactive." });
+    res.status(500).json({ error: err.message || "Failed to auto-mark inactive." });
   }
 });
 
@@ -360,6 +436,20 @@ router.get("/students/:id/analytics", authenticate, requireRole("teacher"), asyn
 
     const name = profile.full_name || `${profile.first_name || ""} ${profile.last_name || ""}`.trim() || "—";
 
+    // Read the real active/banned state from Supabase Auth (source of truth after
+    // activate/deactivate, since profiles.is_active may be blocked by a DB trigger).
+    let isActive = profile.is_active; // fallback to profiles column
+    try {
+      const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(studentId);
+      if (authUser?.user) {
+        const bannedUntil = authUser.user.banned_until;
+        // If banned_until is in the future (or very far future), account is inactive
+        isActive = !bannedUntil || new Date(bannedUntil) <= new Date();
+      }
+    } catch (authLookupErr) {
+      console.warn("Auth user lookup for is_active fallback:", authLookupErr.message);
+    }
+
     // Recheck current month's fee to be accurate
     const today = new Date();
     const month = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
@@ -377,7 +467,7 @@ router.get("/students/:id/analytics", authenticate, requireRole("teacher"), asyn
       name,
       email: profile.email,
       course: profile.class || profile.course || "",
-      is_active: profile.is_active,
+      is_active: isActive, // derived from Supabase Auth ban state (source of truth)
       fees_status: feesStatus,
       last_activity: profile.last_activity
     };

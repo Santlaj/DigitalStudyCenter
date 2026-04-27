@@ -5,7 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Student Dashboard — DigitalStudyCenter</title>
-  <meta name="description" content="Student Dashboard for Digital Study Center. View notes, assignments, attendance, and fee payment status." />
+  <meta name="description"
+    content="Student Dashboard for Digital Study Center. View notes, assignments, attendance, and fee payment status." />
   <link rel="icon" type="image/png" href="/icon1.png" />
   <link rel="apple-touch-icon" href="/icon1.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -27,6 +28,7 @@
   <link rel="stylesheet" href="./css/shared/skeleton.css" />
   <link rel="stylesheet" href="./css/student/responsive.css" />
   <link rel="stylesheet" href="./css/student/dark-mode.css" />
+
   <script>
     if (window.location.pathname.endsWith('.html') && !window.location.hostname.includes('localhost')) {
       const cleanPath = window.location.pathname.replace(/\.html$/, '');
@@ -45,12 +47,16 @@
 
   <div class="app-shell" id="app-shell">
 
+    <!-- side bar -->
     <aside class="sidebar" id="sidebar">
+
+      <!-- side bar logo -->
       <div class="sidebar-logo">
         <span class="sidebar-logo-dot"></span>
         <span class="sidebar-logo-text">DigitalStudy<em>Center</em></span>
       </div>
 
+      <!-- side bar student card -->
       <div class="sidebar-student-card">
         <div class="sidebar-avatar" id="sidebar-avatar-text">S</div>
         <div class="sidebar-student-info">
@@ -59,6 +65,7 @@
         </div>
       </div>
 
+      <!-- side bar navigation -->
       <nav class="sidebar-nav">
         <a class="nav-item active" data-section="dashboard">
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
@@ -124,8 +131,10 @@
       </button>
     </aside>
 
+    <!-- main wrap -->
     <div class="main-wrap">
 
+      <!-- top nav -->
       <header class="topnav">
         <div class="topnav-left">
           <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
@@ -478,7 +487,7 @@
               <div class="fee-current-label">Current Month</div>
               <div class="fee-amount-row">
                 <span class="fee-amount-label">Amount Due:</span>
-                <span class="fee-amount-value" id="fee-amount-value">₹500</span>
+                <span class="fee-amount-value" id="fee-amount-value">--</span>
               </div>
               <div class="fee-due-row" id="fee-due-row"></div>
             </div>

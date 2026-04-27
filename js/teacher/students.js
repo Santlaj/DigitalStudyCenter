@@ -69,9 +69,7 @@ function renderStudentsTable(tbody, students) {
         <td><span class="pill ${feesCls}">${escapeHtml(feesLabel)}</span></td>
         <td><span class="pill ${isActive ? "pill-green" : "pill-red"}">${isActive ? "Active" : "Inactive"}</span></td>
         <td style="white-space:nowrap">
-          <button class="btn-view-impressive view-student-btn" data-student-id="${escapeHtml(s.id)}">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> View
-          </button>
+          <button class="btn-view-impressive view-student-btn" data-student-id="${escapeHtml(s.id)}">View</button>
         </td></tr>`;
   }).join("");
 
@@ -84,8 +82,17 @@ async function updateFeesStatus(studentId, studentName, newStatus) {
   try {
     await fees.markFee(studentId, newStatus);
     showToast(newStatus === "paid" ? `✅ ${studentName} marked as Fees Paid` : `⚠️ ${studentName} marked as Fees Unpaid`, newStatus === "paid" ? "success" : "info");
-    state.studentsLoaded = false; state.dashboardLoaded = false;
-    await fetchStudents($("students-search").value);
+
+    // Optimistic update: reflect fees change in the list immediately without
+    // waiting for a full re-fetch that may return stale data from the DB.
+    state.allStudents = state.allStudents.map(s =>
+      s.id === studentId ? { ...s, fees_status: newStatus } : s
+    );
+    renderStudentsTable($("students-tbody"), state.allStudents);
+
+    // Invalidate so the next navigation forces a fresh server fetch.
+    state.studentsLoaded = false;
+    state.dashboardLoaded = false;
   } catch (err) { showToast("Failed to update fees: " + err.message, "error"); }
 }
 
@@ -274,8 +281,20 @@ function renderStudentAnalytics(data) {
       try {
         await users.updateStudentStatus(btn.dataset.studentId, isActivateAction);
         showToast(`${btn.dataset.studentName} ${isActivateAction ? "activated" : "deactivated"}.`, "success");
-        state.studentsLoaded = false; state.dashboardLoaded = false;
-        await fetchStudents($("students-search").value);
+
+        // Optimistic update: patch is_active in the cached list immediately so
+        // the background table reflects the change right away, without depending
+        // on a DB re-fetch that may return the old profiles.is_active value.
+        state.allStudents = state.allStudents.map(s =>
+          s.id === btn.dataset.studentId ? { ...s, is_active: isActivateAction } : s
+        );
+        renderStudentsTable($("students-tbody"), state.allStudents);
+
+        // Invalidate caches so the next full navigation triggers a fresh server fetch.
+        state.studentsLoaded = false;
+        state.dashboardLoaded = false;
+
+        // Refresh the analytics modal to show the updated student state.
         openStudentAnalytics(btn.dataset.studentId);
       }
       catch (err) { showToast(`Action failed: ` + err.message, "error"); }
