@@ -16,7 +16,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 
 // Ensure the Service Role key is actually different from the Anon key
 if (SUPABASE_SERVICE_ROLE_KEY && SUPABASE_SERVICE_ROLE_KEY === SUPABASE_ANON_KEY) {
-  console.error("❌ CRITICAL ERROR: SUPABASE_SERVICE_ROLE_KEY is identical to SUPABASE_ANON_KEY.");
+  console.error("❌ ERROR: SUPABASE_SERVICE_ROLE_KEY is identical to SUPABASE_ANON_KEY.");
   console.error("   You accidentally pasted the Anon Key into the Service Role Key field!");
   console.error("   Please fix your environment variables on Render.");
   process.exit(1);

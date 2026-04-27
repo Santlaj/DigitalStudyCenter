@@ -1,7 +1,3 @@
-/*
-  server.js
- */
-
 require("dotenv").config();
 
 const express = require("express");
@@ -21,14 +17,12 @@ const allowedOrigins = [
   process.env.CLIENT_URL,
   "http://127.0.0.1:5500",
   "http://localhost:5500",
-  "http://127.0.0.1:3000",
-  "http://localhost:3000",
   "https://digitalstudycenter.in",
 ].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (curl, mobile apps, same-origin)
+    // Allow requests with no origin (Postman, mobile apps)
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) return callback(null, true);
     console.warn(`CORS blocked origin: ${origin}`);
@@ -39,18 +33,21 @@ app.use(cors({
   credentials: true,
 }));
 
-// Request logging (dev mode = colored, production = combined)
+// in development mode, it will log the requests in terminal
+// in production mode, it will not log the requests in terminal
+// in combined -> 203.0.113.10 - - [27/Apr/2026:18:30:14 +0530] "GET /api/users HTTP/1.1" 200 532 "https://example.com" "Mozilla/5.0 ..."
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
 // Global rate limiter
 app.use(globalLimiter);
+
 
 // JSON body parser (limit 2MB for form data)
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 
 // ROUTES
-// Root route for health check (using multiple patterns for robustness)
+// Root route for health check
 app.get(["/", "/api", "/healthz"], (req, res) => {
   console.log(`Root/Health access: ${req.method} ${req.originalUrl}`);
   res.status(200).json({

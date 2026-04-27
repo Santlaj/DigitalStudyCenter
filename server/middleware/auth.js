@@ -1,5 +1,4 @@
 /**
- * middleware/auth.js
  * JWT authentication middleware.
  * Validates the Supabase access token and attaches user info to req.
  */
@@ -24,7 +23,7 @@ async function authenticate(req, res, next) {
   try {
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
     const cacheKey = `auth:session:${tokenHash}`;
-    
+
     let authData = null;
 
     // 1. Try Redis Cache
@@ -46,7 +45,7 @@ async function authenticate(req, res, next) {
       try {
         const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
         aal = payload.aal || 'aal1';
-      } catch (e) {}
+      } catch (e) { }
 
       authData = {
         id: user.id,
