@@ -14,7 +14,7 @@ import {
   closeAttDetailModal,
 } from "./attendance.js";
 import { fetchTeacherAnnouncements, postAnnouncement } from "./announcements.js";
-
+import { initTeacherDoubts, renderTeacherDoubts }      from "./doubts.js";
 
 // DELETE MODAL
 function openDeleteModal(name, callback) {
@@ -52,6 +52,7 @@ function navigateTo(section) {
   if (section === "assignments") loadAssignmentsTable();
   if (section === "students")    fetchStudents();
   if (section === "attendance")  { loadAttendanceHistory(); setDefaultAttDate(); }
+  if (section === "doubts")      renderTeacherDoubts();
   if (section === "announcements") fetchTeacherAnnouncements();
 
   if (window.innerWidth <= 768) $("sidebar").classList.remove("open");
@@ -162,6 +163,7 @@ function wireEvents() {
 // INIT
 document.addEventListener("DOMContentLoaded", () => {
   wireEvents();
+  initTeacherDoubts();
   boot(async () => {
     fetchDashboardStats();
   });

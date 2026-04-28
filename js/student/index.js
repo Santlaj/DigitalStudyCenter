@@ -10,8 +10,7 @@ import { fetchFeePayment, updateFeeStatCard } from "./fees.js";
 import { fetchAnnouncements }                from "./announcements.js";
 import { saveProfile }                       from "./profile.js";
 import { loadDashAttendancePreview }         from "./attendance.js";
-
-
+import { initDoubts, renderStudentDoubts }   from "./doubts.js";
 /* Navigation */
 function navigateTo(section) {
   $$(".section").forEach(s => s.classList.remove("active"));
@@ -25,6 +24,7 @@ function navigateTo(section) {
   if (section === "assignments")   fetchAssignments();
   if (section === "attendance")    fetchAttendance();
   if (section === "fee-payment")   fetchFeePayment();
+  if (section === "doubts")        renderStudentDoubts();
   if (section === "announcements") fetchAnnouncements();
 
   if (window.innerWidth <= 768) $("sidebar").classList.remove("open");
@@ -110,6 +110,7 @@ function wireEvents() {
 /* Init */
 document.addEventListener("DOMContentLoaded", () => {
   wireEvents();
+  initDoubts();
   boot(async () => {
     fetchDashboardStats();
     await updateFeeStatCard();

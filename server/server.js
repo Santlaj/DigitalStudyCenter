@@ -69,6 +69,7 @@ const attendanceRouter = require("./routes/attendance");
 const feesRouter = require("./routes/fees");
 const announcementsRouter = require("./routes/announcements");
 const analyticsRouter = require("./routes/analytics");
+const doubtsRouter = require("./routes/doubts");
 
 
 //If request starts with this URL, send it to this router file.
@@ -81,6 +82,7 @@ app.use("/api/attendance", attendanceRouter);
 app.use("/api/fees", feesRouter);
 app.use("/api/announcements", announcementsRouter);
 app.use("/api/analytics", analyticsRouter);
+app.use("/api/doubts", doubtsRouter);
 
 // DATABASE HEALTH CHECK
 app.get("/api/health", async (req, res) => {

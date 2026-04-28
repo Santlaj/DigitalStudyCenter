@@ -39,10 +39,16 @@
 
     <!-- Logo Text on top-left of login page -->
     <aside class="left-panel">
-      <a class="logo" href="/">
-        <img src="/icon1.png" alt="Digital Study Center Logo" style="width: 32px; height: 32px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
-        <span class="logo-text">DigitalStudyCenter</span>
-      </a>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 32px; margin-left:-4px;">
+        <a class="logo" href="index.html" style="margin-bottom:0; margin-left:0;">
+          <img src="/icon1.png" alt="Digital Study Center Logo" style="width: 32px; height: 32px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
+          <span class="logo-text">DigitalStudyCenter</span>
+        </a>
+        <a href="index.html" style="padding: 6px 14px; font-size: 0.8rem; text-decoration: none; color:var(--text-sub); display: flex; align-items: center; gap: 6px; border-radius: 100px; background: rgba(0,0,0,0.04); font-weight: 600; transition: background 0.2s;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Home Page
+        </a>
+      </div>
 
       <!-- Student and Teacher toggle button -->
       <div class="role-toggle">
