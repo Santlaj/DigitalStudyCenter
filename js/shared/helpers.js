@@ -3,6 +3,9 @@
 export const $ = (id) => document.getElementById(id);
 export const $$ = (sel) => document.querySelectorAll(sel);
 
+
+
+
 export function showToast(message, type = "info") {
   const t = $("toast");
   t.textContent = message;

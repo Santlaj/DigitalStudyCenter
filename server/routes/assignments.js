@@ -234,7 +234,10 @@ router.post("/:id/submit", authenticate, uploadLimiter, (req, res, next) => {
 
     const { error: storageErr } = await supabaseAdmin.storage
       .from("submissions")
-      .upload(fileName, req.file.buffer, { upsert: false });
+      .upload(fileName, req.file.buffer, { 
+        contentType: req.file.mimetype,
+        upsert: false 
+      });
 
     if (storageErr) throw new Error("Storage: " + storageErr.message);
 
@@ -255,6 +258,62 @@ router.post("/:id/submit", authenticate, uploadLimiter, (req, res, next) => {
   } catch (err) {
     console.error("Submit assignment error:", err.message);
     res.status(500).json({ error: err.message || "Submission failed." });
+  }
+});
+
+/**
+ * GET /api/assignments/submissions/:id/view
+ * Proxy route: fetches the file from Supabase Storage and serves it
+ * with the correct Content-Type header. This fixes old files that were
+ * uploaded without a proper MIME type.
+ */
+router.get("/submissions/:id/view", async (req, res) => {
+  try {
+    // Accept token from query param (browser links can't send auth headers)
+    const token = req.query.token;
+    if (!token) return res.status(401).json({ error: "Missing token." });
+
+    // Verify the token with Supabase
+    const { data: { user }, error: authErr } = await supabaseAdmin.auth.getUser(token);
+    if (authErr || !user) return res.status(401).json({ error: "Invalid or expired token." });
+
+    const submissionId = req.params.id;
+
+    // Get the submission record
+    const { data: sub, error: subErr } = await supabaseAdmin
+      .from("submissions")
+      .select("file_url, assignment_id")
+      .eq("id", submissionId)
+      .single();
+
+    if (subErr || !sub) return res.status(404).json({ error: "Submission not found." });
+
+    // Extract the storage path from the public URL
+    const match = sub.file_url.match(/\/object\/public\/submissions\/(.+)$/);
+    if (!match) return res.status(400).json({ error: "Invalid file URL." });
+
+    const storagePath = decodeURIComponent(match[1]);
+
+    // Download the file from Supabase Storage
+    const { data: fileBlob, error: dlErr } = await supabaseAdmin.storage
+      .from("submissions")
+      .download(storagePath);
+
+    if (dlErr || !fileBlob) return res.status(500).json({ error: "Could not download file." });
+
+    // Determine content type from file extension
+    let contentType = "application/pdf";
+    if (storagePath.endsWith(".docx")) contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    else if (storagePath.endsWith(".doc")) contentType = "application/msword";
+
+    const buffer = Buffer.from(await fileBlob.arrayBuffer());
+
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Content-Disposition", "inline");
+    res.send(buffer);
+  } catch (err) {
+    console.error("View submission error:", err.message);
+    res.status(500).json({ error: "Failed to load file." });
   }
 });
 
