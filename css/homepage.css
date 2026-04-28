@@ -331,12 +331,12 @@ ul { list-style: none; }
 .cta-actions { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
 
 /* ── Contact ── */
-.contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 2.5rem; }
-.contact-info-stack { display: grid; gap: 1.5rem; }
+.contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 2.5rem; align-items: start; }
+.contact-info-stack { display: grid; gap: 1rem; align-content: start; }
 .contact-card {
   background: var(--bg-2); border: 1px solid var(--border);
-  border-radius: var(--radius-lg); padding: 1.6rem; display: flex;
-  align-items: flex-start; gap: 1rem; transition: 0.25s; box-shadow: var(--shadow);
+  border-radius: var(--radius-lg); padding: 1.2rem 1.4rem; display: flex;
+  align-items: center; gap: 1rem; transition: 0.25s; box-shadow: var(--shadow);
 }
 .contact-card:hover { border-color: var(--accent); transform: translateX(4px); }
 .contact-icon {

@@ -510,7 +510,21 @@ const analytics = {
   },
 };
 
-// DASHBOARD API
+// DOUBTS MODULE
+const doubts = {
+  async list() {
+    return apiRequest("GET", "/doubts");
+  },
+
+  async submit(subject, question) {
+    return apiRequest("POST", "/doubts", { subject, question });
+  },
+
+  async reply(doubtId, answer) {
+    return apiRequest("PATCH", `/doubts/${doubtId}/reply`, { answer });
+  },
+};
+
 // DASHBOARD MODULE
 const dashboard = {
   async getSummary() {
@@ -518,7 +532,6 @@ const dashboard = {
   }
 };
 
-// EXPORTS
 // EXPORTS
 export {
   API_BASE,
@@ -534,5 +547,6 @@ export {
   attendance,
   fees,
   announcements,
-  analytics
+  analytics,
+  doubts
 };

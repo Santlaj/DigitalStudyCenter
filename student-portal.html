@@ -118,13 +118,15 @@
           <a class="nav-item" data-section="fee-payment">
             <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
               <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
-              <path
-                fill-rule="evenodd"
-                d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"
-                clip-rule="evenodd"
-              />
+              <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd" />
             </svg>
             <span class="nav-label">Fee Payment</span>
+          </a>
+          <a class="nav-item" data-section="doubts">
+            <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" />
+            </svg>
+            <span class="nav-label">Doubts</span>
           </a>
           <a class="nav-item" data-section="announcements">
             <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
@@ -795,6 +797,42 @@
                   </tr>
                 </tbody>
               </table>
+            </div>
+          </section>
+
+          <section class="section" id="section-doubts">
+            <div class="section-header">
+              <h1 class="section-title">Ask a Doubt</h1>
+              <p class="section-sub">Submit your questions and teachers will resolve them.</p>
+            </div>
+            
+            <div class="doubt-form-container" style="background:var(--bg-card); padding:24px; border:1px solid var(--border); border-radius:var(--radius-lg); margin-bottom:32px;">
+              <form id="ask-doubt-form" style="display:flex; flex-direction:column; gap:16px;">
+                 <div>
+                    <label style="font-weight:600; display:block; margin-bottom:6px; color:var(--text-main);">Subject</label>
+                    <select id="doubt-subject" class="field-input" required>
+                      <option value="">Select Subject</option>
+                      <option value="General">General Doubt</option>
+                      <option value="Mathematics">Mathematics Doubt</option>
+                      <option value="Physics">Physics Doubt</option>
+                      <option value="Chemistry">Chemistry Doubt</option>
+                      <option value="Biology">Biology Doubt</option>
+                    </select>
+                 </div>
+                 <div>
+                    <label style="font-weight:600; display:block; margin-bottom:6px; color:var(--text-main);">Your Question</label>
+                    <textarea id="doubt-question" class="field-input field-textarea" required rows="3" placeholder="Type your doubt here..."></textarea>
+                 </div>
+                 <button type="submit" class="btn-primary" style="align-self:flex-start; padding:10px 24px; font-weight:600;">Submit Doubt</button>
+                 <div id="doubt-feedback" style="display:none; padding:10px 16px; border-radius:var(--radius-sm); font-size:0.88rem; font-weight:600;"></div>
+              </form>
+            </div>
+
+            <div class="panel-header">
+              <h2 class="panel-title">My Recent Doubts</h2>
+            </div>
+            <div id="student-doubts-list" style="display:flex; flex-direction:column; gap:16px; margin-top:16px;">
+               <div class="empty-state-sm">Loading doubts...</div>
             </div>
           </section>
 

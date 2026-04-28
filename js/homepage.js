@@ -60,15 +60,40 @@ const contactForm = document.getElementById('contact-form');
 const formFeedback = document.getElementById('form-feedback');
 
 if (contactForm && formFeedback) {
-  contactForm.addEventListener('submit', (e) => {
+  contactForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const data = new FormData(contactForm);
-    const name = (data.get('firstName') || '').toString().trim();
-    formFeedback.textContent = name
-      ? `Thanks, ${name}! Your message has been received. We'll get back to you soon.`
-      : 'Thanks! Your message has been received.';
-    contactForm.reset();
-    setTimeout(() => { formFeedback.textContent = ''; }, 5000);
+    const submitBtn = contactForm.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Sending...';
+    submitBtn.disabled = true;
+
+    try {
+      const formData = new FormData(contactForm);
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        formFeedback.style.color = '#10b981';
+        const name = (formData.get('firstName') || '').toString().trim();
+        formFeedback.textContent = name
+          ? `Thanks, ${name}! Your message has been sent successfully.`
+          : 'Thanks! Your message has been sent successfully.';
+        contactForm.reset();
+      } else {
+        formFeedback.style.color = '#ef4444';
+        formFeedback.textContent = 'Failed to send. Please try again.';
+      }
+    } catch (err) {
+      formFeedback.style.color = '#ef4444';
+      formFeedback.textContent = 'Network error. Please try again later.';
+    }
+
+    submitBtn.textContent = originalText;
+    submitBtn.disabled = false;
+    setTimeout(() => { formFeedback.textContent = ''; }, 6000);
   });
 }
 
