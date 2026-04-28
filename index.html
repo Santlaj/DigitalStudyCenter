@@ -1,28 +1,499 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Digital Study Center — Your Digital Study Workspace</title>
-    <meta name="description" content="Your Digital Study Workspace. Access notes, courses, and academic tools designed for focused learning. 100+ Students Active." />
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Study Center — Your Digital Study Workspace</title>
+  <meta name="description" content="Digital Study Center is a modern academic management platform. Access notes, assignments, attendance, fee tracking and more — built for students and teachers.">
+  <link rel="icon" type="image/png" href="/icon1.png">
+  <link rel="apple-touch-icon" href="/icon1.png">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Digital Study Center">
+  <meta property="og:description" content="Your Digital Study Workspace. Access notes, courses, and academic tools designed for focused learning.">
+  <meta property="og:url" content="https://digitalstudycenter.in/">
+  <meta property="og:image" content="https://digitalstudycenter.in/icon1.png">
+  <meta property="og:site_name" content="Digital Study Center">
+  <link rel="canonical" href="https://digitalstudycenter.in/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/homepage.css">
+  <style>
+    /* Ensure SVG icons inherit text color or set color, and align properly */
+    svg { display: block; }
+    .feature-icon svg { width: 28px; height: 28px; }
+    .portal-icon svg { width: 40px; height: 40px; color: inherit; }
+    .portal-feat-icon svg { width: 18px; height: 18px; color: var(--accent); }
+    .contact-icon svg { width: 24px; height: 24px; color: var(--accent); }
+    .float-icon svg { width: 20px; height: 20px; color: var(--accent); }
+  </style>
+</head>
+<body>
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/icon1.png" />
-    <link rel="apple-touch-icon" href="/icon1.png" />
+  <!-- Animated Background -->
+  <div class="bg-mesh" aria-hidden="true"></div>
 
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Digital Study Center" />
-    <meta property="og:description" content="Your Digital Study Workspace. Access notes, courses, and academic tools designed for focused learning." />
-    <meta property="og:url" content="https://digitalstudycenter.in/" />
-    <meta property="og:image" content="https://digitalstudycenter.in/icon1.png" />
-    <meta property="og:site_name" content="Digital Study Center" />
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#home" class="brand" style="margin-left: -8px;">
+        <img src="/icon1.png" alt="Digital Study Center Logo" class="brand-logo-img" style="width: 32px; height: 32px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
+        <span class="brand-name">DigitalStudyCenter</span>
+      </a>
 
-    <!-- Redirect -->
-    <link rel="canonical" href="https://digitalstudycenter.in/login" />
-    <meta http-equiv="refresh" content="0;url=login" />
-  </head>
-  <body>
-    <p>Redirecting to <a href="login">login</a>...</p>
-  </body>
+      <button class="menu-toggle" id="menu-toggle" aria-expanded="false" aria-controls="site-nav">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="site-nav" id="site-nav">
+        <a href="#home">Home</a>
+        <a href="#features">Features</a>
+        <a href="#portals">Portals</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#contact">Contact</a>
+        <a href="./login.html" class="nav-cta">Login →</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ═══ Hero ═══ -->
+    <section class="hero" id="home">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+
+          <h1>Your Digital<br><span class="gradient-text">Study Workspace</span></h1>
+          <p class="hero-sub">
+            A modern academic management platform for coaching centers. Access notes, 
+            track attendance, submit assignments, and manage fees — all in one place.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="./login.html">Get Started Free →</a>
+            <a class="btn btn-ghost" href="#features">Explore Features</a>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="hero-card">
+            <div class="hero-card-header">
+              <div style="display: flex; gap: 6px;">
+                <span class="hero-card-dot" style="background: var(--rose);"></span>
+                <span class="hero-card-dot" style="background: var(--amber);"></span>
+                <span class="hero-card-dot" style="background: var(--green);"></span>
+              </div>
+              <span class="hero-card-title">digitalstudycenter.in</span>
+            </div>
+            
+            <div class="ui-mockup-body">
+              <!-- Header Profile Area -->
+              <div class="ui-mockup-top">
+                <div class="ui-avatar">PK</div>
+                <div>
+                  <div class="ui-greeting">Welcome back, Priya</div>
+                  <div class="ui-subtext">You have 2 pending assignments</div>
+                </div>
+              </div>
+              
+              <!-- Quick Stats -->
+              <div class="ui-stats-grid">
+                <div class="ui-stat-box">
+                  <div class="ui-stat-icon" style="color: var(--accent); background: var(--accent-glow);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/><path d="M22 4v16"/></svg>
+                  </div>
+                  <div class="ui-stat-info">
+                    <div class="ui-stat-val">88%</div>
+                    <div class="ui-stat-lbl">Attendance</div>
+                  </div>
+                </div>
+                <div class="ui-stat-box">
+                  <div class="ui-stat-icon" style="color: var(--green); background: var(--green-glow);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  </div>
+                  <div class="ui-stat-info">
+                    <div class="ui-stat-val">Paid</div>
+                    <div class="ui-stat-lbl">March Fees</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Message Notification -->
+              <div class="ui-message-box">
+                <div class="ui-msg-avatar" style="color: var(--text-dim);">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+                <div class="ui-msg-content">
+                  <div class="ui-msg-header">
+                    <span class="ui-msg-name">Rajesh Sharma (Maths)</span>
+                    <span class="ui-msg-time">Just now</span>
+                  </div>
+                  <div class="ui-msg-text">I've uploaded the calculus notes. Please review them before tomorrow's test.</div>
+                </div>
+              </div>
+              <!-- Inline Notifications -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.6rem 0.8rem;">
+                  <span class="float-icon" style="background: var(--bg-2); padding: 0.3rem; border-radius: 6px; border: 1px solid var(--border); box-shadow: var(--shadow);">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 2.5 0 0 1 0-5H20"></path></svg>
+                  </span>
+                  <div>
+                    <div style="font-weight: 700; font-size: 0.8rem; color: var(--text);">New Notes</div>
+                    <div style="color: var(--text-dim); font-size: 0.7rem; font-weight: 600;">Physics Ch 4.pdf</div>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.75rem; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.6rem 0.8rem;">
+                  <span class="float-icon" style="background: var(--bg-2); padding: 0.3rem; border-radius: 6px; border: 1px solid var(--border); box-shadow: var(--shadow);">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  </span>
+                  <div>
+                    <div style="font-weight: 700; font-size: 0.8rem; color: var(--text);">Assignment Due</div>
+                    <div style="color: var(--text-dim); font-size: 0.7rem; font-weight: 600;">In 12 Hours</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Features ═══ -->
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section-heading reveal">
+          <span class="section-label">Features</span>
+          <h2>Everything You Need to Learn Smarter</h2>
+          <p>A comprehensive suite of tools designed for modern academic management.</p>
+        </div>
+        <div class="features-grid">
+          <article class="feature-card reveal">
+            <div class="feature-icon i-purple">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--accent-2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 2.5 0 0 1 0-5H20"></path></svg>
+            </div>
+            <h3>Study Notes</h3>
+            <p>Browse and download PDF study materials uploaded by teachers. Organized by class and subject.</p>
+          </article>
+          <article class="feature-card reveal">
+            <div class="feature-icon i-green">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </div>
+            <h3>Assignments</h3>
+            <p>View assignments with countdown timers, submit files before deadlines, and track submission status.</p>
+          </article>
+          <article class="feature-card reveal">
+            <div class="feature-icon i-cyan">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            </div>
+            <h3>Attendance Tracking</h3>
+            <p>Interactive rings and charts, subject-wise breakdown, and detailed session timeline views.</p>
+          </article>
+          <article class="feature-card reveal">
+            <div class="feature-icon i-amber">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+            </div>
+            <h3>Fee Management</h3>
+            <p>View payment status, month-by-month fee history with receipts — all in one dashboard.</p>
+          </article>
+          <article class="feature-card reveal">
+            <div class="feature-icon i-rose">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            </div>
+            <h3>Doubt Section</h3>
+            <p>Students can write their specific doubts at any time. Teachers review them in their portal and post replies that instantly appear for the student.</p>
+          </article>
+          <article class="feature-card reveal">
+            <div class="feature-icon i-blue">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0"></path></svg>
+            </div>
+            <h3>Class Announcements</h3>
+            <p>Real-time notifications and updates from faculty. Stay informed about schedule changes, upcoming tests, and important class news.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ How It Works ═══ -->
+    <section class="section" id="how-it-works">
+      <div class="container">
+        <div class="section-heading reveal">
+          <span class="section-label">How It Works</span>
+          <h2>Get Started in 3 Simple Steps</h2>
+          <p>From sign-up to full access in minutes.</p>
+        </div>
+        <div class="steps-grid">
+          <div class="step-card reveal">
+            <div class="step-num">1</div>
+            <h3>Create Your Account</h3>
+            <p>Teachers create student accounts with a secure password. Students receive login credentials.</p>
+          </div>
+          <div class="step-card reveal">
+            <div class="step-num">2</div>
+            <h3>Access Your Portal</h3>
+            <p>Login to your personalized dashboard — Student or Teacher — with role-based access control.</p>
+          </div>
+          <div class="step-card reveal">
+            <div class="step-num">3</div>
+            <h3>Start Learning</h3>
+            <p>Download notes, submit assignments, track attendance, and manage your academic journey digitally.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Portals ═══ -->
+    <section class="section" id="portals">
+      <div class="container">
+        <div class="section-heading reveal">
+          <span class="section-label">Portals</span>
+          <h2>Designed for Students & Teachers</h2>
+          <p>Role-based dashboards with tools tailored for each user type.</p>
+        </div>
+        <div class="portals-grid">
+          <article class="portal-card student-card reveal">
+            <div class="portal-header">
+              <span class="portal-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+              </span>
+              <span class="portal-title">Student Portal</span>
+            </div>
+            <div class="portal-features">
+              <div class="portal-feat">
+                <span class="portal-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/><path d="M22 4v16"/></svg></span> Personalized Dashboard with Stats
+              </div>
+              <div class="portal-feat">
+                <span class="portal-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 2.5 0 0 1 0-5H20"></path></svg></span> Browse & Download Study Notes
+              </div>
+              <div class="portal-feat">
+                <span class="portal-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></span> Submit Assignments with Deadlines
+              </div>
+              <div class="portal-feat">
+                <span class="portal-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span> Interactive Attendance Trackers
+              </div>
+              <div class="portal-feat">
+                <span class="portal-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg></span> Fee Status & Payment History
+              </div>
+              <div class="portal-feat">
+                <span class="portal-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span> Ask & Track Doubts
+              </div>
+            </div>
+          </article>
+          <article class="portal-card teacher-card reveal">
+            <div class="portal-header">
+              <span class="portal-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              </span>
+              <span class="portal-title">Teacher Portal</span>
+            </div>
+            <div class="portal-features">
+              <div class="portal-feat">
+                <span class="portal-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg></span> Drag & Drop PDF Upload
+              </div>
+              <div class="portal-feat">
+                <span class="portal-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></span> Create & Manage Assignments
+              </div>
+              <div class="portal-feat">
+                <span class="portal-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span> Student Roster Management
+              </div>
+              <div class="portal-feat">
+                <span class="portal-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/><path d="M22 4v16"/></svg></span> Class Progress Tracking
+              </div>
+              <div class="portal-feat">
+                <span class="portal-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span> Mark Attendance with Toggles
+              </div>
+              <div class="portal-feat">
+                <span class="portal-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span> Reply to Student Doubts
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Testimonials ═══ -->
+    <section class="section" id="testimonials">
+      <div class="container">
+        <div class="section-heading reveal">
+          <span class="section-label">Testimonials</span>
+          <h2>Loved by Students & Parents</h2>
+          <p>Here's what our users have to say about their experience.</p>
+        </div>
+        <div class="testimonial-grid">
+          <article class="testimonial-card reveal">
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">"As a parent, the transparency this platform provides is incredible. I can easily monitor my child's attendance and assignment deadlines without having to constantly ask the teachers."</p>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">SK</div>
+              <div>
+                <div class="testimonial-name">Sanjay Kumar</div>
+                <div class="testimonial-role">Guardian (Class 10 Student)</div>
+              </div>
+            </div>
+          </article>
+          <article class="testimonial-card reveal">
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">"As a teacher, managing student data was a headache. Digital Study Center made it seamless. Upload notes, track attendance — all automated!"</p>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">RS</div>
+              <div>
+                <div class="testimonial-name">Rajesh Sharma</div>
+                <div class="testimonial-role">Faculty</div>
+              </div>
+            </div>
+          </article>
+          <article class="testimonial-card reveal">
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">"The study notes section is amazing. I can download all my class materials directly and the assignment deadline reminders ensure I never miss a submission!"</p>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">AK</div>
+              <div>
+                <div class="testimonial-name">Ayush Kumar</div>
+                <div class="testimonial-role">Class 9 Student</div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ CTA ═══ -->
+    <section class="section cta-section">
+      <div class="container">
+        <div class="cta-inner reveal">
+          <h2>Ready to Transform Your Learning?</h2>
+          <p>Join the students and teachers already using Digital Study Center. Start your journey today.</p>
+          <div class="cta-actions">
+            <a class="btn btn-primary" href="./login.html">Login Now →</a>
+            <a class="btn btn-ghost" href="#contact">Contact Us</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Contact ═══ -->
+    <section class="section" id="contact">
+      <div class="container">
+        <div class="section-heading reveal">
+          <span class="section-label">Contact</span>
+          <h2>Get in Touch</h2>
+          <p>Have questions? We'd love to hear from you.</p>
+        </div>
+        <div class="contact-grid">
+          <div class="contact-info-stack reveal">
+            <article class="contact-card">
+              <div class="contact-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              </div>
+              <div>
+                <h4>Email</h4>
+                <p>support@digitalstudycenter.in</p>
+              </div>
+            </article>
+            <article class="contact-card">
+              <div class="contact-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+              </div>
+              <div>
+                <h4>Website</h4>
+                <p>digitalstudycenter.in</p>
+              </div>
+            </article>
+            <article class="contact-card">
+              <div class="contact-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              </div>
+              <div>
+                <h4>Support Hours</h4>
+                <p>Monday - Saturday: 9:00 AM - 6:00 PM</p>
+              </div>
+            </article>
+            <article class="contact-card">
+              <div class="contact-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+              </div>
+              <div>
+                <h4>Developer</h4>
+                <p>Built by <a href="https://github.com/Santlaj" target="_blank" rel="noopener noreferrer" style="color:var(--accent-2);font-weight:600;">Santlaj Kumar Mehta</a></p>
+              </div>
+            </article>
+          </div>
+
+          <div class="contact-form-card reveal">
+            <h3>Send us a Message</h3>
+            <form id="contact-form" class="form-grid">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="cf-first-name">First Name</label>
+                  <input class="form-input" type="text" id="cf-first-name" name="firstName" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="cf-last-name">Last Name</label>
+                  <input class="form-input" type="text" id="cf-last-name" name="lastName" required>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cf-email">Email Address</label>
+                <input class="form-input" type="email" id="cf-email" name="email" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cf-subject">Subject</label>
+                <input class="form-input" type="text" id="cf-subject" name="subject" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cf-message">Message</label>
+                <textarea class="form-textarea" id="cf-message" name="message" rows="5" required></textarea>
+              </div>
+              <button class="btn btn-primary" type="submit" style="width:100%;">Send Message</button>
+            </form>
+            <p class="form-feedback" id="form-feedback" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <div class="footer-brand" style="margin-left: -8px;">
+          <img src="/icon1.png" alt="Logo" style="width: 28px; height: 28px; object-fit: contain;">
+          <span class="brand-name">DigitalStudyCenter</span>
+        </div>
+        <p>A modern, full-stack academic management platform built for students and teachers. Designed, developed, and deployed by Santlaj Kumar Mehta.</p>
+      </div>
+      <div>
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#portals">Portals</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="./login.html">Student Login</a></li>
+          <li><a href="./login.html">Teacher Login</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#testimonials">Testimonials</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="https://github.com/Santlaj" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+          <li><a href="mailto:support@digitalstudycenter.in">Email Us</a></li>
+          <li><a href="https://digitalstudycenter.in" target="_blank" rel="noopener noreferrer">Live Site</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <p>© 2026 Digital Study Center. All rights reserved. Built with ❤️ by Santlaj</p>
+    </div>
+  </footer>
+
+  <script src="./js/homepage.js"></script>
+</body>
 </html>

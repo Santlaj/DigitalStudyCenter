@@ -1,6 +1,6 @@
 /* teacher/assignments.js — Teacher assignment creation, listing, and submissions. */
 
-import { assignments } from "../api.js";
+import { assignments, API_BASE, getToken } from "../api.js";
 import { state } from "./state.js";
 import { $, escapeHtml, formatDate, formatDeadline, deadlinePill, showToast, setLoading } from "../shared/helpers.js";
 import { fetchDashboardStats } from "./dashboard.js";
@@ -152,7 +152,7 @@ async function loadSubmissionsForAssignment(assignmentId) {
           <td>${escapeHtml(course)}</td>
           <td>${formatDate(s.submitted_at)}</td>
           <td>
-            <a href="${escapeHtml(s.file_url)}" target="_blank" class="btn-ghost btn-sm">View File</a>
+            <a href="${API_BASE}/assignments/submissions/${escapeHtml(s.id)}/view?token=${encodeURIComponent(getToken())}" target="_blank" class="btn-ghost btn-sm">View File</a>
           </td>
         </tr>
       `;

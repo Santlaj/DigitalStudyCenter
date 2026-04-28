@@ -94,8 +94,8 @@ function renderAttHeroRing(pct, present, absent, total, subjectCount) {
 
   const alertTile = $("att-alert-tile"), alertMsg = $("att-alert-msg");
   if (alertTile && alertMsg) {
-    if (pct < 60)      { alertMsg.textContent = `⚠️ Critical! Attendance ${pct}% is below 60%.`; alertTile.classList.remove("hidden"); }
-    else if (pct < 75) { alertMsg.textContent = `⚠️ Warning! Attendance ${pct}% is below 75%.`;  alertTile.classList.remove("hidden"); }
+    if (pct < 60)      { alertMsg.textContent = `⚠️ Critical! Your Attendance is Very low. `; alertTile.classList.remove("hidden"); }
+    else if (pct < 75) { alertMsg.textContent = `⚠️ Warning! Attendance is Low.`;  alertTile.classList.remove("hidden"); }
     else               { alertTile.classList.add("hidden"); }
   }
 }
