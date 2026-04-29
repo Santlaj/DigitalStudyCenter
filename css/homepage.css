@@ -1,6 +1,6 @@
 /* ── Design Tokens (Premium Light Mode) ── */
 :root {
-  --bg: #FAF9F6; /* Creamy off-white background */
+  --bg: #FAF9F6; /* off-white background */
   --bg-2: #FFFFFF; /* Pure white for cards */
   --bg-3: #F3F4F6;
   --surface: rgba(0, 0, 0, 0.03);
@@ -366,6 +366,13 @@ ul { list-style: none; }
 .form-input:focus, .form-textarea:focus {
   outline: none; border-color: var(--accent); background: var(--bg-2);
   box-shadow: 0 0 0 4px var(--accent-glow);
+}
+
+.form-input:not(:placeholder-shown):invalid {
+  border-color: var(--rose);
+}
+.form-input:not(:placeholder-shown):valid {
+  border-color: var(--green);
 }
 .form-textarea { resize: vertical; min-height: 120px; }
 .form-feedback { margin-top: 0.5rem; font-weight: 700; color: var(--green); font-size: 0.95rem; min-height: 1.3rem; }

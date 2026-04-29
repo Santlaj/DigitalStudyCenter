@@ -1,4 +1,4 @@
-// ── Mobile Menu Toggle ──
+//  Mobile Menu Toggle 
 const menuToggle = document.getElementById('menu-toggle');
 const siteNav = document.getElementById('site-nav');
 
@@ -15,33 +15,7 @@ if (menuToggle && siteNav) {
   });
 }
 
-// ── Animated Counters ──
-function animateCounters() {
-  document.querySelectorAll('[data-count]').forEach(el => {
-    const target = parseInt(el.dataset.count, 10);
-    const duration = 2000;
-    const start = performance.now();
-
-    function tick(now) {
-      const elapsed = now - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-      el.textContent = Math.floor(target * eased) + (target >= 100 ? '+' : '%');
-      if (progress < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-  });
-}
-
-// ── Progress Bars ──
-function animateBars() {
-  document.querySelectorAll('.dash-bar-fill').forEach(bar => {
-    const width = bar.dataset.width || 0;
-    setTimeout(() => { bar.style.width = width + '%'; }, 300);
-  });
-}
-
-// ── Scroll Reveal ──
+//                    Scroll Reveal 
 function initReveal() {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -55,7 +29,8 @@ function initReveal() {
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 }
 
-// ── Contact Form ──
+//                                     Contact Form 
+
 const contactForm = document.getElementById('contact-form');
 const formFeedback = document.getElementById('form-feedback');
 
@@ -67,8 +42,17 @@ if (contactForm && formFeedback) {
     submitBtn.textContent = 'Sending...';
     submitBtn.disabled = true;
 
+    const formData = new FormData(contactForm);
+    const phone = formData.get('phone');
+    if (!/^[0-9]{10}$/.test(phone)) {
+      formFeedback.style.color = '#ef4444';
+      formFeedback.textContent = 'Please enter a valid 10-digit contact number.';
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+      return;
+    }
+
     try {
-      const formData = new FormData(contactForm);
       const res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         body: formData
@@ -82,6 +66,13 @@ if (contactForm && formFeedback) {
           ? `Thanks, ${name}! Your message has been sent successfully.`
           : 'Thanks! Your message has been sent successfully.';
         contactForm.reset();
+        if (typeof initCharCount === 'function') {
+          const charCountDisplay = document.getElementById('char-count');
+          if (charCountDisplay) {
+            charCountDisplay.textContent = '0 / 100';
+            charCountDisplay.style.color = 'var(--rose)';
+          }
+        }
       } else {
         formFeedback.style.color = '#ef4444';
         formFeedback.textContent = 'Failed to send. Please try again.';
@@ -114,10 +105,28 @@ function initActiveNav() {
   });
 }
 
+// Character Count 
+function initCharCount() {
+  const messageInput = document.getElementById('cf-message');
+  const charCountDisplay = document.getElementById('char-count');
+
+  if (messageInput && charCountDisplay) {
+    messageInput.addEventListener('input', () => {
+      const length = messageInput.value.length;
+      charCountDisplay.textContent = `${length} / 100`;
+      
+      if (length < 100) {
+        charCountDisplay.style.color = 'var(--rose)';
+      } else {
+        charCountDisplay.style.color = 'var(--text-dim)';
+      }
+    });
+  }
+}
+
 // ── Init ──
 document.addEventListener('DOMContentLoaded', () => {
-  animateCounters();
-  animateBars();
   initReveal();
   initActiveNav();
+  initCharCount();
 });
