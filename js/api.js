@@ -496,6 +496,10 @@ const announcements = {
   async create(data) {
     return apiRequest("POST", "/announcements", data);
   },
+
+  async remove(id) {
+    return apiRequest("DELETE", `/announcements/${id}`);
+  },
 };
 
 

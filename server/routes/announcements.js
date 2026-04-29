@@ -129,4 +129,30 @@ router.post("/", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * DELETE /api/announcements/:id
+ * Delete an announcement (Teacher only).
+ */
+router.delete("/:id", authenticate, async (req, res) => {
+  try {
+    if (req.user.role !== "teacher") {
+      return res.status(403).json({ error: "Only teachers can delete announcements." });
+    }
+
+    const { error } = await supabaseAdmin
+      .from("announcements")
+      .delete()
+      .eq("id", req.params.id);
+
+    if (error) throw error;
+
+    invalidatePrefix("announcements:");
+
+    res.json({ message: "Announcement deleted successfully." });
+  } catch (err) {
+    console.error("Delete announcement error:", err.message);
+    res.status(500).json({ error: "Failed to delete announcement." });
+  }
+});
+
 module.exports = router;
