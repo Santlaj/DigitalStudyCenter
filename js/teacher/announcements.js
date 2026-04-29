@@ -48,7 +48,7 @@ export async function fetchTeacherAnnouncements() {
 }
 
 function renderAnnouncements(feed, countLabel, data) {
-  const myId = JSON.parse(localStorage.getItem("_user") || "{}").id;
+  const myId = JSON.parse(localStorage.getItem("dsc_user") || "{}").id;
   countLabel.textContent = `${data?.length || 0} items`;
 
   if (!data?.length) {
@@ -65,13 +65,29 @@ function renderAnnouncements(feed, countLabel, data) {
           <div class="announcement-title" style="font-weight: 600; color: var(--text-main);">${escapeHtml(a.title)}</div>
           <div class="announcement-date" style="font-size: 0.75rem; color: var(--text-muted);">${formatDate(a.created_at)}</div>
         </div>
-        <div class="announcement-teacher" style="font-size: 0.8rem; color: var(--accent); margin-bottom: 6px;">
-          📢 ${escapeHtml(teacherName)} ${isMine ? "(You)" : ""}
+        <div class="announcement-teacher" style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--accent); margin-bottom: 6px;">
+          <span>📢 ${escapeHtml(teacherName)}</span>
+          ${isMine ? `<button class="btn-ghost btn-sm btn-delete-ann" data-id="${a.id}" data-title="${escapeHtml(a.title)}" style="padding: 2px 6px; font-size: 0.75rem; color: var(--red);">Delete</button>` : ""}
         </div>
         <div class="announcement-message ql-editor" style="color: var(--text-sub); font-size: 0.875rem; padding: 0; min-height: auto;">${a.message}</div>
       </div>
     `;
   }).join("");
+
+  feed.querySelectorAll(".btn-delete-ann").forEach(btn => {
+    btn.onclick = () => {
+      window._openDeleteModal(`announcement "${btn.dataset.title}"`, async () => {
+        try {
+          await announcements.remove(btn.dataset.id);
+          showToast("Announcement deleted.", "success");
+          state.announcementsLoaded = false;
+          fetchTeacherAnnouncements();
+        } catch (err) {
+          showToast("Delete failed: " + err.message, "error");
+        }
+      });
+    };
+  });
 }
 
 

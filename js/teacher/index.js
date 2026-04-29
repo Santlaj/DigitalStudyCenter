@@ -10,7 +10,7 @@ import { fetchStudents, openAddStudentModal, closeAddStudentModal, addStudent, a
 import { saveProfile }                       from "./profile.js";
 import {
   setDefaultAttDate, loadStudentsForAttendance,
-  saveAttendance, loadAttendanceHistory, markAll, toggleSelectAll,
+  saveAttendance, loadAttendanceHistory, markAll,
   closeAttDetailModal,
 } from "./attendance.js";
 import { fetchTeacherAnnouncements, postAnnouncement } from "./announcements.js";
@@ -141,7 +141,6 @@ function wireEvents() {
   $("att-refresh-history").addEventListener("click", loadAttendanceHistory);
   $("att-mark-all-present").addEventListener("click", () => markAll("present"));
   $("att-mark-all-absent").addEventListener("click",  () => markAll("absent"));
-  $("att-check-all").addEventListener("change", (e) => toggleSelectAll(e.target.checked));
   $("att-detail-close").addEventListener("click",     closeAttDetailModal);
   $("att-detail-close-btn").addEventListener("click", closeAttDetailModal);
   $("att-detail-modal").addEventListener("click", (e) => { if (e.target === e.currentTarget) closeAttDetailModal(); });

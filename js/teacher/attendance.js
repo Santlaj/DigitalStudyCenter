@@ -42,7 +42,7 @@ export async function loadStudentsForAttendance() {
 
 export function renderAttTable() {
   const tbody = $("att-tbody");
-  if (!state.attStudents.length) { tbody.innerHTML = `<tr><td colspan="6" class="table-empty">No students</td></tr>`; return; }
+  if (!state.attStudents.length) { tbody.innerHTML = `<tr><td colspan="5" class="table-empty">No students</td></tr>`; return; }
 
   tbody.innerHTML = state.attStudents.map(s => {
     const name = s.full_name || `${s.first_name || ""} ${s.last_name || ""}`.trim();
@@ -50,7 +50,6 @@ export function renderAttTable() {
     const rowClass = status === "present" ? "att-row-present" : status === "absent" ? "att-row-absent" : "";
     return `
       <tr id="att-row-${s.id}" class="${rowClass}">
-        <td><input type="checkbox" class="att-row-check" data-sid="${s.id}"></td>
         <td><div class="att-student-cell"><div class="att-avatar-mini">${ini}</div><span>${escapeHtml(name)}</span></div></td>
         <td>${escapeHtml(s.email)}</td><td>${escapeHtml(s.course || "—")}</td>
         <td>
@@ -69,7 +68,7 @@ export function renderAttTable() {
 
 function setStudentStatus(sid, status) { state.attStatusMap[sid] = status; renderAttTable(); updateAttSummary(); }
 export function markAll(status) { state.attStudents.forEach(s => { state.attStatusMap[s.id] = status; }); renderAttTable(); updateAttSummary(); }
-export function toggleSelectAll(checked) { document.querySelectorAll(".att-row-check").forEach(cb => { cb.checked = checked; }); }
+
 
 export function updateAttSummary() {
 
@@ -144,19 +143,19 @@ export async function openAttDetailModal(sessionId, sessionDate, subjectName) {
 
     }).join("");
 
-    $("att-detail-delete-btn").onclick = async () => {
-      if (!confirm("Delete this entire attendance session?")) return;
-      try {
-        await attendance.deleteSession(sessionId);
-        closeAttDetailModal();
-        showToast("Session deleted.", "success");
-        state.attendanceLoaded = false;
-        loadAttendanceHistory();
-      }
-
-      catch (err) {
-        showToast("Delete failed: " + err.message, "error");
-      }
+    $("att-detail-delete-btn").onclick = () => {
+      window._openDeleteModal("this attendance session", async () => {
+        try {
+          await attendance.deleteSession(sessionId);
+          closeAttDetailModal();
+          showToast("Session deleted.", "success");
+          state.attendanceLoaded = false;
+          loadAttendanceHistory();
+        }
+        catch (err) {
+          showToast("Delete failed: " + err.message, "error");
+        }
+      });
     };
   }
   catch (err) {
