@@ -40,10 +40,12 @@ function setLoading(btn, loading, idleText) {
     : idleText;
 }
 
+// validate Email format
 function validateEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+// validate Login Fields
 function validateLoginFields(emailId, passId, emailErrId, passErrId) {
   let valid = true;
   const email = document.getElementById(emailId).value.trim();
@@ -68,8 +70,8 @@ function validateLoginFields(emailId, passId, emailErrId, passErrId) {
   return { valid, email, pass };
 }
 
-/* Role Switch */
 
+// Role switch logic
 function switchRole(role) {
   document.querySelectorAll(".form-section").forEach((f) => f.classList.remove("active"));
   document.querySelectorAll(".toggle-btn").forEach((b) => b.classList.remove("active"));
@@ -82,8 +84,7 @@ document.querySelectorAll(".toggle-btn").forEach((btn) => {
   btn.addEventListener("click", () => switchRole(btn.dataset.role));
 });
 
-/* MFA Logic */
-
+// MFA Logic 
 let mfaPendingState = {
   tempToken: null,
   tempRefreshToken: null,
@@ -127,6 +128,7 @@ async function handleMfaSubmit(setupPhase) {
     errorEl.textContent = "Please enter a valid 6-digit code.";
     return;
   }
+
 
   setLoading(btn, true, setupPhase ? "Complete Setup" : "Verify");
 

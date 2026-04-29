@@ -14,6 +14,7 @@ export function showToast(message, type = "info") {
   t._t = setTimeout(() => { t.className = "toast"; }, 3500);
 }
 
+// To set loading state for button
 export function setLoading(btnEl, loading, idleHtml = "Submit") {
   if (!btnEl) return;
   btnEl.disabled = loading;
@@ -22,6 +23,7 @@ export function setLoading(btnEl, loading, idleHtml = "Submit") {
     : idleHtml;
 }
 
+// This formats the date in "DD MMM YYYY" format
 export function formatDate(iso) {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("en-GB", {
@@ -29,6 +31,7 @@ export function formatDate(iso) {
   });
 }
 
+// This formats the deadline in "DD MMM YYYY, HH:MM AM/PM" format
 export function formatDeadline(iso) {
   if (!iso) return "—";
   return new Date(iso).toLocaleString("en-GB", {
@@ -37,6 +40,7 @@ export function formatDeadline(iso) {
   });
 }
 
+// This counts remaining time for deadline
 export function deadlineCountdown(iso) {
   if (!iso) return "";
   const diff = new Date(iso) - new Date();
@@ -48,6 +52,7 @@ export function deadlineCountdown(iso) {
   return "Due very soon";
 }
 
+// return class name for css style for deadline
 export function deadlineClass(iso) {
   if (!iso) return "";
   const diff = new Date(iso) - new Date();
@@ -56,6 +61,7 @@ export function deadlineClass(iso) {
   return "";
 }
 
+// This counts Deadline is Overdue, Due today, Upcoming and No deadline
 export function deadlinePill(iso) {
   if (!iso) return `<span class="pill pill-gray">No deadline</span>`;
   const diff = new Date(iso) - new Date();
@@ -64,11 +70,14 @@ export function deadlinePill(iso) {
   return `<span class="pill pill-green">Upcoming</span>`;
 }
 
+
+// To display name initials(like SK for Santlaj Kumar) for profile avatar
 export function initials(name) {
   if (!name) return "?";
   return name.split(" ").map(p => p[0]?.toUpperCase() || "").filter(Boolean).slice(0, 2).join("");
 }
 
+// Convert special HTML characters into safe text entities to prevent Crosss Site Scriptiong attacks
 export function escapeHtml(str) {
   if (str == null) return "";
   return String(str)
@@ -102,6 +111,14 @@ export const COURSE_COLORS = [
   "linear-gradient(90deg,#8b5cf6,#a78bfa)",
   "linear-gradient(90deg,#ec4899,#f472b6)",
 ];
+
+export function debounce(func, delay = 500) {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => func.apply(this, args), delay);
+  };
+}
 
 export function getCleanLink(path) {
   // If running locally (localhost or file://), use .html extensions

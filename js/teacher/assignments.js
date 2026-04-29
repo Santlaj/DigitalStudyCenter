@@ -18,6 +18,10 @@ export async function createAssignment(closeModalFn) {
   if (!title)    { $("assign-title-err").textContent    = "Title is required.";    valid = false; }
   if (!subject)  { $("assign-subject-err").textContent  = "Subject is required.";  valid = false; }
   if (!deadline) { $("assign-deadline-err").textContent = "Deadline is required."; valid = false; }
+  else if (new Date(deadline) < new Date()) {
+    $("assign-deadline-err").textContent = "Deadline cannot be in the past.";
+    valid = false;
+  }
   if (!valid) return;
 
   const btn = $("create-assignment-btn");

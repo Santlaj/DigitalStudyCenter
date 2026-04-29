@@ -1,6 +1,6 @@
 /* teacher/index.js — Entry point for teacher portal: imports modules and wires events. */
 
-import { $, $$ } from "../shared/helpers.js";
+import { $, $$, debounce } from "../shared/helpers.js";
 import { state }                             from "./state.js";
 import { boot, logoutTeacher }               from "./boot.js";
 import { fetchDashboardStats }               from "./dashboard.js";
@@ -100,7 +100,13 @@ function wireEvents() {
   $("upload-reset-btn").addEventListener("click", resetUploadForm);
 
   // New Assignment — modal
-  $("btn-open-assign-modal").addEventListener("click", () => $("assign-modal").classList.add("open"));
+  $("btn-open-assign-modal").addEventListener("click", () => {
+    // Restrict deadline input to future dates/times based on local time
+    const now = new Date();
+    const localISOTime = new Date(now - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    $("assign-deadline").min = localISOTime;
+    $("assign-modal").classList.add("open");
+  });
   $("assign-modal-close").addEventListener("click", () => $("assign-modal").classList.remove("open"));
   $("assign-cancel-btn").addEventListener("click", () => $("assign-modal").classList.remove("open"));
   $("assign-modal").addEventListener("click", (e) => { if (e.target === e.currentTarget) $("assign-modal").classList.remove("open"); });
@@ -118,10 +124,13 @@ function wireEvents() {
   }
 
   // Search
-  let notesTimer;
-  $("notes-search").addEventListener("input", () => { clearTimeout(notesTimer); notesTimer = setTimeout(() => loadNotesTable($("notes-search").value), 350); });
-  let studentsTimer;
-  $("students-search").addEventListener("input", () => { clearTimeout(studentsTimer); studentsTimer = setTimeout(() => fetchStudents($("students-search").value), 350); });
+  $("notes-search").addEventListener("input", debounce(() => {
+    loadNotesTable($("notes-search").value);
+  }, 500));
+  
+  $("students-search").addEventListener("input", debounce(() => {
+    fetchStudents($("students-search").value);
+  }, 500));
 
   // Delete modal
   $("delete-confirm-btn").addEventListener("click", async () => {

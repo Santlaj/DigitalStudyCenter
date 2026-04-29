@@ -1,4 +1,4 @@
-/* student/state.js — Shared mutable state for the student dashboard. */
+/* Shared mutable state for the student dashboard. */
 
 export const state = {
   currentStudent:   null,
@@ -35,7 +35,7 @@ export const state = {
   coursesLoaded:       false,
 };
 
-/** Reset all loaded flags (e.g. on logout) */
+// Reset all loaded flags (e.g. on logout)
 export function resetAllCache() {
   state.dashboardLoaded     = false;
   state.notesLoaded         = false;
@@ -45,7 +45,11 @@ export function resetAllCache() {
   state.announcementsLoaded = false;
   state.coursesLoaded       = false;
   state.chartInitialised    = false;
-  if (state.syncIntervalId) { clearInterval(state.syncIntervalId); state.syncIntervalId = null; }
+
+  if (state.syncIntervalId) {
+     clearInterval(state.syncIntervalId); state.syncIntervalId = null; 
+  }
+  
   state.cachedStats         = null;
   state.cachedAttendance    = null;
   state.cachedFee           = null;

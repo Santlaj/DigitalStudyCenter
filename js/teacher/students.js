@@ -6,7 +6,10 @@ import { $, escapeHtml, formatDate, initials, showToast, setLoading } from "../s
 import { fetchDashboardStats } from "./dashboard.js";
 import { tableSkeleton, detailSkeleton } from "../shared/skeleton.js";
 
+let currentStudentSearchId = 0;
+
 export async function fetchStudents(query = "", append = false) {
+  const searchId = ++currentStudentSearchId;
   const tbody = $("students-tbody");
   const loadMoreBtn = $("students-load-more");
 
@@ -26,10 +29,14 @@ export async function fetchStudents(query = "", append = false) {
     const limit = 20;
     const { students, count } = await users.listStudents(query, limit, state.studentsOffset);
 
+    // Ignore stale search responses to prevent race conditions
+    if (searchId !== currentStudentSearchId) return;
+
     state.allStudents = append ? [...state.allStudents, ...students] : students;
     state.studentsOffset += limit;
 
     if (!query && !append) state.studentsLoaded = true;
+    else if (query) state.studentsLoaded = false; // Invalidate cache when searching
 
     renderStudentsTable(tbody, state.allStudents);
 
@@ -44,6 +51,7 @@ export async function fetchStudents(query = "", append = false) {
     }
 
   } catch (err) {
+    if (searchId !== currentStudentSearchId) return;
     if (!append) tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Error: ${escapeHtml(err.message)}</td></tr>`;
     else showToast("Failed to load more: " + err.message, "error");
   }

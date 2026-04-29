@@ -1,6 +1,6 @@
 /* student/index.js — Entry point for navigation and event wiring. */
 
-import { $, $$ } from "../shared/helpers.js";
+import { $, $$, debounce } from "../shared/helpers.js";
 import { boot, logoutStudent }               from "./boot.js";
 import { fetchDashboardStats }               from "./dashboard.js";
 import { fetchNotes }                        from "./notes.js";
@@ -34,11 +34,13 @@ function navigateTo(section) {
 function setupGlobalSearch() {
   const input = $("global-search");
   if (!input) return; // Search bar removed from UI
-  let timer;
-  input.addEventListener("input", () => {
-    clearTimeout(timer);
-    timer = setTimeout(() => { const q = input.value.trim(); if (!q) return; navigateTo("notes"); fetchNotes(q); }, 400);
-  });
+  
+  input.addEventListener("input", debounce(() => {
+    const q = input.value.trim();
+    if (!q) return;
+    navigateTo("notes");
+    fetchNotes(q);
+  }, 500));
 }
 
 
@@ -73,17 +75,13 @@ function wireEvents() {
 
   $("notif-btn").addEventListener("click", () => navigateTo("announcements"));
 
-  let notesTimer;
-  $("notes-search").addEventListener("input", () => {
-    clearTimeout(notesTimer);
-    notesTimer = setTimeout(() => fetchNotes($("notes-search").value), 350);
-  });
+  $("notes-search").addEventListener("input", debounce(() => {
+    fetchNotes($("notes-search").value);
+  }, 500));
 
-  let assignTimer;
-  $("assignments-search").addEventListener("input", () => {
-    clearTimeout(assignTimer);
-    assignTimer = setTimeout(() => fetchAssignments($("assignments-search").value), 350);
-  });
+  $("assignments-search").addEventListener("input", debounce(() => {
+    fetchAssignments($("assignments-search").value);
+  }, 500));
 
   $("submit-confirm-btn").addEventListener("click", submitAssignment);
   $("submit-cancel-btn").addEventListener("click",  closeSubmitModal);
