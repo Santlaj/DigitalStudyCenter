@@ -443,8 +443,9 @@ const attendance = {
     return apiRequest("GET", "/attendance/student");
   },
 
-  async sessions() {
-    return apiRequest("GET", "/attendance/sessions");
+  async sessions(month = null) {
+    const q = month ? `?month=${encodeURIComponent(month)}` : "";
+    return apiRequest("GET", `/attendance/sessions${q}`);
   },
 
   async saveSession(data) {

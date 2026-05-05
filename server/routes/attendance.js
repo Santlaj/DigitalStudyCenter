@@ -103,11 +103,26 @@ router.get("/student", authenticate, async (req, res) => {
  */
 router.get("/sessions", authenticate, requireRole("teacher"), async (req, res) => {
   try {
-    const { data: sessions, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from("attendance_sessions")
       .select("*")
-      .order("date", { ascending: false })
-      .limit(50);
+      .order("date", { ascending: false });
+
+    if (req.query.month) {
+      const m = parseInt(req.query.month, 10);
+      if (m >= 1 && m <= 12) {
+        const year = new Date().getFullYear();
+        const startDate = `${year}-${m.toString().padStart(2, "0")}-01`;
+        const nextMonth = m === 12 ? 1 : m + 1;
+        const nextYear = m === 12 ? year + 1 : year;
+        const endDate = `${nextYear}-${nextMonth.toString().padStart(2, "0")}-01`;
+        
+        query = query.gte("date", startDate).lt("date", endDate);
+      }
+    }
+
+    const { data: sessions, error } = await query;
+
 
     if (error) throw error;
     if (!sessions || !sessions.length) {

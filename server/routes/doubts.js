@@ -32,6 +32,26 @@ router.get("/", authenticate, async (req, res) => {
 
       const { data: doubts, error } = await q;
       if (error) throw error;
+      
+      if (doubts && doubts.length > 0) {
+        const studentIds = [...new Set(doubts.map(d => d.student_id))];
+        const { data: profiles } = await supabaseAdmin
+          .from("profiles")
+          .select("id, class")
+          .in("id", studentIds);
+          
+        const classMap = {};
+        if (profiles) {
+          profiles.forEach(p => { classMap[p.id] = p.class; });
+        }
+        
+        doubts.forEach(d => {
+          if (classMap[d.student_id]) {
+            d.student_class = classMap[d.student_id];
+          }
+        });
+      }
+      
       return doubts || [];
     }, 60);
 

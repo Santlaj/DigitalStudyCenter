@@ -170,17 +170,19 @@ export async function openAttDetailModal(sessionId, sessionDate, subjectName) {
 
 export async function loadAttendanceHistory() {
   const tbody = $("att-history-tbody");
+  const monthFilter = $("att-month-filter");
 
-  // Cache-first: skip API call if already loaded
-  if (state.attendanceLoaded && state.attendanceSessions.length >= 0) {
-    renderAttHistory(tbody, state.attendanceSessions);
-    return;
+  if (monthFilter && !monthFilter.dataset.initialized) {
+    const currentMonth = new Date().getMonth() + 1;
+    monthFilter.value = currentMonth;
+    monthFilter.dataset.initialized = "true";
   }
 
+  const selectedMonth = monthFilter ? monthFilter.value : null;
   tbody.innerHTML = tableSkeleton(5, 7);
 
   try {
-    const { sessions } = await attendance.sessions();
+    const { sessions } = await attendance.sessions(selectedMonth);
     state.attendanceSessions = sessions || [];
     state.attendanceLoaded = true;
     renderAttHistory(tbody, state.attendanceSessions);
@@ -197,7 +199,7 @@ function renderAttHistory(tbody, sessions) {
   if (!sessions?.length) {
     tbody.innerHTML =
       `<tr>
-        <td colspan="7">No records yet.</td>
+        <td colspan="7" class="table-empty">No records found for this month.</td>
      </tr>`;
     return;
   }

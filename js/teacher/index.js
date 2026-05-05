@@ -148,6 +148,9 @@ function wireEvents() {
   $("att-load-btn").addEventListener("click", loadStudentsForAttendance);
   $("att-save-btn").addEventListener("click", saveAttendance);
   $("att-refresh-history").addEventListener("click", loadAttendanceHistory);
+  if ($("att-month-filter")) {
+    $("att-month-filter").addEventListener("change", loadAttendanceHistory);
+  }
   $("att-mark-all-present").addEventListener("click", () => markAll("present"));
   $("att-mark-all-absent").addEventListener("click",  () => markAll("absent"));
   $("att-detail-close").addEventListener("click",     closeAttDetailModal);

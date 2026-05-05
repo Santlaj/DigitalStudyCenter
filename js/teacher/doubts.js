@@ -65,10 +65,15 @@ export async function renderTeacherDoubts() {
     let html = '';
     allDoubts.forEach(d => {
       const statusColor = d.status === 'Resolved' ? 'var(--accent)' : '#f59e0b';
+      let formattedClass = d.student_class || '';
+      if (formattedClass) {
+        formattedClass = String(formattedClass).replace(/^class\s+/i, '').trim();
+      }
+      const classStr = formattedClass ? ` <span style="font-weight:normal;">(Class ${formattedClass})</span>` : '';
       html += `
         <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:16px; margin-bottom:12px;">
           <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:0.85rem; color:var(--text-muted);">
-            <span><strong style="color:var(--text-main);">${d.subject}</strong> • Asked by <strong style="color:var(--text-main);">${d.student_name}</strong></span>
+            <span><strong style="color:var(--text-main);">${d.subject}</strong> • Asked by <strong style="color:var(--text-main);">${d.student_name}</strong>${classStr}</span>
             <span style="color:${statusColor}; font-weight:700;">${d.status}</span>
           </div>
           <div style="font-size:1.05rem; margin-bottom:16px; color:var(--text-main);">${d.question}</div>
