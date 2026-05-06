@@ -13,7 +13,7 @@
     <img src="https://img.shields.io/badge/🌐_Live-digitalstudycenter.in-4f46e5?style=for-the-badge" alt="Live Site" />
   </a>
   &nbsp;
-  <img src="https://img.shields.io/badge/Version-1.0.0-10b981?style=for-the-badge" alt="Version" />
+  <img src="https://img.shields.io/badge/Version-1.1.0-10b981?style=for-the-badge" alt="Version" />
   &nbsp;
   <img src="https://img.shields.io/badge/License-Proprietary-ef4444?style=for-the-badge" alt="License" />
 </p>
@@ -31,7 +31,7 @@
 
 ## ✨ Overview
 
-**DigitalStudyCenter** is a comprehensive academic management platform designed for coaching centers and educational institutions. It provides role-based dashboards for **Students** and **Teachers** with real-time data synchronization, secure authentication, and a beautiful responsive UI.
+**DigitalStudyCenter** is a comprehensive academic management platform designed for coaching centers and educational institutions. It provides role-based dashboards for **Students** and **Teachers** with real-time data synchronization, robust authentication, and a beautiful responsive UI.
 
 > 🎯 Built as a freelance project — designed, developed, and deployed end-to-end by **Santlaj Kumar Mehta**.
 
@@ -43,12 +43,12 @@
 
 | Feature | Description |
 |---|---|
-| **Dashboard** | Personalized stats — attendance %, upcoming deadlines, fee status, course overview |
+| **Dashboard** | Personalized stats — attendance %, upcoming deadlines, fee status |
 | **Notes** | Browse & download PDF study materials uploaded by teachers |
 | **Assignments** | View assignments with countdown timers, submit files before deadline |
 | **Attendance** | Interactive ring charts, subject-wise breakdown, session timeline |
 | **Fees** | Current payment status, month-by-month fee history with receipts |
-| **Courses** | Visual course cards with teacher info and material counts |
+| **Doubts** | Ask questions to teachers and view replies in a clean, chat-like interface |
 | **Announcements** | Real-time announcements feed from teachers |
 | **Profile** | View and update personal information |
 
@@ -60,9 +60,10 @@
 | **Upload Notes** | Drag-and-drop PDF upload with progress bar, class targeting |
 | **My Notes** | Manage uploaded notes — search, view download counts, delete |
 | **Assignments** | Create assignments with deadlines, view student submissions |
-| **Students** | Full student roster — add students, toggle fees status, activate/deactivate |
+| **Students** | Full roster — manage student accounts, toggle fees, and control access levels |
 | **Analytics** | Interactive Chart.js visualizations — downloads, activity, submissions |
-| **Attendance** | Mark attendance with toggle switches, summary bars, session history |
+| **Attendance** | Mark attendance efficiently with toggle switches and visual indicators |
+| **Doubts** | Reply to student questions with organized class context |
 | **Announcements** | Post class-targeted announcements to student feeds |
 | **Profile** | Update teacher profile, subject, and bio |
 
@@ -70,13 +71,11 @@
 
 | Feature | Description |
 |---|---|
-| **JWT Auth** | Secure token-based authentication via Supabase Auth |
-| **Token Refresh** | Automatic access token renewal with deduplication |
+| **Multi-Factor Auth** | Secure onboarding and dual-layer authentication flows |
+| **Session Management** | Robust token handling with strict lifecycle controls |
 | **Role-Based Access** | Separate student, teacher, and admin roles with route guards |
-| **Rate Limiting** | Global, auth, and upload rate limiters to prevent abuse |
-| **Input Validation** | Express-validator on all API endpoints |
-| **Security Headers** | Helmet.js for HTTP security headers |
-| **CORS** | Whitelist-based origin validation |
+| **Rate Limiting** | Global and route-specific limiters to ensure service stability |
+| **Data Protection** | Comprehensive input validation, sanitization, and origin validation |
 
 ---
 
@@ -99,56 +98,15 @@ DigitalStudyCenter/
 │   ├── api.js                     # Centralized API client + auth
 │   ├── script.js                  # Login page logic
 │   │
-│   ├── 📁 shared/
-│   │   └── helpers.js             # DOM utilities, formatters, escapeHtml
-│   │
-│   ├── 📁 student/                # Student portal modules
-│   │   ├── index.js               # Entry point & navigation
-│   │   ├── boot.js                # Auth guard & profile init
-│   │   ├── state.js               # Centralized state management
-│   │   ├── dashboard.js           # Dashboard stats & recent items
-│   │   ├── notes.js               # Notes table & downloads
-│   │   ├── assignments.js         # Assignment list & submissions
-│   │   ├── attendance.js          # Attendance visualization
-│   │   ├── fees.js                # Fee status & history
-│   │   ├── courses.js             # Course cards
-│   │   ├── announcements.js       # Announcements feed
-│   │   ├── profile.js             # Profile management
-│   │   └── chart.js               # Chart initialization
-│   │
-│   └── 📁 teacher/                # Teacher portal modules
-│       ├── index.js               # Entry point & navigation
-│       ├── boot.js                # Auth guard & profile init
-│       ├── state.js               # Centralized state management
-│       ├── dashboard.js           # Dashboard stats
-│       ├── notes.js               # Upload & manage notes
-│       ├── assignments.js         # Create & manage assignments
-│       ├── students.js            # Student management
-│       ├── analytics.js           # Chart.js analytics
-│       ├── attendance.js          # Attendance marking
-│       ├── announcements.js       # Post announcements
-│       └── profile.js             # Profile management
+│   ├── 📁 shared/                 # Shared utilities and formatters
+│   ├── 📁 student/                # Student portal modules (notes, assignments, doubts, etc.)
+│   └── 📁 teacher/                # Teacher portal modules (analytics, attendance, students, etc.)
 │
 └── 📁 server/                     # Express.js REST API
     ├── server.js                  # App entry point
-    ├── 📁 lib/
-    │   ├── supabase.js            # Supabase client (admin + per-request)
-    │   └── cache.js               # In-memory cache (node-cache)
-    ├── 📁 middleware/
-    │   ├── auth.js                # JWT authentication + role guard
-    │   ├── rateLimiter.js         # Rate limiting config
-    │   └── validate.js            # Input validation schemas
-    └── 📁 routes/
-        ├── auth.js                # Login, logout, forgot password, OTP
-        ├── dashboard.js           # Aggregated dashboard summary
-        ├── notes.js               # CRUD notes + file upload
-        ├── assignments.js         # CRUD assignments + submissions
-        ├── users.js               # Student management + profiles
-        ├── attendance.js          # Attendance sessions + records
-        ├── fees.js                # Fee status management
-        ├── courses.js             # Course listings
-        ├── announcements.js       # Announcement CRUD
-        └── analytics.js           # Teacher analytics data
+    ├── 📁 lib/                    # Core library integrations
+    ├── 📁 middleware/             # Request handlers and guards
+    └── 📁 routes/                 # API endpoint controllers
 ```
 
 ---
@@ -163,8 +121,8 @@ DigitalStudyCenter/
 | Technology | Purpose |
 |---|---|
 | **HTML5** | Semantic page structure |
-| **CSS3** | Custom responsive styling, dark mode, animations |
-| **JavaScript** | ES Modules, no framework dependency |
+| **CSS3** | Custom responsive styling, dark mode |
+| **JavaScript** | ES Modules, SPA Routing, no framework dependency |
 | **Chart.js** | Interactive analytics charts |
 
 </td>
@@ -175,9 +133,8 @@ DigitalStudyCenter/
 |---|---|
 | **Node.js** | Runtime environment |
 | **Express.js** | REST API framework |
-| **Supabase** | PostgreSQL + Auth + Storage |
-| **Helmet** | Security headers |
-| **node-cache** | In-memory caching |
+| **Supabase** | Managed Database + Authentication |
+| **node-cache** | In-memory API caching |
 
 </td>
 </tr>
@@ -191,8 +148,7 @@ DigitalStudyCenter/
 |---|---|---|
 | **Frontend** | GitHub Pages | [digitalstudycenter.in](https://digitalstudycenter.in) |
 | **Backend API** | Render | Private |
-| **Database** | Supabase (PostgreSQL) | Private |
-| **File Storage** | Supabase Storage | Private |
+| **Database** | Supabase | Private |
 | **Domain** | Custom | `digitalstudycenter.in` |
 
 ---
@@ -202,22 +158,21 @@ DigitalStudyCenter/
 - 🌗 **Dark Mode** — Full dark theme toggle with localStorage persistence
 - 📱 **Responsive** — Collapsible sidebar, mobile-optimized layouts
 - ✨ **Micro-animations** — Smooth transitions, animated counters, loading states
-- 🎯 **Cache-first Strategy** — Instant re-renders from cached state on navigation
-- 🔔 **Toast Notifications** — Non-intrusive success/error feedback
+- 💬 **Conversational UI** — Clean, human-readable dialogue interface for doubts
+- 🔔 **Feedback Systems** — Non-intrusive toast notifications and load overlays
 - 📊 **Interactive Charts** — Line, bar, and doughnut charts for analytics
-- 📎 **Drag & Drop** — File upload with drag-and-drop zone
-- 🔒 **Auth Guard** — Spinner overlay during session verification
+- 📎 **Drag & Drop** — Intuitive file upload zones
 
 ---
 
 ## ⚡ Performance Optimizations
 
-- **Dashboard Summary API** — Single endpoint returns all dashboard data to reduce request count
-- **In-memory caching** — Server-side caching with `node-cache` (60s TTL)
-- **Client-side state caching** — Loaded sections re-render from memory, skip API calls
-- **Pagination** — "Load More" pattern for large datasets (20 items per page)
-- **Token deduplication** — Concurrent refresh token requests are coalesced into one
-- **Visibility API** — Background sync pauses when tab is hidden, resumes on focus
+- **Hash-based Routing** — Enables seamless browser history and deep linking in SPA
+- **Dashboard Summary API** — Single endpoint returns all dashboard data to minimize requests
+- **In-memory caching** — Server-side caching for frequent read-heavy operations
+- **Client-side state caching** — Loaded sections re-render from memory, skipping redundant API calls
+- **Pagination** — "Load More" pattern for efficient handling of large datasets
+- **Smart Sync** — Background operations pause via Visibility API when tab is hidden
 
 ---
 
